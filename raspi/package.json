@@ -1,0 +1,24 @@
+{
+  "name": "raspi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PymZoR/eurobot-2015"
+  },
+  "author": "Axel Mousset Aurélien Labate",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PymZoR/eurobot-2015/issues"
+  },
+  "homepage": "https://github.com/PymZoR/eurobot-2015",
+  "dependencies": {
+    "nconf": "^0.7.1",
+    "serialport": "^1.4.6",
+    "winston": "^0.8.3"
+  }
+}
