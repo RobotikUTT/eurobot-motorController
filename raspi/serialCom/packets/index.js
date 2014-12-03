@@ -2,6 +2,7 @@
 
 var fs     = require('fs');
 var path   = require('path');;
+var constants = require('./constants');
 
 
 var packets = {};
@@ -9,7 +10,8 @@ var packets = {};
 fs
     .readdirSync(__dirname)
     .filter(function(fileName) {
-        return (fileName.indexOf('.') !== 0) && (fileName !== 'index.js');
+        return (fileName.indexOf('.') !== 0) && (fileName !== 'index.js') 
+        && (fileName !== 'constants.js');
     })
     .forEach(function(fileName) {
         fileName = fileName.split('.js')[0];
@@ -17,20 +19,17 @@ fs
     });
 
 
-function createPacket(packetNumber) {
-    switch (packetNumber) {
-        case 0:
-            //testPacket
-            console.log('chaucheffoune');
-            return new packets.TestPacket();
-            break;
+/**
+ * @brief Create a new packet with a given packetNumber
+ * 
+ * @param  packetNumber packet number
+ */
 
-        default:
-            console.log('ici');
-            throw new Error();
-            break;
-    }
+function createPacket(packetNumber) {
+    return new packets[constants.packetNumber[packetNumber]]();    
 }
+
+
 module.exports = {
     createPacket: createPacket
 };

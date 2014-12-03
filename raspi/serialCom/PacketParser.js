@@ -4,8 +4,6 @@ var log = require('../libs').logger(module);
 var packets = require('./packets');
 
 
-var MAX_PACKETSIZE = 21;
-
 var StateEnum = {
     SIGN: 0,
     COMMAND: 1,
