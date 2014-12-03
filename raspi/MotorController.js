@@ -5,6 +5,16 @@ var log          = require('./libs').logger(module);
 var PacketParser = require('./serialCom/PacketParser');
 
 
+/**
+ * @brief constructor
+ * @details object interfacing the motor controller with serial.
+ * Provide events of packet fully-recieved and packet-forging function.
+ * 
+ * @param address serial address
+ * @param baudrate connection speed
+ * @param callback callback called once the connection is opened
+ */
+
 var MotorController = function(address, baudrate, callback) {
     //Type checking
     if (!typeof(address) === 'string') throw new TypeError('address must be a string');
@@ -57,13 +67,6 @@ var MotorController = function(address, baudrate, callback) {
 
     });
 };
-
-
-//Methods
-MotorController.prototype.readByte = function() {
-    
-};
-
 
 
 module.exports = MotorController;
