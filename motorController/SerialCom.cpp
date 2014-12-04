@@ -62,6 +62,8 @@ void SerialCom::send()
 
         //Send
         SERIALCOM_SERIAL.write(buffer, 5 + this->sendPos);
+
+        free(buffer);
     }
 
     clearSendBuffer();
