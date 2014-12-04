@@ -24,16 +24,12 @@ void SerialCom::setSendCommand(sbyte commandID)
         this->sendCommandID = commandID;
 }
 
-void SerialCom::setSendPriority(bool priority)
-{
-    this->sendPriority = priority;
-}
-
 void SerialCom::writeByte(byte data)
 {
     if(this->sendPos < SERIALCOM_SENDBUFFER)
     {
         this->sendBuffer[this->sendPos] = data;
+        this->sendPos++;
     }
 }
 
@@ -41,7 +37,7 @@ void SerialCom::send()
 {
     if(sendCommandID >= 0)
     {        
-        byte tmp;
+        byte xorSum;
         byte* buffer;
         buffer = (byte*)malloc(5 + this->sendPos);
 
@@ -51,27 +47,21 @@ void SerialCom::send()
         buffer[2] = 0xff;
 
         //Add Priority and command ID
-        tmp = 0;
-        if(this->sendPriority)
-            tmp = 0b1110000;
-        tmp |= this->sendCommandID;
-        buffer[3] = tmp;
+        buffer[3] = this->sendCommandID;
 
         //Add data and calculate xor
+        xorSum = this->sendCommandID;
+
         for (byte i = 0; i < this->sendPos; ++i)
         {
             buffer[4 + i] = this->sendBuffer[i];
-            tmp ^= this->sendBuffer[i];
+            xorSum ^= this->sendBuffer[i];
         }
-        buffer[this->sendPos + 4] = tmp;
+
+        buffer[this->sendPos + 4] = xorSum;
 
         //Send
         SERIALCOM_SERIAL.write(buffer, 5 + this->sendPos);
-        if (this->sendPriority)
-        {
-            SERIALCOM_SERIAL.write(buffer, 5 + this->sendPos);
-            SERIALCOM_SERIAL.write(buffer, 5 + this->sendPos);
-        }
     }
 
     clearSendBuffer();

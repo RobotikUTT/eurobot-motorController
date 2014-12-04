@@ -103,8 +103,7 @@ void loop()
 //     {
 //         //TODO PID
 //     }
-    serialCom->setSendCommand(8);
-    serialCom->setSendPriority(true);
-    serialCom->writeByte(0x42);
+    serialCom->setSendCommand(0);
+    serialCom->writeByte(42);
     serialCom->send();
 }

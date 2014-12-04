@@ -56,14 +56,6 @@ class SerialCom
         void setSendCommand(sbyte commandID);
 
         /**
-        * @brief Set priority
-        *
-        * @param priority   If true the command will be sended three times
-        */
-        void setSendPriority(bool priority = true);
-
-
-        /**
         * @brief Add byte to the send buffer
         *
         * @param data   The byte (unsigned) added to the buffer
