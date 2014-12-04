@@ -74,11 +74,6 @@ class SerialCom
         sbyte sendCommandID;
 
         /**
-        * @brief Priority that will be used when send() happend
-        */
-        sbyte sendPriority;
-
-        /**
         * @brief Send buffer
         */
         byte sendBuffer[SERIALCOM_SENDBUFFER];
