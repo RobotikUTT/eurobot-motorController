@@ -28,16 +28,25 @@ Encoder::~Encoder() {}
 
 
 /**
- * @brief Return tick number since the last call
+ * @brief Return tick number 
  * @return tick number
  */
 
 long Encoder::getTicks()
 {
     long tickNumber = this->tickNumber;
-    this->tickNumber = 0;
 
     return tickNumber;
+}
+
+
+/**
+ * @brief Reset tick number
+ */
+
+void Encoder::resetTicks()
+{
+    this->tickNuber = 0;
 }
 
 

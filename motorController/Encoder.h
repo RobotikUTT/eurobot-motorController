@@ -11,6 +11,7 @@ class Encoder
         ~Encoder();
 
         long getTicks();
+        void resetTicks();
         void listenToTicks();
 
 
