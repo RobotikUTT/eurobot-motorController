@@ -24,16 +24,18 @@ var MotorController = function(address, baudrate, callback) {
 
     //Default arguments
     if (typeof(address) === 'undefined' || address === null) address = '/dev/ttyACM0';
+    if (typeof(baudrate) === 'undefined' || baudrate === null) baudrate = '9600';
 
 
     //Attributes
     this.address = address;
     this.baudrate = baudrate;
+    var parser = new PacketParser();
 
     this.serialPort = new SerialPort(this.address, {
         baudrate: this.baudrate,
         parser: function(emitter, buffer) {
-            new PacketParser().parse(emitter, buffer);
+            parser.parse(emitter, buffer);
         }
     });
 
@@ -47,7 +49,7 @@ var MotorController = function(address, baudrate, callback) {
         log.info('[OK] Serial connection is open on ' + this.address);
 
         this.serialPort.on('data', function(data){
-            log.debug('[RCV] ' + data);
+            log.info(data);
         });
 
         this.serialPort.on('error', function(error) {
@@ -66,6 +68,18 @@ var MotorController = function(address, baudrate, callback) {
         that.onOpen(error);
 
     });
+};
+
+
+/**
+ * @brief Send a packet to the controller
+ * 
+ * @param packet Packet object
+ * @param callback callback function
+ */
+
+MotorController.prototype.sendPacket = function(packet, callback) {
+    this.serialPort.write(packet.getBuffer(), callback);
 };
 
 

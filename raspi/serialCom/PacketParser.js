@@ -53,30 +53,24 @@ PacketParser.prototype.flushBuffer = function() {
  */
 
 PacketParser.prototype.parse = function(emitter, buffer) {
-    log.debug('RECV: ');
-    console.log(buffer);
+    // log.debug('RECV: ');
+    // console.log(buffer);
 
     switch(this.state) {
 
         case StateEnum.SIGN:
-            log.debug('Search packet signature..');
             //We are waiting for the three-byte signature : 3*0xFF
             
             //Not enough bytes. We stock them into this.buffer
             if (this.buffer.length + buffer.length < 3) {
-                log.debug('Not enough bytes');
-                this.buffer = Buffer.concat([this.buffer, buffer], 2);
+                this.buffer = Buffer.concat([buffer, this.buffer]);
                 return;
             }
 
             //Already something in buffer, concat them
             if (this.buffer.length != 0) {
-                log.debug('Buffer not empty :');
-                console.log(this.buffer);
-
-                buffer = Buffer.concat([this.buffer, buffer], 2);
-                this.flush();
-                return;
+                buffer = Buffer.concat([this.buffer, buffer]);
+                this.flushBuffer();
             }
 
             for (var i = 0; i < buffer.length; i++) {
@@ -87,11 +81,6 @@ PacketParser.prototype.parse = function(emitter, buffer) {
 
                     //Change state
                     this.state = StateEnum.COMMAND;
-                    
-                    if (i != 0) {
-                        log.debug('Drop data: ');
-                        console.log(buffer.slice(0, i));
-                    }
 
                     //If there's more data, slice the signature and parse the remaining
                     if (buffer.length-1 > i+2) {
@@ -108,15 +97,13 @@ PacketParser.prototype.parse = function(emitter, buffer) {
 
         case StateEnum.COMMAND:
             //Analyze command byte
-            log.debug('Search packet number..');
-            
             var packetNumber = buffer[0];
 
             try {
-               this.packet = packets.createPacket(packetNumber);
+                this.packet = packets.createPacket(packetNumber);
+                log.debug('PacketNumber: ' + packetNumber);
             }
             catch (e) {
-                console.log(e);
                 log.error('Unknow packet number: ' + packetNumber + '. Drop packet');
                 this.dropPacket();
                 return;    
@@ -138,13 +125,8 @@ PacketParser.prototype.parse = function(emitter, buffer) {
 
         case StateEnum.ARGUMENTS:
             //We search the packet arguments
-            log.debug('Search arguments...');
-
             if (this.buffer.length != 0) {
                 //Already something in buffer, concat them
-                log.debug('Buffer not empty :');
-                console.log(this.buffer);
-
                 buffer = Buffer.concat([this.buffer, buffer], 2);
                 this.flush();
                 return;
@@ -154,7 +136,6 @@ PacketParser.prototype.parse = function(emitter, buffer) {
 
             if (buffer.length < argLength)
             {
-                log.debug('Not enough bytes');
                 //Not enough bytes. Store the buffer
                 this.buffer = buffer;
                 return;
@@ -167,7 +148,7 @@ PacketParser.prototype.parse = function(emitter, buffer) {
 
             //Set arguments
             log.debug('Arguments found:');
-            console.log(buffer.slice(0, argLength));
+            log.debug(buffer.slice(0, argLength)[0]);
             this.packet.setArguments(buffer.slice(0, argLength));
 
             //Change state
@@ -187,12 +168,8 @@ PacketParser.prototype.parse = function(emitter, buffer) {
 
             if (this.buffer.length != 0) {
                 //Already something in buffer, concat them
-                log.debug('Buffer not empty :');
-                console.log(this.buffer);
-
                 buffer = Buffer.concat([this.buffer, buffer], 2);
                 this.flush();
-                return;
             }
 
 
@@ -203,6 +180,7 @@ PacketParser.prototype.parse = function(emitter, buffer) {
             else {
                 log.error("Packet with wrong xorSum dropped");
                 console.log(this.packet);
+                console.log(buffer[0]);
             }
 
             //Reset packet

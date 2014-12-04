@@ -34,4 +34,27 @@ TestPacket.prototype.setArguments = function(argList) {
 };
 
 
+/**
+ * @brief Create a buffer representing the packet data
+ * @return buffer representing the packet data
+ */
+
+TestPacket.prototype.getBuffer = function() {
+    var buffer = new Buffer(this.getArgLength() + 5);
+   
+    buffer.writeUInt8(0xFF, 0);
+    buffer.writeUInt8(0xFF, 1);
+    buffer.writeUInt8(0xFF, 2);
+    buffer.writeUInt8(this.packetNumber, 3)
+    buffer.writeUInt8(this.number, 4);
+
+    var xorSum = this.packetNumber;
+    xorSum ^= this.number;
+
+    buffer.writeUInt8(xorSum, 5);
+
+    return buffer;
+};
+
+
 module.exports = TestPacket;
