@@ -1,7 +1,5 @@
 'use strict';
 
-var log = require('../../libs').logger(module);
-
 
 /**
  * @brief constructor

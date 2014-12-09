@@ -1,5 +1,9 @@
 {
     "log": {
-        "level": "info"
+        "colorize": true,
+        "level": "debug"
+    },
+    "pannel": {
+        "port": 8081
     }
 }

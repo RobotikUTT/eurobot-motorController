@@ -19,6 +19,7 @@
   "dependencies": {
     "nconf": "^0.7.1",
     "serialport": "^1.4.6",
+    "socket.io": "^1.2.1",
     "winston": "^0.8.3"
   }
 }

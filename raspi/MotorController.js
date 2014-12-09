@@ -1,7 +1,7 @@
 'use strict';
 
 var SerialPort   = require('serialport').SerialPort;
-var log          = require('./libs').logger(module);
+var log          = require('./libs').logger.getLogger(module);
 var PacketParser = require('./serialCom/PacketParser');
 
 

@@ -1,10 +1,14 @@
 'use strict';
 
 var MotorController = require('./MotorController');
-var serialPort = require('serialport');
-var readline = require('readline');
-var log = require('./libs').logger(module);
-var config = require('./libs').config;
+var controlPannel   = require('./controlPannel/server.js');
+var serialPort      = require('serialport');
+var readline        = require('readline');
+var logger          = require('./libs').logger;
+var config          = require('./libs').config;
+
+logger.initIO(controlPannel);
+var log = logger.getLogger(module);
 
 
 if (config.get('port')) {

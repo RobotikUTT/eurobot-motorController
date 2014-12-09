@@ -1,6 +1,6 @@
 'use strict';
 
-var log = require('../libs').logger(module);
+var log = require('../libs').logger.getLogger(module);
 var packets = require('./packets');
 
 
