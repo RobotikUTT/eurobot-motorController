@@ -46,7 +46,7 @@ long Encoder::getTicks()
 
 void Encoder::resetTicks()
 {
-    this->tickNuber = 0;
+    this->tickNumber = 0;
 }
 
 
