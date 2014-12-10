@@ -11,8 +11,10 @@ logger.initIO(controlPannel);
 var log = logger.getLogger(module);
 
 
+var motorController = null;
+
 if (config.get('port')) {
-    var motorController = new MotorController(config.get('port'));
+    motorController = new MotorController(config.get('port'));
 }
 else {
     serialPort.list(function (err, ports) {
@@ -25,7 +27,7 @@ else {
             log.error('No open ports');
         }
         else if (ports.length === 1) {
-            var motorController = new MotorController(ports[0].comName);
+            motorController = new MotorController(ports[0].comName);
         }
         else {
             for (var i = 0; i < ports.length; i++) {
@@ -40,8 +42,9 @@ else {
             log.info('Choose a com port: ');
 
             rl.question('', function(answer) {
-                var motorController = new MotorController(ports[parseInt(answer)].comName);
+                motorController = new MotorController(ports[parseInt(answer)].comName);
             });
         }
     });    
 }
+

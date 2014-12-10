@@ -19,7 +19,7 @@ util.inherits(WebLogger, winston.Transport);
 WebLogger.prototype.log = function (level, msg, meta, callback) {
     if (io)
     {
-        io.emit('log', { level: level, msg: msg });
+        io.emit('log', { level: level, msg: msg, meta: meta });
         callback(null, true);
     }
 };

@@ -5,9 +5,9 @@
  * @brief constructor
  */
 
-var TestPacket = function() {
+var TestPacket = function(number) {
     this.packetNumber = 0;
-    this.number = null;
+    this.number = number;
 }
 
 

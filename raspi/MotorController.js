@@ -3,6 +3,7 @@
 var SerialPort   = require('serialport').SerialPort;
 var log          = require('./libs').logger.getLogger(module);
 var PacketParser = require('./serialCom/PacketParser');
+var packets      = require('./serialCom/packets');
 
 
 /**
@@ -49,11 +50,11 @@ var MotorController = function(address, baudrate, callback) {
         log.info('[OK] Serial connection is open on ' + this.address);
 
         this.serialPort.on('data', function(data){
-            log.info(data);
+            log.debug('[RECV] ', data);
         });
 
         this.serialPort.on('error', function(error) {
-            log.error('[ERR] ' + error);
+            log.error('[ERR] ', error);
         });
 
         this.serialPort.on('close', function() {
@@ -82,5 +83,12 @@ MotorController.prototype.sendPacket = function(packet, callback) {
     this.serialPort.write(packet.getBuffer(), callback);
 };
 
+
+MotorController.prototype.testCom = function(arg, callback) {
+    log.debug('[SEND] testPacket, arg: ' + arg);
+
+    var testPacket = new packets.TestPacket(arg);
+    this.sendPacket(testPacket, callback);
+};
 
 module.exports = MotorController;

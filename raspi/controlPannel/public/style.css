@@ -15,9 +15,11 @@
 }
 
 .warn {
+    font-weight: bold;
     color: #FFAF00;
 }
 
 .error {
+    font-weight: bold;
     color: #FF0000;
 }

@@ -53,9 +53,6 @@ PacketParser.prototype.flushBuffer = function() {
  */
 
 PacketParser.prototype.parse = function(emitter, buffer) {
-    // log.debug('RECV: ');
-    // console.log(buffer);
-
     switch(this.state) {
 
         case StateEnum.SIGN:
@@ -76,8 +73,6 @@ PacketParser.prototype.parse = function(emitter, buffer) {
             for (var i = 0; i < buffer.length; i++) {
                 if (buffer[i] === buffer[i+1] && buffer[i+1] === buffer[i+2] 
                     && buffer[i] === 0xFF) {
-                    //Signature found
-                    log.debug('Signature found');
 
                     //Change state
                     this.state = StateEnum.COMMAND;
@@ -101,7 +96,6 @@ PacketParser.prototype.parse = function(emitter, buffer) {
 
             try {
                 this.packet = packets.createPacket(packetNumber);
-                log.debug('PacketNumber: ' + packetNumber);
             }
             catch (e) {
                 log.error('Unknow packet number: ' + packetNumber + '. Drop packet');
@@ -147,8 +141,6 @@ PacketParser.prototype.parse = function(emitter, buffer) {
             }
 
             //Set arguments
-            log.debug('Arguments found:');
-            log.debug(buffer.slice(0, argLength)[0]);
             this.packet.setArguments(buffer.slice(0, argLength));
 
             //Change state
@@ -174,13 +166,10 @@ PacketParser.prototype.parse = function(emitter, buffer) {
 
 
             if (this.xorSum == buffer[0]) {
-                console.log("Valid packet");
-                emitter.emit("data", this.packet)
+                emitter.emit('data', this.packet)
             }
             else {
-                log.error("Packet with wrong xorSum dropped");
-                console.log(this.packet);
-                console.log(buffer[0]);
+                log.error('Packet with wrong xorSum dropped', this.packet);
             }
 
             //Reset packet
