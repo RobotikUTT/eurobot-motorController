@@ -46,11 +46,7 @@ const byte TICK_PER_SPIN   = 500;
 
 // int kp = 1000;
 // int ki = 0;
-// int kd = 0; 
-
-
-SerialCom* serialCom;
-
+// int kd = 0;
 
 // void leftTicks()
 // {
@@ -63,6 +59,7 @@ SerialCom* serialCom;
 //     rightEncoder->listenToTicks();
 // }
 
+SerialCom* serialCom;
 
 void setup()
 {
@@ -89,13 +86,27 @@ void setup()
 //         Serial.println("Setup finished\n\n");
 //     #endif
 
-    serialCom = new SerialCom();
+
+
+
+	//Init serial port
+	serialCom = new SerialCom();
+
+    //init ping pong
+    serialCom->setSendCommand(SerialComCmd::CMD_TEST);
+    serialCom->writeUInt8(0);
+    serialCom->send();
 }
 
 
 
 void loop()
 {
+	//Read serial packages
+	serialCom->doReadJob();
+
+
+
 //     millis_ = millis();
 //     timeElapsed = millis_ - lastMillis;
 
@@ -103,7 +114,8 @@ void loop()
 //     {
 //         //TODO PID
 //     }
-    serialCom->setSendCommand(0);
-    serialCom->writeByte(42);
-    serialCom->send();
+
+
+
+
 }
