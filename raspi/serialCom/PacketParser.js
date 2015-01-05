@@ -166,7 +166,7 @@ PacketParser.prototype.parse = function(emitter, buffer) {
 
 
             if (this.xorSum == buffer[0]) {
-                emitter.emit('data', this.packet)
+                emitter.emit('data', this.packet);
             }
             else {
                 log.error('Packet with wrong xorSum dropped', this.packet);

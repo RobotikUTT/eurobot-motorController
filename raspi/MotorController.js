@@ -28,31 +28,22 @@ var MotorController = function(address, baudrate, callback) {
     if (typeof(baudrate) === 'undefined' || baudrate === null) baudrate = '9600';
 
 
-    //Attributes
-    this.address = address;
-    this.baudrate = baudrate;
     var parser = new PacketParser();
 
-    this.serialPort = new SerialPort(this.address, {
-        baudrate: this.baudrate,
+    this.serialPort = new SerialPort(address, {
+        baudrate: baudrate,
         parser: function(emitter, buffer) {
             parser.parse(emitter, buffer);
         }
     });
 
-    var that = this;
-
-    this.onOpen = function(error) {
+    var onOpen = function(error) {
         if (error) {
             log.error('[ERR] ' + error);
         }
 
-        log.info('[OK] Serial connection is open on ' + this.address);
-
-        this.serialPort.on('data', function(data){
-            log.debug('[RECV] ', data);
-        });
-
+        log.info('[OK] Serial connection is open on ' + address);
+        
         this.serialPort.on('error', function(error) {
             log.error('[ERR] ', error);
         });
@@ -65,30 +56,36 @@ var MotorController = function(address, baudrate, callback) {
     }
 
     //Event listeners
+    var self = this;
     this.serialPort.on('open', function(error) {
-        that.onOpen(error);
-
+        onOpen.call(self, error);
     });
+
+
+    /**
+     * @brief Send a packet to the controller
+     * 
+     * @param packet Packet object
+     * @param callback callback function
+     */
+    this.sendPacket = function(packet, callback) {
+        this.serialPort.write(packet.getBuffer(), callback);
+    };
+
+
+    /**
+     * @brief Test the communication with the controller
+     * 
+     * @param arg number to send (Byte)
+     * @param callback callback function
+     */
+    this.testCom = function(arg, callback) {
+        var testPacket = new packets.createPacket(0);
+        testPacket.number = arg;
+
+        this.sendPacket(testPacket, callback);
+    };
 };
 
-
-/**
- * @brief Send a packet to the controller
- * 
- * @param packet Packet object
- * @param callback callback function
- */
-
-MotorController.prototype.sendPacket = function(packet, callback) {
-    this.serialPort.write(packet.getBuffer(), callback);
-};
-
-
-MotorController.prototype.testCom = function(arg, callback) {
-    log.debug('[SEND] testPacket, arg: ' + arg);
-
-    var testPacket = new packets.TestPacket(arg);
-    this.sendPacket(testPacket, callback);
-};
 
 module.exports = MotorController;

@@ -18,6 +18,7 @@
   "homepage": "https://github.com/PymZoR/eurobot-2015",
   "dependencies": {
     "nconf": "^0.7.1",
+    "node-robot": "^0.2.0",
     "serialport": "^1.4.6",
     "socket.io": "^1.2.1",
     "winston": "^0.8.3"
