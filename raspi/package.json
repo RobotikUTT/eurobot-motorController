@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/PymZoR/eurobot-2015",
   "dependencies": {
+    "bluebird": "^2.5.3",
     "nconf": "^0.7.1",
     "node-robot": "^0.2.0",
     "serialport": "^1.4.6",
