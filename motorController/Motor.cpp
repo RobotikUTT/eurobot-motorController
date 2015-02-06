@@ -62,7 +62,7 @@ void Motor::run(const int &PWM)
 void Motor::stop()
 {
     this->PWM = 0;
-    analogWrite(this->pwmPIN, PWM);
+    analogWrite(this->pwmPIN, this->PWM);
 }
 
 
