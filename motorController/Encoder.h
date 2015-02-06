@@ -7,19 +7,21 @@
 class Encoder
 {
     public:
-        Encoder(const byte &chanA, const byte &chanB, const byte &interrupt);
+        Encoder(const byte &chanA, const byte &chanB);
         ~Encoder();
 
         long getTicks();
         void resetTicks();
         void listenToTicks();
 
+        static const int TICK_PER_SPIN = 500;
+
 
     protected:
         byte chanA;
         byte chanB;
-        byte interrupt;
         long tickNumber;
+
 };
 
 #endif

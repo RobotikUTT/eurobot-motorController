@@ -9,11 +9,12 @@
  * @param interrupt interrupt PIN
  */
 
-Encoder::Encoder(const byte &chanA, const byte &chanB, const byte &interrupt)
+Encoder::Encoder(const byte &chanA, const byte &chanB)
 {
     this->chanA = chanA;
     this->chanB = chanB;
-    this->interrupt = interrupt;
+
+    this->tickNumber = 0;
 
     pinMode(chanA, INPUT);
     pinMode(chanB, INPUT);
@@ -34,9 +35,7 @@ Encoder::~Encoder() {}
 
 long Encoder::getTicks()
 {
-    long tickNumber = this->tickNumber;
-
-    return tickNumber;
+    return this->tickNumber;
 }
 
 
@@ -57,7 +56,7 @@ void Encoder::resetTicks()
 
 void Encoder::listenToTicks()
 {
-    if(digitalRead(chanB) == HIGH) 
+    if(digitalRead(this->chanB) == HIGH) 
     {
         this->tickNumber++;
     }

@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include "SerialCom.h"
 
-extern SerialCom serialCom;
+class SerialCom;
 
 class SerialComCmd
 {

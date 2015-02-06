@@ -3,7 +3,7 @@
 SerialCom::SerialCom()
 {
     //Init serial
-    SERIALCOM_SERIAL.begin(9600);
+    SERIALCOM_SERIAL.begin(115200);
 
     //init reception vars
     clearReadState();

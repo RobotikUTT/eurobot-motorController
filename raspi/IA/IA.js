@@ -6,22 +6,16 @@ var log             = require('../libs').logger.getLogger(module);
 
 var packetNames = {};
 
-for (var prop in packetNumbers) {
-    if(packetNumbers.hasOwnProperty(prop)) {
-        packetNames[packetNumbers[prop]] = parseInt(prop);
-    }
-}
-
-
 function handlePacket(packet) {
     switch (packet.packetNumber) {
 
         case packetNames.TestPacket:
             log.debug('[RCV] TestPacket. Number: ' + packet.number);
 
-            this.motorController.testCom(packet.number+1, function onFinished() {
-                log.debug('[SEND] Test packet. Number: ', packet.number+1);
-            });
+            this.motorController.testCom(packet.number+1)
+                .then(function onFinished() {
+                    log.debug('[SEND] Test packet. Number: ', packet.number+1);
+                });
             
             break;
     }

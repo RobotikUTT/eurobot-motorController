@@ -12,6 +12,7 @@ var IA              = require('./IA/IA');
 Promise.promisifyAll(readline);
 Promise.promisifyAll(serialPort);
 
+//Init logger
 logger.initIO(controlPannel);
 var log = logger.getLogger(module);
 
@@ -24,8 +25,11 @@ serialPort.listAsync()
             }
             
             if (ports.length === 1) {
-                var motorController = new MotorController(ports[0].comName);
-                return resolve(motorController);
+                var motorController = new MotorController(ports[0].comName, 115200, function() {
+                    resolve(motorController);
+                });
+
+                return;
             }
 
             //Display open ports
@@ -42,17 +46,17 @@ serialPort.listAsync()
 
             rl.questionAsync()
                 .then(function(answer) {
-                    var motorController = new MotorController(ports[parseInt(answer)].comName);
-                    resolve(motorController)
+                    var motorController = new MotorController(ports[parseInt(answer)].comName, 115200, function() {
+                        resolve(motorController);
+                    });
                 })
                 .catch(reject);
-        })
-
+        });
+    }) 
+    .catch(function(error) {
+        log.error(error);
     })
     .then(function(motorController) {
         var IA_ = new IA(motorController);
         IA_.start();
-    })
-    .catch(function(err) {
-        log.error(err);
     });

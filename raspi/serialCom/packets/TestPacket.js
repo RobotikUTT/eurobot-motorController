@@ -7,7 +7,9 @@
 
 var TestPacket = function(number) {
     this.packetNumber = 0;
-    this.number = number;
+   
+    this.argList = [];
+    this.argList[0] = number;
 }
 
 
@@ -28,7 +30,7 @@ TestPacket.prototype.getArgLength = function() {
  */
 
 TestPacket.prototype.setArguments = function(argList) {
-    this.number = argList[0];
+    thi.argList = argList;
 };
 
 

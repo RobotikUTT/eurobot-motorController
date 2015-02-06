@@ -19,17 +19,4 @@ fs
     });
 
 
-/**
- * @brief Create a new packet with a given packetNumber
- * 
- * @param  packetNumber packet number
- */
-
-function createPacket(packetNumber) {
-    return new packets[constants.packetNumber[packetNumber]]();    
-}
-
-
-module.exports = {
-    createPacket: createPacket
-};
+module.exports = packets;

@@ -39,20 +39,21 @@ var MotorController = function(address, baudrate, callback) {
 
     var onOpen = function(error) {
         if (error) {
-            log.error('[ERR] ' + error);
+            return log.error(JSON.stringify(error));
         }
 
         log.info('[OK] Serial connection is open on ' + address);
         
         this.serialPort.on('error', function(error) {
-            log.error('[ERR] ', error);
+            log.error(JSON.stringify(error));
         });
 
         this.serialPort.on('close', function() {
-            log.info('[INFO] Serial connection is now closed');
+            log.info('Serial connection is now closed');
         });
 
-        if (callback) callback();
+        if (callback) 
+            callback();
     }
 
     //Event listeners
@@ -60,31 +61,31 @@ var MotorController = function(address, baudrate, callback) {
     this.serialPort.on('open', function(error) {
         onOpen.call(self, error);
     });
+};
 
 
-    /**
-     * @brief Send a packet to the controller
-     * 
-     * @param packet Packet object
-     * @param callback callback function
-     */
-    this.sendPacket = function(packet, callback) {
-        this.serialPort.write(packet.getBuffer(), callback);
-    };
+/**
+ * @brief Send a packet to the controller
+ * 
+ * @param packet Packet object
+ * @return A promise
+ */
+MotorController.prototype.sendPacket = function(packet) {
+    return this.serialPort.writeAsync(packet.getBuffer());
+};
 
 
-    /**
-     * @brief Test the communication with the controller
-     * 
-     * @param arg number to send (Byte)
-     * @param callback callback function
-     */
-    this.testCom = function(arg, callback) {
-        var testPacket = new packets.createPacket(0);
-        testPacket.number = arg;
+/**
+ * @brief Test the communication with the controller
+ * 
+ * @param arg number to send (Byte)
+ * @return A promise
+ */
+MotorController.prototype.testCom = function(arg) {
+    var testPacket = new packets.TestPacket;
+    testPacket.number = arg;
 
-        this.sendPacket(testPacket, callback);
-    };
+    return this.sendPacket(testPacket);
 };
 
 

@@ -38,14 +38,17 @@ Motor::~Motor() {};
 void Motor::run(const int &PWM)
 {
     this->PWM = abs(PWM);
+    
+    if (this->PWM > 255)
+        this->PWM = 255;
 
     if (PWM > 0)
     {
-        this->setDir(Motor::FORWARD);
+        this->setDir(0);
     }
     else
     {
-        this->setDir(Motor::BACKWARD);
+        this->setDir(1);
     }
 
     analogWrite(this->pwmPIN, PWM);

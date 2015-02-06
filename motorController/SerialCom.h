@@ -4,10 +4,10 @@
 #include <Arduino.h>
 #include "SerialComCmd.h"
 
-#define SERIALCOM_EXTRACT_INT8(pos, buffer)    (SERIALCOM_INT8)(buffer[pos]);
-#define SERIALCOM_EXTRACT_UINT8(pos, buffer)    (SERIALCOM_UINT8)(buffer[pos]);
-#define SERIALCOM_EXTRACT_INT16(pos, buffer)    (SERIALCOM_INT16)((buffer[pos]<<8) | buffer[pos+1]);
-#define SERIALCOM_EXTRACT_UINT16(pos, buffer)    (SERIALCOM_UINT16)((buffer[pos]<<8) | buffer[pos+1]);
+#define SERIALCOM_EXTRACT_INT8(pos, buffer)    (SERIALCOM_INT8)(buffer[pos])
+#define SERIALCOM_EXTRACT_UINT8(pos, buffer)    (SERIALCOM_UINT8)(buffer[pos])
+#define SERIALCOM_EXTRACT_INT16(pos, buffer)    (SERIALCOM_INT16)((buffer[pos]<<8) | buffer[pos+1])
+#define SERIALCOM_EXTRACT_UINT16(pos, buffer)    (SERIALCOM_UINT16)((buffer[pos]<<8) | buffer[pos+1])
 #define SERIALCOM_ERROR_NOTCMD 255
 
 //Interface and buffer configuration

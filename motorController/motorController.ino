@@ -1,6 +1,7 @@
-//#include "Encoder.h"
-//#include "Motor.h"
+#include "Encoder.h"
+#include "Motor.h"
 #include "SerialCom.h"
+#include "Enslavement.h"
 
 #define DEBUG
 
@@ -10,13 +11,13 @@
  */
 
 //Encoders
-const byte ENCODER_L_A_PIN = 3;
-const byte ENCODER_L_B_PIN = 2;
-const byte ENCODER_L_I_PIN = 0;
+//Channel A is used for the interupt
 
-const byte ENCODER_R_A_PIN = 5;
-const byte ENCODER_R_B_PIN = 4;
-const byte ENCODER_R_I_PIN = 1;
+const byte ENCODER_R_A_PIN = 2;
+const byte ENCODER_R_B_PIN = 31;
+
+const byte ENCODER_L_A_PIN = 3;
+const byte ENCODER_L_B_PIN = 33;
 
 
 //Motors
@@ -27,95 +28,99 @@ const byte MOTOR_R_PIN     = 12;
 const byte DIR_R_PIN       = 11; //TODO: verify registry timers
 
 
+Encoder *leftEncoder;
+Encoder *rightEncoder;
 
-//System
-const byte LOOP_TIME       = 5; //ms
-const byte REDUCTOR_RATIO  = 19;
-const byte TICK_PER_SPIN   = 500;
+Motor *leftMotor;
+Motor *rightMotor;
 
-
-// Encoder *leftEncoder;
-// Encoder *rightEncoder;
-
-// Motor *leftMotor;
-// Motor *rightMotor;
-
-// unsigned long millis_;
-// unsigned long lastMillis;
-// unsigned long timeElapsed;
-
-// int kp = 1000;
-// int ki = 0;
-// int kd = 0;
-
-// void leftTicks()
-// {
-//     leftEncoder->listenToTicks();
-// }
-
-
-// void rightTicks()
-// {
-//     rightEncoder->listenToTicks();
-// }
+Enslavement *enslavement;
 
 SerialCom* serialCom;
 
+
+void leftTicks()
+{
+    leftEncoder->listenToTicks();
+}
+
+void rightTicks()
+{
+    rightEncoder->listenToTicks();
+}
+
+int getInterruptNumber(int pin) 
+{
+    switch (pin)
+    {
+        case 2:
+            return 0;
+
+        case 3:
+            return 1;
+
+        case 21:
+            return 2;
+
+        case 20:
+            return 3;
+
+        case 19:
+            return 4;
+
+        case 18:
+            return 5;
+
+        default:
+            return -1;
+    }
+}
+
 void setup()
 {
-//     leftEncoder = new Encoder(ENCODER_L_A_PIN, ENCODER_L_B_PIN, ENCODER_L_I_PIN);
-//     rightEncoder = new Encoder(ENCODER_R_A_PIN, ENCODER_R_B_PIN, ENCODER_R_I_PIN);
+    //Encoders
+    leftEncoder = new Encoder(ENCODER_L_A_PIN, ENCODER_L_B_PIN);
+    rightEncoder = new Encoder(ENCODER_R_A_PIN, ENCODER_R_B_PIN);
 
-//     leftMotor = new Motor(MOTOR_L_PIN, DIR_L_PIN);
-//     rightMotor = new Motor(MOTOR_R_PIN, DIR_R_PIN);
+    //Motors
+    leftMotor = new Motor(MOTOR_L_PIN, DIR_L_PIN);
+    rightMotor = new Motor(MOTOR_R_PIN, DIR_R_PIN);
 
-//     //Interrupts
-//     attachInterrupt(ENCODER_L_I_PIN, leftTicks, FALLING);
-//     attachInterrupt(ENCODER_R_I_PIN, rightTicks, FALLING);
+    //Enslavement
+    enslavement = new Enslavement(5000, 1, 2, leftMotor, rightMotor);
+
+    //Interrupts
+    attachInterrupt(getInterruptNumber(ENCODER_L_A_PIN), leftTicks, FALLING);
+    attachInterrupt(getInterruptNumber(ENCODER_R_A_PIN), rightTicks, FALLING);
 
 
-//     //Override PWM frequency
+    //Override PWM frequency
 //     int eraser = 7;
 //     int prescaler = 1;
 
 //     TCCR1B &= ~eraser;
 
+    //Init serial communication
+    serialCom = new SerialCom();
 
-//     #ifdef DEBUG
-//         Serial.begin(9600);
-//         Serial.println("Setup finished\n\n");
-//     #endif
+    //Ping pong ~ test the communication
+    //TODO: serialCom->test
+    // serialCom->setSendCommand(SerialComCmd::CMD_TEST);
+    // serialCom->writeUInt8(0);
+    // serialCom->send();
+    // 
+    Serial.begin(9600);
 
-
-
-
-	//Init serial port
-	serialCom = new SerialCom();
-
-    //init ping pong
-    serialCom->setSendCommand(SerialComCmd::CMD_TEST);
-    serialCom->writeUInt8(0);
-    serialCom->send();
+    enslavement->goTo(50, 0);
 }
 
 
 
 void loop()
 {
-	//Read serial packages
-	serialCom->doReadJob();
+    //Read serial packets
+    // serialCom->doReadJob();
 
-
-
-//     millis_ = millis();
-//     timeElapsed = millis_ - lastMillis;
-
-//     if ((millis_ - lastMillis) >= LOOP_TIME)
-//     {
-//         //TODO PID
-//     }
-
-
-
-
+    //Motor enslavement
+    enslavement->compute();
 }
