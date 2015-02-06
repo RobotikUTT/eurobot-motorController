@@ -51,7 +51,7 @@ void Motor::run(const int &PWM)
         this->setDir(1);
     }
 
-    analogWrite(this->pwmPIN, PWM);
+    analogWrite(this->pwmPIN, this->PWM);
 }
 
 
