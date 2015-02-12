@@ -17,7 +17,7 @@ class Enslavement
          * @brief Constructor
          */
         
-        Enslavement(unsigned long deltaT, int accelerationMax, int velocityMax,
+        Enslavement(unsigned long deltaT, double acceleration, double velocityMax,
             Motor *leftMotor, Motor *rightMotor);
 
         /**
@@ -29,26 +29,32 @@ class Enslavement
 
         void goTo(CarthesianCoordinates coordinates);
 
-        void turn(int theta);
+        void turn(double theta);
 
         void compute();
         
+        void setDeltaT(int deltaT);
 
     private:
 
-        double acceleration; //acceleration in m.s^-2
-        double velocityMax;  //velocity max in m.s^-1
+        double distanceAcceleration; //acceleration in m.s^-2
+        double distanceVelocityMax;  //velocity max in m.s^-1
+        double angleAcceleration;    //acceleration in rad.s^-2
+        double angleVelocityMax;     //velocity max in rad.s^-1
 
         double velocityGain; //acceleration in cm.deltaT^-2
-        double accelerationTime;
 
         double distanceObjective;
+        double theoricalDistance;
         double currentDistance;
-        int distanceCommand;
+        double lastDistance;
+        double distanceCommand;
 
         double angleObjective;
+        double theoricalAngle;
         double currentAngle;
-        int angleCommand;
+        double lastAngle;
+        double angleCommand;
 
         unsigned long deltaT;
         unsigned long lastMillis;
@@ -56,7 +62,7 @@ class Enslavement
         Motor *leftMotor;
         Motor *rightMotor;
         Odometry *odometry;
-        PID *distancePID;
-        PID *anglePID;
+        Pid *distancePID;
+        Pid *anglePID;
 };
 #endif

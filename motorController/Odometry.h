@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <math.h>
 #include "Encoder.h"
-
+#include "Motor.h"
 
 typedef struct 
 {
@@ -22,15 +22,15 @@ typedef struct
 
 typedef struct 
 {
-    long left;
-    long right;   
+    double left;
+    double right;   
 } Ticks;
 
 class Odometry
 {
     public:
 
-        static Odometry* getInst();
+        static Odometry* getInst(Encoder *leftEncoder, Encoder *rightEncoder);
         
         static double metersToTicks(double meters);
 
@@ -41,6 +41,8 @@ class Odometry
         CarthesianCoordinates getCarthesianCoordinates();
 
         PolarCoordinates getPolarCoordinates();
+
+        Ticks getTicks();
 
         void update();
 
@@ -59,7 +61,7 @@ class Odometry
 
         ~Odometry();
 
-        static Odometry *inst = NULL;
+        static Odometry *inst;
 
         Encoder *leftEncoder;
         Encoder *rightEncoder;

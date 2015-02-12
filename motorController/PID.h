@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 
-class PID
+class Pid
 {
     public:
 
@@ -19,14 +19,29 @@ class PID
          * @param setPoint reference
          */
         
-        PID(double kp, double ki, double kd, unsigned long deltaT, double *input,
+        Pid(double kp, double ki, double kd, unsigned long deltaT, double *input,
             double *setPoint, double *output);
 
         /**
          * @brief Destructor
          */
 
-        ~PID();
+        ~Pid();
+        
+        double getKp();
+        void setKp(double kp);
+        double getKi();
+        void setKi(double ki);
+        double getKd();
+        void setKd(double kd);
+        unsigned long getDeltaT();
+        void setDeltaT(unsigned long deltaT);
+        double* getInput();
+        void setInput(double *input);
+        double* getOutput();
+        void setOutput(double *output);
+        double* getSetpoint();
+        void setSetpoint(double *setpoint);
         
         void compute();
 

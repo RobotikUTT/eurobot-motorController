@@ -16,11 +16,14 @@ Odometry::~Odometry()
 }
 
 
-Odometry* Odometry::getInst()
+Odometry* Odometry::inst = NULL;
+
+
+Odometry* Odometry::getInst(Encoder *leftEncoder, Encoder *rightEncoder)
 {
     if (Odometry::inst == NULL)
     {
-        Odometry::inst = new Odometry();
+        Odometry::inst = new Odometry(leftEncoder, rightEncoder);
         return Odometry::inst;
     }
 
@@ -36,16 +39,16 @@ double Odometry::metersToTicks(double meters)
 
 double Odometry::ticksToMeters(double ticks)
 {
-    return (1/this->metersToticks(ticks));
+    return (ticks * 2 * 3.14 * Motor::WHEEL_RADIUS / Encoder::TICK_PER_SPIN);
 }
 
 
 void Odometry::reset()
 {
-    this->leftTicks = 0;
-    this->rightTicks = 0;
-
-    this->ticks = {0, 0};
+    this->leftEncoder->resetTicks();
+    this->rightEncoder->resetTicks();
+    this->ticks.left = 0;
+    this->ticks.right = 0;
 }
 
 
@@ -68,8 +71,8 @@ Ticks Odometry::getTicks()
 
 PolarCoordinates Odometry::getPolarCoordinates()
 {
-    double rho = (this->leftTicks + this->rightTicks) / 2; //in encoder ticks
-    double theta = (this->leftTicks - this->rightTicks) % 3.14;
+    double rho = (this->ticks.left + this->ticks.right) / 2; //in encoder ticks
+    double theta = (long) (this->ticks.left - this->ticks.right) * 100 % (long) 314;
 
     return {Odometry::ticksToMeters(rho), Odometry::ticksToMeters(theta)};
 }

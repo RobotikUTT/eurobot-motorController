@@ -4,11 +4,12 @@
 Enslavement::Enslavement(unsigned long deltaT, double acceleration, double velocityMax, 
     Motor *leftMotor, Motor *rightMotor)
 {
-    this->acceleration = acceleration / 100;
-    this->velocityMax = velocityMax / 100;
-   
+    this->distanceAcceleration = Odometry::metersToTicks(acceleration);
+    this->distanceVelocityMax = Odometry::metersToTicks(velocityMax);
+    this->angleAcceleration = 2 * acceleration; // / entraxe
+    this->angleVelocityMax = 2 * velocityMax;      // same
+
     this->velocityGain = acceleration * deltaT;
-    this->accelerationTime = this->velocityMax / this->acceleration;
 
     this->leftMotor = leftMotor;
     this->rightMotor = rightMotor;
@@ -17,18 +18,23 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->lastMillis = 0;
 
     this->distanceObjective = 0;
+    this->theoricalDistance = 0;
     this->currentDistance = 0;
+    this->lastDistance = 0;
     this->distanceCommand = 0;
 
     this->angleObjective = 0;
+    this->theoricalAngle = 0;
     this->currentAngle = 0;
+    this->lastAngle = 0;
     this->angleCommand = 0;
 
-    this->Odometry = Odometry::getInst();
+    //Dirty work with this singleton. see motorController.ino for more explanation
+    this->odometry = Odometry::getInst(NULL, NULL);
 
-    this->distancePID = new PID(1, 0, 0, this->deltaT, &(this->currentDistance), 
-        &(this->distanceObjective), &(this->distanceCommand));
-    this->anglePID = new PID(1, 0, 0, this->deltaT, &(this->currentAngle), 
+    this->distancePID = new Pid(1, 0, 0, this->deltaT, &(this->currentDistance), 
+        &(this->theoricalDistance), &(this->distanceCommand));
+    this->anglePID = new Pid(1, 0, 0, this->deltaT, &(this->currentAngle), 
         &(this->angleObjective), &(this->angleCommand));
 }
 
@@ -46,28 +52,30 @@ void Enslavement::setDeltaT(int deltaT)
 }
 
 
-void Enslavement::goTo(long newX, long newY)
+void Enslavement::goTo(CarthesianCoordinates newCoordinates)
 {
-    double distance = sqrt(pow(newX, 2) + pow(newY, 2));
+    CarthesianCoordinates coordinates = this->odometry->getCarthesianCoordinates();
+
+    double distance = sqrt(pow(newCoordinates.x, 2) + pow(newCoordinates.y, 2));
     double angle;
 
-    if (newX - x != 0)
+    if (newCoordinates.x - coordinates.x != 0)
     {
-        angle = atan2(y, x);
+        angle = atan2(newCoordinates.y - coordinates.y, newCoordinates.x - coordinates.x);
     }
     else
     {
         angle = 0;
     }
 
-    this->distanceObjective = Odometry::metersToTicks(distance);
-    this->orientationObjective = angle;
+    //this->distanceObjective = Odometry::metersToTicks(distance);
+    this->angleObjective = angle;
 }
 
 
 void Enslavement::turn(double theta)
 {
-    this->orientationObjective = theta;
+    this->angleObjective = theta;
 }
 
 
@@ -78,7 +86,7 @@ void Enslavement::compute()
 
     if (timeElapsed >= this->deltaT)
     {
-        this->lastMillis = millis_;
+        this->lastMillis = now;
 
         //Actual velocity is deduced by the number of encoder ticks ellapsed since the last call of execute
         long actualVelocity;
@@ -91,76 +99,93 @@ void Enslavement::compute()
         long leftTicks = ticks.left;
         long rightTicks = ticks.right;
 
-        #ifdef DEBUG
-            Serial.println("\n\n");
-            Serial.print("leftTicks: ");
-            Serial.println(leftTicks);
-            Serial.print("rightTicks: ");
-            Serial.println(rightTicks);
-        #endif
 
+        /*
+            Distance enslavement
+         */
+        
+        /*
+         * Distance enslavement will be tested after angle enslavement
+         * 
+         *
+        this->currentDistance = (leftTicks + rightTicks) / 2;
 
+        //Update theorical trajectory
+        double remainingDistance = this->distanceObjective - currentDistance;
 
+        //Precision reached
+        if (Odometry::ticksToMeter(abs(remainingDistance)) <= 0.1)
+        {
+            return;
+        }
+
+        double actualDistanceVelocity = (this->lastDistance - currentDistance) / this->deltaT * 1000;
+        double theoricalDistanceVelocity = this->theoricalDistance / this->deltaT;
+
+        if (this->theoricalDistance > 0 && (remainingDistance/this->theoricalDistanceVelocity) <= (theoricalDistanceVelocity/this->distanceAcceleration))
+        {
+            //Time to decelerate
+            this->theoricalDistance -= this->distanceAcceleration * this->deltaT * this->deltaT;
+        }
+        else if (this->theoricalDistance/this->deltaT < this->distanceVelocityMax)
+        {
+            //Time to accelerate
+            this->theoricalDistance += this->distanceAcceleration * this->deltaT * this->deltaT;
+        }
+
+        //PID
+        this->distancePID->compute();    
+
+         */    
+
+        /*
+            Angle enslavement
+         */
+        
+        this->currentAngle = (leftTicks - rightTicks);
+
+        //Update theorical trajectory
+        double remainingAngle = this->angleObjective - currentAngle;
+     
+        //Precision reached
+        if (abs(remainingAngle) <= 0.2)
+        {
+            return;
+        }
+
+        double actualangleVelocity = (this->lastAngle - currentAngle) / this->deltaT * 1000;
+        double theoricalAngleVelocity = this->theoricalAngle / this->deltaT;
+        
+        if (this->theoricalAngle != 0 && (remainingAngle/theoricalAngleVelocity) <= (theoricalAngleVelocity/this->angleAcceleration))
+        {
+            //Time to decelerate
+            this->theoricalAngle -= this->angleAcceleration * this->deltaT * this->deltaT;
+        }
+        else if (this->theoricalAngle/this->deltaT < this->angleVelocityMax)
+        {
+            //Time to accelerate
+            this->theoricalAngle += this->angleAcceleration * this->deltaT * this->deltaT;
+        }
+
+        //PID
+        this->anglePID->compute();
 
 
         /*
-            Distance velocity enslavement
+            Motor command
          */
         
-        long distanceVelocity = (leftTicks + rightTicks) / (2 * (long) timeElapsed);
-        Serial.print("distance velocity: ");
-        Serial.println(distanceVelocity);
-
-        //PID
-        long distanceVelocityError = this->distanceVelocityObjective - distanceVelocity;
-        int distanceCommand = distanceVelocityError * this->kp - distanceVelocity * this->kd;
-
-        //Update objectives
-        long remainingDistance = this->distanceObjective - (leftTicks + rightTicks)/2;
-
-        if (remainingDistance/distanceVelocity <= this->accelerationTime)
-        {
-            //Time to decelerate
-            this->distanceVelocityObjective -= this->velocityGain;
-        }
-        else if (this->distanceVelocityObjective < this->velocityMax)
-        {
-            //Time to accelerate
-            this->distanceVelocityObjective += this->velocityGain;
-        }
-
-
-        /*
-            Angle velocity enslavement
-         */
-        
-        long angleVelocity = (leftTicks - rightTicks) / (long) timeElapsed;
-        Serial.print("angle velocity: ");
-        Serial.println(angleVelocity);
-
-        //PID
-        long anglevelocityError = this->angleVelocityObjective - angleVelocity;
-        int angleCommand = angleVelocityObjective * this->kp - angleVelocity * this->kd;
-
-        //Update objectives
-        long remainingAngle = this->orientationObjective - (leftTicks - rightTicks);
-        
-        if (remainingAngle/angleVelocity <= this->accelerationTime)
-        {
-            //Time to decelerate
-            this->angleVelocityObjective -= this->velocityGain;
-        }
-        else if (this->angleVelocityObjective < this->velocityMax)
-        {
-            //Time to accelerate
-            this->angleVelocityObjective += this->velocityGain;
-        }
-
-
-        int leftCommand = distanceCommand - angleCommand;
-        int rightCommand = distanceCommand + angleCommand;
+        int leftCommand = this->distanceCommand - this->angleCommand;
+        int rightCommand = this->distanceCommand + this->angleCommand;
 
         this->leftMotor->run(leftCommand);
-        this->rightMotor->run(rightCommand);       
+        this->rightMotor->run(rightCommand);
+
+        #ifdef DEBUG
+            Serial.print("distanceCommand: ");
+            Serial.println(this->distanceCommand);
+            Serial.print("angleCommand: ");
+            Serial.println(this->angleCommand);
+        #endif
     }
 }

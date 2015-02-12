@@ -1,7 +1,7 @@
 #include "PID.h"
 
 
-PID::PID(double kp, double ki, double kd, unsigned long deltaT, double *input,
+Pid::Pid(double kp, double ki, double kd, unsigned long deltaT, double *input,
             double *setPoint, double *output)
 {
     this->kp = kp;
@@ -11,7 +11,7 @@ PID::PID(double kp, double ki, double kd, unsigned long deltaT, double *input,
     this->deltaT = deltaT;
     this->lastMillis = 0;
 
-    this->errSum = 0;
+    this->ITerm = 0;
     this->lastInput = 0;
 
     this->input = input;
@@ -20,55 +20,55 @@ PID::PID(double kp, double ki, double kd, unsigned long deltaT, double *input,
 }
 
 
-PID::~PID()
+Pid::~Pid()
 {
 
 }
 
 
-double PID::getKp()
+double Pid::getKp()
 {
-    return this->Kp;
+    return this->kp;
 }
 
 
-void PID::setKp(double kp)
+void Pid::setKp(double kp)
 {
     this->kp = kp;
 }
 
 
-double PID::getKi()
+double Pid::getKi()
 {
-    return this->Ki;
+    return this->ki;
 }
 
 
-void PID::setKi(double ki)
+void Pid::setKi(double ki)
 {
     this->ki = ki * ((double) this->deltaT / 1000);
 }
 
 
-double PID::getKd()
+double Pid::getKd()
 {
-    return this->Kd;
+    return this->kd;
 }
 
 
-void PID::setKd(double kd)
+void Pid::setKd(double kd)
 {
     this->kd = kd / ((double) this->deltaT / 1000);
 }
 
 
-unsigned long PID::getDeltaT()
+unsigned long Pid::getDeltaT()
 {
-    return this->DeltaT;
+    return this->deltaT;
 }
 
 
-void PID::setDeltaT(unsigned long deltaT)
+void Pid::setDeltaT(unsigned long deltaT)
 {
     if (deltaT > 0)
     {
@@ -82,43 +82,43 @@ void PID::setDeltaT(unsigned long deltaT)
 }
 
 
-double* PID::getInput()
+double* Pid::getInput()
 {
     return this->input;
 }
 
 
-void PID::setInput(double *input)
+void Pid::setInput(double *input)
 {
     this->input = input;
 }
 
 
-double* PID::getOutput()
+double* Pid::getOutput()
 {
-    return this->Output;
+    return this->output;
 }
 
 
-void PID::setOutput(double *output)
+void Pid::setOutput(double *output)
 {
     this->output = output;
 }
 
 
-double* PID::getSetpoint()
+double* Pid::getSetpoint()
 {
-    return this->setpoint;
+    return this->setPoint;
 }
 
 
-void PID::setSetpoint(double *setpoint)
+void Pid::setSetpoint(double *setPoint)
 {
-    this->setpoint = setpoint;
+    this->setPoint = setPoint;
 }
 
 
-void PID::compute()
+void Pid::compute()
 {
     unsigned long now = millis();
     int timeElapsed = (now - this->lastMillis);
@@ -127,12 +127,12 @@ void PID::compute()
     {
         //Compute must be called periodically
         
-        double error = *(this->setpoint) - *(this->input):
+        double error = *(this->setPoint) - *(this->input);
         this->ITerm += (this->ki * error);
 
         double dInput = (*(this->input) - this->lastInput);
 
-        *(this->output) = this->kp * error + this->Iterm
+        *(this->output) = this->kp * error + this->ITerm
             - this->kd * dInput;
 
         this->lastInput = *(input);

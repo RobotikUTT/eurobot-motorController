@@ -2,6 +2,7 @@
 #include "Motor.h"
 #include "SerialCom.h"
 #include "Enslavement.h"
+#include "Odometry.h"
 
 #define DEBUG
 
@@ -23,7 +24,7 @@ const byte ENCODER_L_B_PIN = 33;
 //Motors
 const byte MOTOR_L_PIN     = 10;
 const byte DIR_L_PIN       = 9;
-
+ 
 const byte MOTOR_R_PIN     = 12;
 const byte DIR_R_PIN       = 11; //TODO: verify registry timers
 
@@ -86,6 +87,10 @@ void setup()
     leftMotor = new Motor(MOTOR_L_PIN, DIR_L_PIN);
     rightMotor = new Motor(MOTOR_R_PIN, DIR_R_PIN);
 
+    //Init odometry singleton, because enslavement object won't have access to encoders object.
+    //This is dirty work, but it works, and it needs to be refactored. :)
+    Odometry::getInst(leftEncoder, rightEncoder);
+
     //Enslavement
     enslavement = new Enslavement(5000, 1, 2, leftMotor, rightMotor);
 
@@ -111,7 +116,7 @@ void setup()
     // 
     Serial.begin(9600);
 
-    enslavement->goTo(50, 0);
+    enslavement->goTo({50, 0});
 }
 
 
