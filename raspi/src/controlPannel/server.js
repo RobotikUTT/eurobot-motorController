@@ -34,7 +34,7 @@ app.get('/script.js', function(req, res) {
     res.sendFile(__dirname + '/public/script.js');
 });
 
-var port = config.get('pannel').port;
+var port = config.get('pannel').port || 8080;
 server.listen(port);
 
 log.info('[WEB] Server listening on *:' + port);

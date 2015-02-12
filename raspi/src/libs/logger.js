@@ -34,7 +34,7 @@ WebLogger.prototype.log = function (level, msg, meta, callback) {
 function getLogger(module) {
     //using filename in log statements
     var path = utils.getModuleName(module);
-    var options = config.get('log');
+    var options = config.get('log') || {};
     options.path = path;
 
     var transports = [ new winston.transports.Console(options),
