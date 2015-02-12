@@ -1,13 +1,13 @@
 'use strict';
 
-var MotorController = require('./MotorController');
-var controlPannel   = require('./controlPannel/server.js');
+var MotorController = require('./src/MotorController');
+var controlPannel   = require('./src/controlPannel/server.js');
 var serialPort      = require('serialport');
 var readline        = require('readline');
 var Promise         = require('bluebird');
-var logger          = require('./libs').logger;
-var config          = require('./libs').config;
-var IA              = require('./IA/IA');
+var logger          = require('./src/libs').logger;
+var config          = require('./src/libs').config;
+var IA              = require('./src//IA/IA');
 
 Promise.promisifyAll(readline);
 Promise.promisifyAll(serialPort);
@@ -16,11 +16,11 @@ logger.initIO(controlPannel);
 var log = logger.getLogger(module);
 
 
-serialPort.listAsync()
-    .then(function(ports) {
+var launch = serialPort.listAsync()
+    .then(function selectSerialPort(ports) {
         return new Promise(function(resolve, reject) {
             if (ports.length === 0) {
-                return reject('No open ports');
+                return reject('No open ports.');
             }
             
             if (ports.length === 1) {
