@@ -153,7 +153,7 @@ void Enslavement::compute()
             return;
         }
 
-        double actualangleVelocity = (this->lastAngle - currentAngle) / this->deltaT * 1000;
+        double actualAngleVelocity = (this->lastAngle - currentAngle) / this->deltaT * 1000;
         double theoricalAngleVelocity = this->theoricalAngle / this->deltaT;
         
         if (this->theoricalAngle != 0 && (remainingAngle/theoricalAngleVelocity) <= (theoricalAngleVelocity/this->angleAcceleration))
@@ -182,10 +182,10 @@ void Enslavement::compute()
         this->rightMotor->run(rightCommand);
 
         #ifdef DEBUG
-            Serial.print("distanceCommand: ");
-            Serial.println(this->distanceCommand);
             Serial.print("angleCommand: ");
             Serial.println(this->angleCommand);
+            Serial.print("Actual angle velocity:");
+            Serial.println(actualAngleVelocity)
         #endif
     }
 }
