@@ -29,6 +29,10 @@ Motor::Motor(const byte &pwmPIN, const byte &dirPIN, const byte &brake)
 Motor::~Motor() {};
 
 
+const byte Motor::REDUCTOR_RATIO = 48;
+const double Motor::WHEEL_RADIUS = 0.03;
+
+
 /**
  * @brief Set the motor speed
  * 

@@ -13,8 +13,8 @@ class Motor
         void run(const int &PWM);
         void stop();
         
-        static const byte REDUCTOR_RATIO  = 48;
-        static const double WHEEL_RADIUS = 0.03;
+        static const byte REDUCTOR_RATIO;
+        static const double WHEEL_RADIUS;
 
 
     protected:
