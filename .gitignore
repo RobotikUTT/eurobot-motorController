@@ -29,3 +29,7 @@ node_modules
 
 # Sublime text
 *.sublime*
+
+# Objects and static librairies
+*.o 
+*.a
