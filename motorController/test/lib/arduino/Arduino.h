@@ -2,6 +2,7 @@
 #define ARDUINO_H
 
 #include <iostream>
+#include "stdint.h"
 
 
 /**
@@ -15,19 +16,20 @@ typedef uint8_t byte;
  * @brief Serial mock-up
  */
 
-class Serial 
+class FakeSerial 
 {
     public:
-        Serial(byte portNumber);
-        ~Serial();
+        FakeSerial(byte portNumber);
+        ~FakeSerial();
 
         void begin(unsigned long speed);
         void end();
 
         size_t write(byte value);
+
+
+    private:
+        byte portNumber;
 };
-
-
-
 
 #endif
