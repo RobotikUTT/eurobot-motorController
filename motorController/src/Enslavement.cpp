@@ -54,7 +54,7 @@ void Enslavement::setDeltaT(int deltaT)
 
 void Enslavement::goTo(CarthesianCoordinates newCoordinates)
 {
-    CarthesianCoordinates coordinates = this->odometry->getCarthesianCoordinates();
+    CarthesianCoordinates coordinates = this->odometry->getCoordinates();
 
     double distance = sqrt(pow(newCoordinates.x, 2) + pow(newCoordinates.y, 2));
     double angle;

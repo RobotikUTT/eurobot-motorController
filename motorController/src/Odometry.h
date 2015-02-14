@@ -6,6 +6,7 @@
 #include "Encoder.h"
 #include "Motor.h"
 
+
 typedef struct 
 {
     double x;
@@ -15,36 +16,33 @@ typedef struct
 
 typedef struct 
 {
-    double rho;
-    double theta;
-} PolarCoordinates;
-
-
-typedef struct 
-{
     double left;
     double right;   
 } Ticks;
+
 
 class Odometry
 {
     public:
 
         static Odometry* getInst(Encoder *leftEncoder, Encoder *rightEncoder);
-        
         static double metersToTicks(double meters);
-
         static double ticksToMeters(double ticks);
 
-        void reset();
+        static const double ENTRAXE;
 
-        CarthesianCoordinates getCarthesianCoordinates();
+        CarthesianCoordinates getCoordinates();
+        void setCoordinates(CarthesianCoordinates newCoordinates);
 
-        PolarCoordinates getPolarCoordinates();
+        double getOrientation();
+        void setOrientation(double newOrdientation);
 
         Ticks getTicks();
+        void setTicks(Ticks newTicks);
 
+        void reset();
         void update();
+
 
 
     private:
@@ -61,11 +59,15 @@ class Odometry
 
         ~Odometry();
 
+        void checkOrientation();
+
         static Odometry *inst;
 
         Encoder *leftEncoder;
         Encoder *rightEncoder;
 
+        CarthesianCoordinates coordinates;
+        double orientation;
         Ticks ticks;
 };
 #endif
