@@ -16,7 +16,7 @@ tests: $(OBJS)
 	g++ $(OBJS) -o ./bin/test/testRunner && ./bin/test/testRunner
 
 clean:
-	rm -f $(OBJS)
+	rm -f $(OBJS) && make -C ./src clean
 
 dist-clean: clean
-	rm -rf ./bin/*
+	rm -rf ./bin/test/*
