@@ -8,9 +8,9 @@ class Encoder
 {
     public:
         Encoder(const byte &chanA, const byte &chanB);
-        ~Encoder();
+        TEST_VIRTUAL ~Encoder();
 
-        long getTicks();
+        TEST_VIRTUAL long getTicks();
         void resetTicks();
         void listenToTicks();
 

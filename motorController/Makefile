@@ -1,25 +1,13 @@
-SRCS = $(wildcard ./test/*.cpp)
-OBJS = $(subst .cpp,.o,$(SRCS))
-
-CXXFLAGS = -I./test/lib/Catch -I./test/lib/arduino
-LDFLAGS = -L./test/lib/arduino/
-
-all: tests motorController
-
-$(OBJS): %.o : %.cpp
+all: motorController unit
 
 motorController: 
-	cd src && make
+	make -C ./src
 
-tests: $(OBJS)
-	make -C ./test/lib/arduino
-	$(CXX) $^ -o ./bin/test/testRunner && ./bin/test/testRunner
+unit: 
+	make -C ./tests && clear && ./bin/tests/tests
 
 deploy:
-	make upload -C src
+	make -C ./src upload
 
 clean:
-	$(RM) $(OBJS) && make -C ./src clean
-
-dist-clean: clean
-	$(RM) ./bin/test/*
+	make -C ./src clean && make -C ./tests clean
