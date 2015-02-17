@@ -6,8 +6,8 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
 {
     this->distanceAcceleration = Odometry::metersToTicks(acceleration);
     this->distanceVelocityMax = Odometry::metersToTicks(velocityMax);
-    this->angleAcceleration = 2 * acceleration; // / entraxe
-    this->angleVelocityMax = 2 * velocityMax;      // same
+    this->orientationAcceleration = 2 * acceleration; // / entraxe
+    this->orientationVelocityMax = 2 * velocityMax;      // same
 
     this->velocityGain = acceleration * deltaT;
 
@@ -23,19 +23,19 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->lastDistance = 0;
     this->distanceCommand = 0;
 
-    this->angleObjective = 0;
-    this->theoricalAngle = 0;
-    this->currentAngle = 0;
-    this->lastAngle = 0;
-    this->angleCommand = 0;
+    this->orientationObjective = 0;
+    this->theoricalOrientation = 0;
+    this->currentOrientation = 0;
+    this->lastOrientation = 0;
+    this->orientationCommand = 0;
 
     //Dirty work with this singleton. see motorController.ino for more explanation
     this->odometry = Odometry::getInst(NULL, NULL);
 
     this->distancePID = new Pid(1, 0, 0, this->deltaT, &(this->currentDistance), 
         &(this->theoricalDistance), &(this->distanceCommand));
-    this->anglePID = new Pid(1, 0, 0, this->deltaT, &(this->currentAngle), 
-        &(this->angleObjective), &(this->angleCommand));
+    this->anglePID = new Pid(1, 0, 0, this->deltaT, &(this->currentOrientation), 
+        &(this->orientationObjective), &(this->orientationCommand));
 }
 
 
@@ -69,13 +69,13 @@ void Enslavement::goTo(CarthesianCoordinates newCoordinates)
     }
 
     //this->distanceObjective = Odometry::metersToTicks(distance);
-    this->angleObjective = angle;
+    this->orientationObjective = angle;
 }
 
 
 void Enslavement::turn(double theta)
 {
-    this->angleObjective = theta;
+    this->orientationObjective = theta;
 }
 
 
@@ -95,6 +95,7 @@ void Enslavement::compute()
         this->odometry->update();
 
         Ticks ticks = this->odometry->getTicks();
+        double orientation = this->odometry->getOrientation();
 
         long leftTicks = ticks.left;
         long rightTicks = ticks.right;
@@ -142,29 +143,29 @@ void Enslavement::compute()
             Angle enslavement
          */
         
-        this->currentAngle = (leftTicks - rightTicks);
+        this->currentOrientation = orientation;
 
         //Update theorical trajectory
-        double remainingAngle = this->angleObjective - currentAngle;
+        double remainingOrientation = this->orientationObjective - currentOrientation;
      
         //Precision reached
-        if (abs(remainingAngle) <= 0.2)
+        if (abs(remainingOrientation) <= 0.2)
         {
             return;
         }
 
-        double actualAngleVelocity = (this->lastAngle - currentAngle) / this->deltaT * 1000;
-        double theoricalAngleVelocity = this->theoricalAngle / this->deltaT;
+        double actualOrientationVelocity = (this->lastOrientation - currentOrientation) / this->deltaT * 1000;
+        double theoricalOrientationVelocity = this->theoricalOrientation / this->deltaT;
         
-        if (this->theoricalAngle != 0 && (remainingAngle/theoricalAngleVelocity) <= (theoricalAngleVelocity/this->angleAcceleration))
+        if (this->theoricalOrientation != 0 && (remainingOrientation/theoricalOrientationVelocity) <= (theoricalOrientationVelocity/this->orientationAcceleration))
         {
             //Time to decelerate
-            this->theoricalAngle -= this->angleAcceleration * this->deltaT * this->deltaT;
+            this->theoricalOrientation -= this->orientationAcceleration * this->deltaT * this->deltaT;
         }
-        else if (this->theoricalAngle/this->deltaT < this->angleVelocityMax)
+        else if (this->theoricalOrientation/this->deltaT < this->orientationVelocityMax)
         {
             //Time to accelerate
-            this->theoricalAngle += this->angleAcceleration * this->deltaT * this->deltaT;
+            this->theoricalOrientation += this->orientationAcceleration * this->deltaT * this->deltaT;
         }
 
         //PID
@@ -175,17 +176,17 @@ void Enslavement::compute()
             Motor command
          */
         
-        int leftCommand = this->distanceCommand - this->angleCommand;
-        int rightCommand = this->distanceCommand + this->angleCommand;
+        int leftCommand = this->distanceCommand - this->orientationCommand;
+        int rightCommand = this->distanceCommand + this->orientationCommand;
 
         this->leftMotor->run(leftCommand);
         this->rightMotor->run(rightCommand);
 
         #ifdef DEBUG
-            Serial.print("angleCommand: ");
-            Serial.println(this->angleCommand);
+            Serial.print("orientationCommand: ");
+            Serial.println(this->orientationCommand);
             Serial.print("Actual angle velocity:");
-            Serial.println(actualAngleVelocity)
+            Serial.println(actualOrientationVelocity)
         #endif
     }
 }

@@ -39,8 +39,8 @@ class Enslavement
 
         double distanceAcceleration; //acceleration in m.s^-2
         double distanceVelocityMax;  //velocity max in m.s^-1
-        double angleAcceleration;    //acceleration in rad.s^-2
-        double angleVelocityMax;     //velocity max in rad.s^-1
+        double orientationAcceleration;    //acceleration in rad.s^-2
+        double orientationVelocityMax;     //velocity max in rad.s^-1
 
         double velocityGain; //acceleration in cm.deltaT^-2
 
@@ -50,11 +50,11 @@ class Enslavement
         double lastDistance;
         double distanceCommand;
 
-        double angleObjective;
-        double theoricalAngle;
-        double currentAngle;
-        double lastAngle;
-        double angleCommand;
+        double orientationObjective;
+        double theoricalOrientation;
+        double currentOrientation;
+        double lastOrientation;
+        double orientationCommand;
 
         unsigned long deltaT;
         unsigned long lastMillis;
