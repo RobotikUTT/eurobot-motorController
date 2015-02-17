@@ -33,3 +33,7 @@ node_modules
 # Objects and static librairies
 *.o 
 *.a
+
+# Build js
+./raspi/build/src/*.js
+./raspi/build/src/*.map
