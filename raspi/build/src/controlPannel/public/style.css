@@ -1,0 +1,25 @@
+#debug {
+    width: 400px;
+    height: 500px;
+    float: left;
+    overflow: auto;
+    overflow-x: hidden;
+}
+
+.debug {
+    color: #1D75FF;
+}
+
+.info {
+    color: #00A10C;
+}
+
+.warn {
+    font-weight: bold;
+    color: #FFAF00;
+}
+
+.error {
+    font-weight: bold;
+    color: #FF0000;
+}

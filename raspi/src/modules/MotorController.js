@@ -1,5 +1,5 @@
-import packets from './communication/packets/index'
-
+import packets from '../communication/packets/index'
+//import Parser from '../communcation/PacketParser'
 
 let i2c = require('i2c-bus');
 
@@ -19,7 +19,7 @@ class MotorController {
     
     constructor(address) {
         this.address = address;
-        this.parser = null;
+        //this.parser = new PacketParser();
     } 
 
 
