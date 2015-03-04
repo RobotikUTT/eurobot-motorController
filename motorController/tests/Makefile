@@ -8,12 +8,15 @@ OBJS = $(subst .cpp,.o,$(SRCS))
 
 CPPFLAGS += -isystem $(GTEST_DIR)/include -isystem $(GMOCK_DIR)/include -I../src -I./lib/arduino
 LDFLAGS = -L./lib/arduino -lArduino
-CXXFLAGS += -g -Wall -Wextra -pthread -DTEST_VIRTUAL="virtual"
+CXXFLAGS += -g -pthread -DTEST_VIRTUAL="virtual"
 
 
 
-all: gmock.a tests
+all: gmock.a arduinoLib tests
 
+arduinoLib:
+	make -C ./lib/arduino
+	
 clean:
 	rm -f $(TESTS) gmock.a gmock_main.a *.o
 
@@ -22,8 +25,10 @@ clean:
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $^ -o $@
 
 tests: gmock_main.a $(OBJS)
-	$(CXX) $^ $(CPPFLAGS) $(CXXFLAGS) -lpthread -o ../bin/tests/tests $(LDFLAGS)
+	$(CXX) $^ $(CPPFLAGS) $(LDFLAGS) $(CXXFLAGS) -lpthread -o ../bin/tests/tests $(LDFLAGS)
 
+dev:
+	nodemon --exec "make" *.cpp
 
 ######################### DO NOT TOUCH BELOW ########################
 
