@@ -1,20 +1,86 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <Arduino.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <math.h>
 
 #include "Odometry.h"
+#include "Encoder.h"
+#include "Motor.h"
 #include "./mocks/MockEncoder.h"
 
 using ::testing::AtLeast;
 using ::testing::Return;
+using ::testing::Invoke;
 
 
+ACTION_P2(FakeGetTicks, pwm, deltaT)
+{ 
+    long ticks = pwm * 3 / 255 * Motor::REDUCTOR_RATIO * Encoder::TICK_PER_SPIN * 1000 / deltaT;
+    int sign = rand() % 2 ? 1 : -1;
+    float noise = (float)(rand() % 10) / 100;
 
-TEST(Odometry, testSuite)
+    return ticks * (1 + sign * noise);
+}
+
+
+testing::NiceMock<MockEncoder> leftEncoder(1, 2);
+testing::NiceMock<MockEncoder> rightEncoder(3, 4);
+Odometry *odometry = Odometry::getInst(&leftEncoder, &rightEncoder);
+
+
+TEST(Odometry, straightLine)
 {
-    MockEncoder leftEncoder(1, 2);
-    MockEncoder rightEncoder(3, 4);
+    srand(time(NULL));
 
-    ON_CALL(leftEncoder, getTicks()).WillByDefault(Return(10));
+    
+    // NiceMock are used to avoid useless warnings
 
-    std::cout << leftEncoder.getTicks();
+
+    // // Override getTicks
+    // ON_CALL(leftEncoder, getTicks())
+    //     .WillByDefault(FakeGetTicks(255, 15000));
+    // ON_CALL(rightEncoder, getTicks())
+    //     .WillByDefault(FakeGetTicks(255, 15000));
+
+
+    EXPECT_CALL(leftEncoder, getTicks())                   
+      .WillOnce(Return(Odometry::metersToTicks(2)));
+    EXPECT_CALL(rightEncoder, getTicks())    
+      .WillOnce(Return(Odometry::metersToTicks(2)));
+
+    odometry->update();
+    CarthesianCoordinates coordinates = odometry->getCoordinates();
+
+    ASSERT_EQ(coordinates.y, 0);
+    ASSERT_EQ(coordinates.x, 1.9996776);
+}
+
+
+TEST(Odometry, valueTest2)
+{
+
+    // NiceMock are used to avoid useless warnings
+
+
+    // // Override getTicks
+    // ON_CALL(leftEncoder, getTicks())
+    //     .WillByDefault(FakeGetTicks(255, 15000));
+    // ON_CALL(rightEncoder, getTicks())
+    //     .WillByDefault(FakeGetTicks(255, 15000));
+
+
+    EXPECT_CALL(leftEncoder, getTicks())                   
+      .WillOnce(Return(Odometry::metersToTicks(M_PI/2)));
+    EXPECT_CALL(rightEncoder, getTicks())    
+      .WillOnce(Return(Odometry::metersToTicks(0)));
+
+    odometry->update();
+
+    CarthesianCoordinates coordinates = odometry->getCoordinates();
+    ASSERT_EQ(coordinates.y, -0.5);
+    ASSERT_EQ(coordinates.x, 2.5);
+    
 }
