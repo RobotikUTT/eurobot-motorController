@@ -56,7 +56,7 @@ void Enslavement::goTo(CarthesianCoordinates newCoordinates)
 {
     CarthesianCoordinates coordinates = this->odometry->getCoordinates();
 
-    double distance = sqrt(pow(newCoordinates.x, 2) + pow(newCoordinates.y, 2));
+    // double distance = sqrt(pow(newCoordinates.x, 2) + pow(newCoordinates.y, 2));
     double angle;
 
     if (newCoordinates.x - coordinates.x != 0)
@@ -104,18 +104,13 @@ void Enslavement::compute()
         /*
             Distance enslavement
          */
-        
-        /*
-         * Distance enslavement will be tested after angle enslavement
-         * 
-         *
         this->currentDistance = (leftTicks + rightTicks) / 2;
 
         //Update theorical trajectory
         double remainingDistance = this->distanceObjective - currentDistance;
 
         //Precision reached
-        if (Odometry::ticksToMeter(abs(remainingDistance)) <= 0.1)
+        if (Odometry::ticksToMeters(abs(remainingDistance)) <= 0.1)
         {
             return;
         }
@@ -123,7 +118,7 @@ void Enslavement::compute()
         double actualDistanceVelocity = (this->lastDistance - currentDistance) / this->deltaT * 1000;
         double theoricalDistanceVelocity = this->theoricalDistance / this->deltaT;
 
-        if (this->theoricalDistance > 0 && (remainingDistance/this->theoricalDistanceVelocity) <= (theoricalDistanceVelocity/this->distanceAcceleration))
+        if (this->theoricalDistance > 0 && (remainingDistance/this->theoricalDistance/this->deltaT) <= (theoricalDistanceVelocity/this->distanceAcceleration))
         {
             //Time to decelerate
             this->theoricalDistance -= this->distanceAcceleration * this->deltaT * this->deltaT;
@@ -137,7 +132,7 @@ void Enslavement::compute()
         //PID
         this->distancePID->compute();    
 
-         */    
+        
 
         /*
             Angle enslavement
