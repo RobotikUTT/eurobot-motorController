@@ -21,7 +21,8 @@
 #define free(x) std::free(x)
 #define malloc(x) std::malloc(x)
 #define abs(x) ((x) > 0 ? (x) : -(x))
-
+#define M_PI       3.14159265358979323846
+ 
 
 /**
  * Arduino types
