@@ -11,7 +11,7 @@ AVR_TOOLS_DIR     = /usr
 AVRDDUDE          = /usr/bin/avrdude
 CFLAGS_STD        = -std=gnu11
 CXXFLAGS_STD      = -std=gnu++11
-CXXFLAGS         += -pedantic -Wall -Wextra -DTEST_VIRTUAL=""
+CXXFLAGS         += -DTEST_VIRTUAL=""
 MONITOR_PORT      = /dev/ttyACM*
 CURRENT_DIR       = $(shell basename $(CURDIR))
 OBJDIR            = $(PROJECT_DIR)/../bin/$(BOARD_TAG)/$(CURRENT_DIR)
