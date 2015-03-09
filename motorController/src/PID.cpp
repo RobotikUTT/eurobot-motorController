@@ -1,8 +1,7 @@
 #include "PID.h"
 
 
-Pid::Pid(double kp, double ki, double kd, unsigned long deltaT, double *input,
-            double *setPoint, double *output)
+Pid::Pid(double kp, double ki, double kd, unsigned long deltaT)
 {
     this->kp = kp;
     this->ki = ki;
@@ -13,10 +12,6 @@ Pid::Pid(double kp, double ki, double kd, unsigned long deltaT, double *input,
 
     this->ITerm = 0;
     this->lastInput = 0;
-
-    this->input = input;
-    this->setPoint = setPoint;
-    this->output = output;
 }
 
 
@@ -82,43 +77,7 @@ void Pid::setDeltaT(unsigned long deltaT)
 }
 
 
-double* Pid::getInput()
-{
-    return this->input;
-}
-
-
-void Pid::setInput(double *input)
-{
-    this->input = input;
-}
-
-
-double* Pid::getOutput()
-{
-    return this->output;
-}
-
-
-void Pid::setOutput(double *output)
-{
-    this->output = output;
-}
-
-
-double* Pid::getSetpoint()
-{
-    return this->setPoint;
-}
-
-
-void Pid::setSetpoint(double *setPoint)
-{
-    this->setPoint = setPoint;
-}
-
-
-void Pid::compute()
+double Pid::compute(double input, double setPoint)
 {
     unsigned long now = millis();
     int timeElapsed = (now - this->lastMillis);
@@ -127,15 +86,13 @@ void Pid::compute()
     {
         //Compute must be called periodically
         
-        double error = *(this->setPoint) - *(this->input);
+        double error = setPoint - input;
         this->ITerm += (this->ki * error);
+        double dInput = (input - this->lastInput);
 
-        double dInput = (*(this->input) - this->lastInput);
-
-        *(this->output) = this->kp * error + this->ITerm
-            - this->kd * dInput;
-
-        this->lastInput = *(input);
+        this->lastInput = input;
         this->lastMillis = now;
+
+        return this->kp * error + this->ITerm - this->kd * dInput;
     }
 }

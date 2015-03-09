@@ -37,32 +37,33 @@ class Enslavement
 
     private:
 
-        double distanceAcceleration; //acceleration in m.s^-2
-        double distanceVelocityMax;  //velocity max in m.s^-1
-        double orientationAcceleration;    //acceleration in rad.s^-2
-        double orientationVelocityMax;     //velocity max in rad.s^-1
-
-        double velocityGain; //acceleration in cm.deltaT^-2
-
-        double distanceObjective;
-        double theoricalDistance;
-        double currentDistance;
-        double lastDistance;
-        double distanceCommand;
-
-        double orientationObjective;
-        double theoricalOrientation;
-        double currentOrientation;
-        double lastOrientation;
-        double orientationCommand;
-
-        unsigned long deltaT;
-        unsigned long lastMillis;
-
+        Odometry *odometry;
         Motor *leftMotor;
         Motor *rightMotor;
-        Odometry *odometry;
         Pid *distancePID;
         Pid *anglePID;
+
+
+        /*
+            Constants
+         */
+
+        unsigned long deltaT;
+        double orientationAcceleration; //ticks.deltaT^-2
+        double distanceAcceleration; //ticks.deltaT^-2
+        double orientationVelocityMax; //ticks.deltaT^-1
+        double distanceVelocityMax;  //ticks.deltaT^-1
+        double orientationGain; //ticks
+        double distanceGain; //ticks
+
+        /*
+            Variables used to generate the trajectory model
+         */
+        
+        unsigned long lastMillis;
+        double orientationObjective;
+        double distanceObjective;
+        double theoricalOrientation;
+        double theoricalDistance;
 };
 #endif

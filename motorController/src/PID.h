@@ -19,8 +19,7 @@ class Pid
          * @param setPoint reference
          */
         
-        Pid(double kp, double ki, double kd, unsigned long deltaT, double *input,
-            double *setPoint, double *output);
+        Pid(double kp, double ki, double kd, unsigned long deltaT);
 
         /**
          * @brief Destructor
@@ -36,14 +35,8 @@ class Pid
         void setKd(double kd);
         unsigned long getDeltaT();
         void setDeltaT(unsigned long deltaT);
-        double* getInput();
-        void setInput(double *input);
-        double* getOutput();
-        void setOutput(double *output);
-        double* getSetpoint();
-        void setSetpoint(double *setpoint);
-        
-        void compute();
+
+        double compute(double input, double setPoint);
 
 
     private:
@@ -57,9 +50,5 @@ class Pid
 
         double ITerm;
         double lastInput;
-
-        double *input;
-        double *setPoint;
-        double *output;
 };
 #endif
