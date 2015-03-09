@@ -53,7 +53,7 @@ TEST(Odometry, straightLine)
     odometry->update();
     CarthesianCoordinates coordinates = odometry->getCoordinates();
  
-    ASSERT_EQ(coordinates.y, 0);
+    ASSERT_EQ(roundf(coordinates.y * 100) / 100, 0);
     ASSERT_EQ(roundf(coordinates.x * 100) / 100, 2);
 }
  

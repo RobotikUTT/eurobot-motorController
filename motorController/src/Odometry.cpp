@@ -1,27 +1,10 @@
 #include "Odometry.h"
  
- 
-Odometry::Odometry(Encoder *leftEncoder, Encoder *rightEncoder)
-{
-    this->leftEncoder = leftEncoder;
-    this->rightEncoder = rightEncoder;
- 
-    this->coordinates = (CarthesianCoordinates) {0, 0};
-    this->orientation = 0;
-    this->reset();
-}
- 
- 
-Odometry::~Odometry()
-{
- 
-}
- 
- 
+
 const double Odometry::ENTRAXE = 1;
 Odometry* Odometry::inst = NULL;
- 
- 
+
+
 Odometry* Odometry::getInst(Encoder *leftEncoder, Encoder *rightEncoder)
 {
     if (Odometry::inst == NULL)
@@ -32,8 +15,8 @@ Odometry* Odometry::getInst(Encoder *leftEncoder, Encoder *rightEncoder)
  
     return Odometry::inst;
 }
- 
- 
+
+
 double Odometry::metersToTicks(double meters)
 {
     return (meters / 2 / 3.14 / Motor::WHEEL_RADIUS * Encoder::TICK_PER_SPIN);
@@ -44,6 +27,18 @@ double Odometry::ticksToMeters(double ticks)
 {
     return (ticks * 2 * 3.14 * Motor::WHEEL_RADIUS / Encoder::TICK_PER_SPIN);
 }
+
+
+Odometry::Odometry(Encoder *leftEncoder, Encoder *rightEncoder)
+{
+    this->leftEncoder = leftEncoder;
+    this->rightEncoder = rightEncoder;
+
+    this->reset();
+}
+ 
+ 
+Odometry::~Odometry(){ }
  
  
 CarthesianCoordinates Odometry::getCoordinates()
@@ -51,10 +46,11 @@ CarthesianCoordinates Odometry::getCoordinates()
     return this->coordinates;
 }
  
- 
-void Odometry::setCoordinates(CarthesianCoordinates newCoordinates)
+
+void Odometry::setCoordinates(double x, double y)
 {
-    this->coordinates = newCoordinates;
+    this->coordinates.x = x;
+    this->coordinates.y = y;
 }
  
  
@@ -67,21 +63,10 @@ double Odometry::getOrientation()
 void Odometry::setOrientation(double newOrientation)
 {
     this->orientation = newOrientation;
+
     this->orientation = fmod(this->orientation, M_PI * 2);
     if (this->orientation < 0)
         this->orientation += M_PI * 2;
-}
- 
- 
-Ticks Odometry::getTicks()
-{
-    return this->ticks;
-}
- 
- 
-void Odometry::setTicks(Ticks newTicks)
-{
-    this->ticks = newTicks;
 }
  
  
@@ -92,9 +77,11 @@ void Odometry::reset()
  
     this->ticks.left = 0;
     this->ticks.right = 0;
+
+    this->coordinates.x = 0;
+    this->coordinates.y = 0;
 }
- 
- 
+
  
 void Odometry::update()
 {
@@ -105,7 +92,7 @@ void Odometry::update()
     this->rightEncoder->resetTicks();
    
     double oldOrientation = this->orientation;
-    double rayon;
+    double rayon = 0;
  
     double left = Odometry::ticksToMeters(this->ticks.left);
     double right = Odometry::ticksToMeters(this->ticks.right);
@@ -127,17 +114,17 @@ void Odometry::update()
        
         if (right > left)
         {
-            this->setCoordinates((CarthesianCoordinates) {this->coordinates.x + rayon * (sin(this->orientation) - sin(oldOrientation)),
-            this->coordinates.y + rayon * (cos(oldOrientation) - cos(this->orientation))});
+            this->setCoordinates(this->coordinates.x + rayon * (sin(this->orientation) - sin(oldOrientation)),
+                this->coordinates.y + rayon * (cos(oldOrientation) - cos(this->orientation)));
         } else
         {
-            this->setCoordinates((CarthesianCoordinates) {this->coordinates.x + rayon * (sin(oldOrientation) - sin(this->orientation)),
-            this->coordinates.y + rayon * (cos(this->orientation) - cos(oldOrientation))});
+            this->setCoordinates(this->coordinates.x + rayon * (sin(oldOrientation) - sin(this->orientation)),
+                this->coordinates.y + rayon * (cos(this->orientation) - cos(oldOrientation)));
         }
     }
     else
     {
-        this->setCoordinates((CarthesianCoordinates) {this->coordinates.x + right * cos(this->orientation),
-            this->coordinates.y + right * sin(this->orientation)});
+        this->setCoordinates(this->coordinates.x + right * cos(this->orientation),
+            this->coordinates.y + right * sin(this->orientation));
     }
 }

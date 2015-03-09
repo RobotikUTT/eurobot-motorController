@@ -25,29 +25,25 @@ typedef struct
 class Odometry
 {
     public:
+        static const double ENTRAXE;
 
         static Odometry* getInst(Encoder *leftEncoder, Encoder *rightEncoder);
+        
         static double metersToTicks(double meters);
         static double ticksToMeters(double ticks);
 
-        static const double ENTRAXE;
 
         CarthesianCoordinates getCoordinates();
-        void setCoordinates(CarthesianCoordinates newCoordinates);
+        void setCoordinates(double x, double y);
 
         double getOrientation();
         void setOrientation(double newOrdientation);
-
-        Ticks getTicks();
-        void setTicks(Ticks newTicks);
 
         void reset();
         void update();
 
 
-
     private:
-
         /**
          * @brief Constructor
          */
@@ -60,15 +56,13 @@ class Odometry
 
         ~Odometry();
 
-        void checkOrientation();
-
         static Odometry *inst;
 
         Encoder *leftEncoder;
         Encoder *rightEncoder;
 
         CarthesianCoordinates coordinates;
-        double orientation;
         Ticks ticks;
+        double orientation;
 };
 #endif
