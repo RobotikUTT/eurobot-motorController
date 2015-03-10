@@ -61,7 +61,7 @@ TEST(Odometry, straightLine)
 TEST(Odometry, valueTest2)
 {
     EXPECT_CALL(leftEncoder, getTicks())                  
-      .WillOnce(Return(Odometry::metersToTicks(M_PI/2)));
+      .WillOnce(Return(Odometry::metersToTicks(-M_PI/2)));
     EXPECT_CALL(rightEncoder, getTicks())    
       .WillOnce(Return(Odometry::metersToTicks(0)));
  
@@ -70,52 +70,37 @@ TEST(Odometry, valueTest2)
     CarthesianCoordinates coordinates = odometry->getCoordinates();
  
     ASSERT_EQ(roundf(coordinates.y * 100) / 100, -0.5);
-    ASSERT_EQ(roundf(coordinates.x * 100) / 100, 2.5);
+    ASSERT_EQ(roundf(coordinates.x * 100) / 100, 1.5);
    
 }
  
 TEST(Odometry, valueTest3)
 {
     EXPECT_CALL(leftEncoder, getTicks())                  
-      .WillOnce(Return(Odometry::metersToTicks(M_PI/2)));
+      .WillOnce(Return(Odometry::metersToTicks(-M_PI/2)));
     EXPECT_CALL(rightEncoder, getTicks())    
-      .WillOnce(Return(Odometry::metersToTicks(M_PI)));
+      .WillOnce(Return(Odometry::metersToTicks(-M_PI)));
  
     odometry->update();
  
     CarthesianCoordinates coordinates = odometry->getCoordinates();
  
     ASSERT_EQ(roundf(coordinates.y * 100) / 100, -2);
-    ASSERT_EQ(roundf(coordinates.x * 100) / 100, 4);
+    ASSERT_EQ(roundf(coordinates.x * 100) / 100, 0);
    
 }
  
 TEST(Odometry, valueTest4)
 {
     EXPECT_CALL(leftEncoder, getTicks())                  
-      .WillOnce(Return(Odometry::metersToTicks(-M_PI/4)));
-    EXPECT_CALL(rightEncoder, getTicks())    
       .WillOnce(Return(Odometry::metersToTicks(M_PI/4)));
+    EXPECT_CALL(rightEncoder, getTicks())    
+      .WillOnce(Return(Odometry::metersToTicks(-M_PI/4)));
  
     odometry->update();
  
     CarthesianCoordinates coordinates = odometry->getCoordinates();
     ASSERT_EQ(roundf(coordinates.y * 100) / 100, -2);
-    ASSERT_EQ(roundf(coordinates.x * 100) / 100, 4);
-   
-}
- 
-TEST(Odometry, valueTest5)
-{
-    EXPECT_CALL(leftEncoder, getTicks())                  
-      .WillOnce(Return(Odometry::metersToTicks(3 * M_PI / 2)));
-    EXPECT_CALL(rightEncoder, getTicks())    
-      .WillOnce(Return(Odometry::metersToTicks(3 * M_PI)));
- 
-    odometry->update();
- 
-    CarthesianCoordinates coordinates = odometry->getCoordinates();
-    ASSERT_EQ(roundf(coordinates.y * 100) / 100, -3.5);
-    ASSERT_EQ(roundf(coordinates.x * 100) / 100, 2.5);
+    ASSERT_EQ(roundf(coordinates.x * 100) / 100, 0);
    
 }
