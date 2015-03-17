@@ -123,8 +123,7 @@ void Odometry::update()
     double left = Odometry::ticksToMeters(this->ticks.left);
     double right = Odometry::ticksToMeters(this->ticks.right);
 
-
-    if (((right > 0) && (left < 0)) || ((left < 0) && (right > 0)))
+    if (((right > 0) && (left < 0)) || ((left > 0) && (right < 0)))
     {
         rayon = Odometry::ENTRAXE * (0.5 - (fmin(fabs(left), fabs(right))/fabs(left - right)));
     }
@@ -137,15 +136,14 @@ void Odometry::update()
 
     if (right != left)
     {
-
-        if (right > left)
+        if (fabs(right) > fabs(left))
         {
             this->setCoordinates(this->coordinates.x + rayon * (sin(this->orientation) - sin(oldOrientation)),
-                this->coordinates.y + rayon * (cos(oldOrientation) - cos(this->orientation)));
+            this->coordinates.y + rayon * (cos(oldOrientation) - cos(this->orientation)));
         } else
         {
             this->setCoordinates(this->coordinates.x + rayon * (sin(oldOrientation) - sin(this->orientation)),
-                this->coordinates.y + rayon * (cos(this->orientation) - cos(oldOrientation)));
+            this->coordinates.y + rayon * (cos(this->orientation) - cos(oldOrientation)));
         }
     }
     else
