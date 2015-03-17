@@ -4,7 +4,7 @@ motorController:
 	make -C ./src
 
 unit: 
-	make -C ./tests && clear && ./bin/tests/tests
+	make -C ./tests && ./bin/tests/tests
 
 deploy:
 	make -C ./src upload

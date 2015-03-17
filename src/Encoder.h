@@ -10,7 +10,7 @@ class Encoder
         Encoder(const byte &chanA, const byte &chanB);
         TEST_VIRTUAL ~Encoder();
 
-        TEST_VIRTUAL long getTicks();
+        TEST_VIRTUAL double getTicks();
         void resetTicks();
         void listenToTicks();
 

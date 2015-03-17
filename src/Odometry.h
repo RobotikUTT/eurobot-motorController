@@ -33,6 +33,11 @@ class Odometry
         static double ticksToMeters(double ticks);
 
 
+        Encoder* getLeftEncoder();
+        void setLeftEncoder(Encoder* newLeftEncoder);
+        Encoder* getRightEncoder();
+        void setRightEncoder(Encoder* newRightEncoder);
+
         CarthesianCoordinates getCoordinates();
         void setCoordinates(double x, double y);
 

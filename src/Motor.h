@@ -10,8 +10,9 @@ class Motor
         Motor(const byte &pwmPIN, const byte &dirPIN, const byte &brake = 0);
         ~Motor();
 
-        void run(const int &PWM);
+        void run(int PWM);
         void stop();
+        byte getPWM();
         
         static const byte REDUCTOR_RATIO;
         static const double WHEEL_RADIUS;

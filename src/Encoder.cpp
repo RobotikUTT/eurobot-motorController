@@ -33,7 +33,7 @@ Encoder::~Encoder() {}
  * @return tick number
  */
 
-long Encoder::getTicks()
+double Encoder::getTicks()
 {
     return this->tickNumber;
 }

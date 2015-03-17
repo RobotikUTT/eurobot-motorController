@@ -3,7 +3,7 @@
 
 /**
  * @brief Constructor
- * 
+ *
  * @param pwmPIN PWM pin
  * @param dir dir pin
  * @param brake brake pin
@@ -35,24 +35,30 @@ const double Motor::WHEEL_RADIUS = 0.03;
 
 /**
  * @brief Set the motor speed
- * 
+ *
  * @param PWM PWM
  */
 
-void Motor::run(const int &PWM)
+void Motor::run(int PWM_)
 {
-    this->PWM = abs(PWM);
-    
-    if (this->PWM > 255)
-        this->PWM = 255;
-
-    if (PWM > 0)
+    if (PWM_ > 0)
     {
         this->setDir(0);
     }
     else
     {
         this->setDir(1);
+    }
+
+    PWM_ = abs(PWM_);
+
+    if (PWM_ > 255)
+    {
+        this->PWM = 255;
+    }
+    else
+    {
+        this->PWM = PWM_;
     }
 
     analogWrite(this->pwmPIN, this->PWM);
@@ -79,6 +85,12 @@ void Motor::setDir(const bool &dir)
     if (this->dir != dir)
     {
         this->dir = dir;
-        digitalWrite(this->dir, dir);    
+        digitalWrite(this->dir, dir);
     }
+}
+
+
+byte Motor::getPWM()
+{
+    return this->PWM;
 }

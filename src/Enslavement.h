@@ -16,7 +16,7 @@ class Enslavement
         /**
          * @brief Constructor
          */
-        
+
         Enslavement(unsigned long deltaT, double acceleration, double velocityMax,
             Motor *leftMotor, Motor *rightMotor);
 
@@ -32,8 +32,10 @@ class Enslavement
         void turn(double theta);
 
         void compute();
-        
+
         void setDeltaT(int deltaT);
+        double theoricalVelocity;
+
 
     private:
 
@@ -41,7 +43,6 @@ class Enslavement
         Motor *leftMotor;
         Motor *rightMotor;
         Pid *distancePID;
-        Pid *anglePID;
 
 
         /*
@@ -49,21 +50,19 @@ class Enslavement
          */
 
         unsigned long deltaT;
-        double orientationAcceleration; //ticks.deltaT^-2
-        double distanceAcceleration; //ticks.deltaT^-2
-        double orientationVelocityMax; //ticks.deltaT^-1
-        double distanceVelocityMax;  //ticks.deltaT^-1
-        double orientationGain; //ticks
-        double distanceGain; //ticks
-
-        /*
-            Variables used to generate the trajectory model
-         */
-        
         unsigned long lastMillis;
-        double orientationObjective;
+
+        double distanceVelocityMax;  //ticks.deltaT^-1
+        double distanceAcceleration; //ticks.deltaT^-2
+
+        double actualDistanceVelocity;
+        double actualDistance;
+        double previousDistance;
+
         double distanceObjective;
-        double theoricalOrientation;
+        double velocityObjective;
+
         double theoricalDistance;
 };
+
 #endif

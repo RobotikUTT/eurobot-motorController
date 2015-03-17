@@ -9,7 +9,7 @@ class MockEncoder: public Encoder
 {   
     public:
         MockEncoder(const byte &chanA, const byte &chanB): Encoder(chanA, chanB) {};
-        MOCK_METHOD0(getTicks, long());
+        MOCK_METHOD0(getTicks, double());
 };
 
 #endif

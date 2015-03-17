@@ -1,5 +1,5 @@
 ################# EDIT BELOW #######################
-PROJECT_DIR       = /home/pyms/Documents/Code/eurobot-2015/motorController/src
+PROJECT_DIR       = .
 
 ################# DONT TOUCH #######################
 ARDMK_DIR         = $(PROJECT_DIR)/../make

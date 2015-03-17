@@ -1,33 +1,23 @@
 #include "Enslavement.h"
 
 
-Enslavement::Enslavement(unsigned long deltaT, double acceleration, double velocityMax, 
+Enslavement::Enslavement(unsigned long deltaT, double acceleration, double velocityMax,
     Motor *leftMotor, Motor *rightMotor)
 {
-    // Dirty work with this singleton. see motorController.ino for more explanation
     this->odometry = Odometry::getInst(NULL, NULL);
-
     this->leftMotor = leftMotor;
     this->rightMotor = rightMotor;
-
-    this->distancePID = new Pid(1, 0, 0, this->deltaT);
-    this->anglePID = new Pid(1, 0, 0, this->deltaT);
-
+    this->distancePID = new Pid(0.096084, 0.0, 0, deltaT);
 
     this->deltaT = deltaT;
-    this->orientationAcceleration = Odometry::metersToTicks(2 * acceleration / Odometry::ENTRAXE);
-    this->distanceAcceleration = Odometry::metersToTicks(acceleration);
-    this->orientationVelocityMax = Odometry::metersToTicks(2 * velocityMax / Odometry::ENTRAXE);   // / entraxe
-    this->distanceVelocityMax = Odometry::metersToTicks(velocityMax);
-    this->orientationGain = this->orientationAcceleration * deltaT * deltaT;
-    this->distanceGain = this->distanceAcceleration * deltaT * deltaT;
-
-
     this->lastMillis = 0;
-    this->orientationObjective = 0;
+
+
+    this->distanceAcceleration = Odometry::metersToTicks((acceleration / (1000 * 1000)) * deltaT * deltaT); //m.s^-2 => m.deltaT^-2
+    this->distanceVelocityMax = Odometry::metersToTicks((velocityMax / 1000) * deltaT); //m.s^-1 => m.deltaT^-1
+
     this->distanceObjective = 0;
     this->theoricalDistance = 0;
-    this->theoricalOrientation = 0;
 }
 
 
@@ -56,90 +46,77 @@ void Enslavement::goTo(CarthesianCoordinates newCoordinates)
     }
 
     this->distanceObjective = Odometry::metersToTicks(newDistance);
-    this->orientationObjective = Odometry::metersToTicks(newAngle);
 }
 
 
 void Enslavement::turn(double theta)
 {
-    this->orientationObjective = theta;
 }
 
 
 void Enslavement::compute()
 {
-    unsigned long now = millis();
-    unsigned long timeElapsed = (now - this->lastMillis);
-
-    if (timeElapsed >= this->deltaT)
-    {
-        this->lastMillis = now;
-
-        /**
-         * Odometry data
-         */
-        
-        //Old data
-        CarthesianCoordinates coordinates = this->odometry->getCoordinates();
-        double lastDistance = Odometry::metersToTicks(sqrt(pow(coordinates.x, 2) + pow(coordinates.y, 2)));
-        double lastOrientation = this->odometry->getOrientation();
-
-        //Update data
         this->odometry->update();
-        coordinates = this->odometry->getCoordinates();
-        double distance = Odometry::metersToTicks(sqrt(pow(coordinates.x, 2) + pow(coordinates.y, 2)));
-        double orientation = this->odometry->getOrientation();
+        CarthesianCoordinates coordinates = this->odometry->getCoordinates();
 
-        double remainingDistance = this->distanceObjective - distance;
-        double remainingOrientation = this->orientationObjective - orientation;
-        double distanceTraveled = distance - lastDistance;
-        double orientationTraveled = orientation - lastOrientation;
+        this->actualDistance = Odometry::metersToTicks(sqrt(pow(coordinates.x, 2) + pow(coordinates.y, 2)));
+        std::cout << this->actualDistance << std::endl;
+        actualDistanceVelocity = this->actualDistance - this->previousDistance;
+        this->previousDistance = this->actualDistance;
 
+        /*
+            Generate next point
+        */
 
-        /**
-         * Enslavement
-         */
+        double remainingDistance = this->distanceObjective - this->actualDistance;
 
-        //Distance 
-        
-        //Shall we decelerate ?
-        if (remainingDistance <= 0.5 * pow(distanceTraveled / this->deltaT, 2) / this->distanceAcceleration)
+        bool done = false;
+        if (fabs(remainingDistance) <= this->distanceAcceleration)
         {
-            this->distanceObjective -= this->distanceGain;
-        }
-        //Or accelerate ?
-        else if (distanceTraveled / this->deltaT < this->distanceVelocityMax)
-        {
-            this->distanceObjective += this->distanceGain;
+            done = true;
         }
 
-        //Angle
-        if (remainingOrientation <= 0.5 * pow(orientationTraveled / this->deltaT, 2) / this->orientationAcceleration)
+        if (done)
         {
-            this->orientationObjective -= this->orientationGain;
+            done = false;
         }
-        else if (orientationTraveled / this->deltaT < this->orientationVelocityMax)
+        else
         {
-            this->orientationObjective += this->orientationGain;
+            if ((remainingDistance <=  pow(theoricalVelocity, 2) /( 2 * this->distanceAcceleration)))
+            {
+                this->velocityObjective = 0;
+            }
+            else if (remainingDistance > 0)
+            {
+                this->velocityObjective = this->distanceVelocityMax;
+            }
+            else if (remainingDistance < 0)
+            {
+                this->velocityObjective = -(this->distanceVelocityMax);
+            }
         }
 
+        if ((int)(this->theoricalVelocity/0.01)*0.01 == this->velocityObjective)
+        {
+            this->theoricalVelocity = this->velocityObjective;
+        }
+        else if ((int)((this->theoricalVelocity + this->distanceAcceleration)/0.01)*0.01 <= this->velocityObjective)
+        {
+            this->theoricalVelocity += this->distanceAcceleration;
+        }
+        else if ((int)((this->theoricalVelocity - this->distanceAcceleration)/0.01)*0.01 >= this->velocityObjective)
+        {
+            this->theoricalVelocity -= this->distanceAcceleration;
+        }
 
-        /**
-         * Error correction
-         */
-
-         double distanceCommand = this->distancePID->compute(distance, this->distanceObjective);
-         double orientationCommand = this->distancePID->compute(distance, this->orientationObjective);
+        this->theoricalDistance += this->theoricalVelocity;
 
 
-        /**
-         * Motor control
-         */
-        
-        int leftCommand = distanceCommand - orientationCommand;
-        int rightCommand = distanceCommand + orientationCommand;
+        /*
+            Error correction
+        */
 
-        this->leftMotor->run(leftCommand);
-        this->rightMotor->run(rightCommand);
-    }
+        double distanceCommand = this->distancePID->compute(actualDistanceVelocity, this->theoricalVelocity);
+        this->leftMotor->run((int)distanceCommand);
+        this->rightMotor->run((int)distanceCommand);
 }

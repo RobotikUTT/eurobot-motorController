@@ -68,10 +68,10 @@ void Pid::setDeltaT(unsigned long deltaT)
     if (deltaT > 0)
     {
         double ratio = (double) deltaT / (double) this->deltaT;
-        
+
         this->ki *= ratio;
         this->kd /= ratio;
-        
+
         this->deltaT = deltaT;
     }
 }
@@ -79,20 +79,20 @@ void Pid::setDeltaT(unsigned long deltaT)
 
 double Pid::compute(double input, double setPoint)
 {
-    unsigned long now = millis();
-    int timeElapsed = (now - this->lastMillis);
-
-    if (timeElapsed >= this->deltaT)
-    {
+    // unsigned long now = millis();
+    // int timeElapsed = (now - this->lastMillis);
+    //
+    // if (timeElapsed >= this->deltaT)
+    // {
         //Compute must be called periodically
-        
+
         double error = setPoint - input;
         this->ITerm += (this->ki * error);
         double dInput = (input - this->lastInput);
 
         this->lastInput = input;
-        this->lastMillis = now;
+        // this->lastMillis = now;
 
         return this->kp * error + this->ITerm - this->kd * dInput;
-    }
+    // }
 }
