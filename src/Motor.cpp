@@ -18,7 +18,7 @@ Motor::Motor(const byte &pwmPIN, const byte &dirPIN, const byte &brake)
     this->PWM = 0;
 
     pinMode(pwmPIN, OUTPUT);
-    pinMode(dir, OUTPUT);
+    pinMode(dirPIN, OUTPUT);
 }
 
 
@@ -85,7 +85,7 @@ void Motor::setDir(const bool &dir)
     if (this->dir != dir)
     {
         this->dir = dir;
-        digitalWrite(this->dir, dir);
+        digitalWrite(this->dirPIN, dir);
     }
 }
 
