@@ -92,5 +92,6 @@ void Motor::setDir(const bool &dir)
 
 byte Motor::getPWM()
 {
-    return this->PWM;
+    int sign = (this->dir) ? -1 : 1;
+    return sign * this->PWM;
 }

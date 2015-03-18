@@ -13,7 +13,7 @@
  * Macros
  */
 
-// undefine stdlib's abs if encountered
+// undefine stdlib's functions if encountered
 #ifdef abs
     #undef abs
 #endif
@@ -87,6 +87,17 @@ class FakeSerial
         size_t print(unsigned long value);
         size_t println(unsigned long value, int base);
         size_t println(unsigned long value);
+
+        size_t print(float value, int base);
+        size_t print(float value);
+        size_t println(float value, int base);
+        size_t println(float value);
+
+        size_t print(double value, int base);
+        size_t print(double value);
+        size_t println(double value, int base);
+        size_t println(double value);
+
 
         size_t println();
 

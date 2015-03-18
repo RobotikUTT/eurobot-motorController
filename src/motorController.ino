@@ -22,11 +22,11 @@ const byte ENCODER_L_B_PIN = 33;
 
 
 //Motors
-const byte MOTOR_L_PIN     = 10;
+const byte MOTOR_L_PIN     = 3;
 const byte DIR_L_PIN       = 9;
- 
-const byte MOTOR_R_PIN     = 12;
-const byte DIR_R_PIN       = 11; //TODO: verify registry timers
+
+const byte MOTOR_R_PIN     = 11;
+const byte DIR_R_PIN       = 12; //TODO: verify registry timers
 
 
 Encoder *leftEncoder;
@@ -50,7 +50,7 @@ void rightTicks()
     rightEncoder->listenToTicks();
 }
 
-int getInterruptNumber(int pin) 
+int getInterruptNumber(int pin)
 {
     switch (pin)
     {
@@ -113,10 +113,12 @@ void setup()
     // serialCom->setSendCommand(SerialComCmd::CMD_TEST);
     // serialCom->writeUInt8(0);
     // serialCom->send();
-    // 
+    //
     Serial.begin(9600);
+    enslavement->goTo(10, 0);
 
-    enslavement->goTo({50, 0});
+    leftMotor->run(255);
+    rightMotor->run(255);
 }
 
 
@@ -127,5 +129,5 @@ void loop()
     // serialCom->doReadJob();
 
     //Motor enslavement
-    enslavement->compute();
+    //enslavement->compute();
 }

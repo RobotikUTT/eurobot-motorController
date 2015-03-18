@@ -7,7 +7,7 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->odometry = Odometry::getInst(NULL, NULL);
     this->leftMotor = leftMotor;
     this->rightMotor = rightMotor;
-    this->distancePID = new Pid(0.096084, 0.0, 0, deltaT);
+    this->distancePID = new Pid(0.01, 0.1, 0, deltaT);
 
     this->deltaT = deltaT;
     this->lastMillis = 0;
@@ -60,8 +60,9 @@ void Enslavement::compute()
         CarthesianCoordinates coordinates = this->odometry->getCoordinates();
 
         this->actualDistance = Odometry::metersToTicks(sqrt(pow(coordinates.x, 2) + pow(coordinates.y, 2)));
-        std::cout << this->actualDistance << std::endl;
         actualDistanceVelocity = this->actualDistance - this->previousDistance;
+
+
         this->previousDistance = this->actualDistance;
 
         /*
@@ -69,6 +70,10 @@ void Enslavement::compute()
         */
 
         double remainingDistance = this->distanceObjective - this->actualDistance;
+        Serial.print(this->actualDistanceVelocity);
+        Serial.print(",");
+        // std::cout << this->theoricalVelocity << " vs " << actualDistanceVelocity << std::endl;
+        // std::cout << "error: " << this->theoricalVelocity - actualDistanceVelocity << std::endl;
 
         bool done = false;
         if (fabs(remainingDistance) <= this->distanceAcceleration)
@@ -82,7 +87,7 @@ void Enslavement::compute()
         }
         else
         {
-            if ((remainingDistance <=  pow(theoricalVelocity, 2) /( 2 * this->distanceAcceleration)))
+            if ((remainingDistance <=  pow(this->theoricalVelocity, 2) /( 2 * this->distanceAcceleration)))
             {
                 this->velocityObjective = 0;
             }

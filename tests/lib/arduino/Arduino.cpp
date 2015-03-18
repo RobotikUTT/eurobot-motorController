@@ -71,15 +71,33 @@ size_t FakeSerial::write(const byte *buffer, size_t length)
 
 size_t FakeSerial::print(const char *str)
 {
-    return this->println(str);
+    std::cout << str;
+
+    return sizeof(str)/sizeof(char);
 }
 
 
 size_t FakeSerial::println(const char *str)
 {
-    std::cout << "Serial" << int(this->portNumber) << ": " << str << "\n";
+    std::cout << str << "\n";
 
     return sizeof(str)/sizeof(char);
+}
+
+
+size_t FakeSerial::print(double value)
+{
+    std::cout << value;
+
+    return sizeof(value);
+}
+
+
+size_t FakeSerial::println(double value)
+{
+    std::cout << value << "\n";
+
+    return sizeof(value);
 }
 
 

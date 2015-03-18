@@ -81,11 +81,9 @@ double Pid::compute(double input, double setPoint)
 {
     // unsigned long now = millis();
     // int timeElapsed = (now - this->lastMillis);
-    //
+
     // if (timeElapsed >= this->deltaT)
     // {
-        //Compute must be called periodically
-
         double error = setPoint - input;
         this->ITerm += (this->ki * error);
         double dInput = (input - this->lastInput);
