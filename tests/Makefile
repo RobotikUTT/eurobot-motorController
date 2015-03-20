@@ -12,7 +12,7 @@ CXXFLAGS += -g -pthread -DTEST_VIRTUAL="virtual" -DDEBUG="true" -std=c++11
 
 
 
-all: gmock.a arduinoLib tests
+all: gmock.a arduinoLib tests directory
 
 arduinoLib:
 	make -C ./lib/arduino
@@ -21,13 +21,14 @@ clean:
 	rm -f $(TESTS) gmock.a gmock_main.a *.o
 	rm -f $(TESTS) ../src/*.o
 
-
 %.o: %.cpp $(GMOCK_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $^ -o $@
 
 tests: gmock_main.a $(OBJS)
 	$(CXX) $^ $(CPPFLAGS) $(LDFLAGS) $(CXXFLAGS) -lpthread -o ../bin/tests/tests $(LDFLAGS)
 
+directory:
+	mkdir -p ../bin/tests
 
 ######################### DO NOT TOUCH BELOW ########################
 
