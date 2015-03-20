@@ -106,5 +106,6 @@ double Pid::compute(double input, double setPoint)
          * TODO: fix this
          */
         Serial.println("Issue here");
+        return 0;
     }
 }
