@@ -114,6 +114,13 @@ void Odometry::update()
     this->ticks.left = this->leftEncoder->getTicks();
     this->ticks.right = this->rightEncoder->getTicks();
 
+    /* debug
+    Serial.print("left: ");
+    Serial.println(ticks.left);
+    Serial.print("right: ")
+    Serial.println(ticks.right);
+    */
+   
     this->leftEncoder->resetTicks();
     this->rightEncoder->resetTicks();
 

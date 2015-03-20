@@ -14,11 +14,11 @@
 //Encoders
 //Channel A is used for the interupt
 
-const byte ENCODER_R_A_PIN = 21;
-const byte ENCODER_R_B_PIN = 31;
+const byte ENCODER_R_A_PIN = 20;
+const byte ENCODER_R_B_PIN = 36;
 
-const byte ENCODER_L_A_PIN = 20;
-const byte ENCODER_L_B_PIN = 33;
+const byte ENCODER_L_A_PIN = 21;
+const byte ENCODER_L_B_PIN = 34;
 
 
 //Motors
@@ -94,7 +94,7 @@ void setup()
     Odometry::getInst(leftEncoder, rightEncoder);
 
     //Enslavement
-    enslavement = new Enslavement(1000, 0.05, 1, leftMotor, rightMotor);
+    enslavement = new Enslavement(15, 0.05, 1, leftMotor, rightMotor);
 
     //Interrupts
     attachInterrupt(getInterruptNumber(ENCODER_L_A_PIN), leftTicks, FALLING);
@@ -124,6 +124,8 @@ void setup()
 
 void loop()
 {
+    //leftMotor->run(255);
+    //rightMotor->run(255);
     //Read serial packets
     // serialCom->doReadJob();
 
