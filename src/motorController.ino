@@ -14,19 +14,21 @@
 //Encoders
 //Channel A is used for the interupt
 
-const byte ENCODER_R_A_PIN = 2;
+const byte ENCODER_R_A_PIN = 21;
 const byte ENCODER_R_B_PIN = 31;
 
-const byte ENCODER_L_A_PIN = 3;
+const byte ENCODER_L_A_PIN = 20;
 const byte ENCODER_L_B_PIN = 33;
 
 
 //Motors
-const byte MOTOR_L_PIN     = 3;
-const byte DIR_L_PIN       = 9;
+const byte MOTOR_L_PIN = 13;
+const byte DIR_L_PIN_A = 24;
+const byte DIR_L_PIN_B = 22;
 
-const byte MOTOR_R_PIN     = 11;
-const byte DIR_R_PIN       = 12; //TODO: verify registry timers
+const byte MOTOR_R_PIN = 12;
+const byte DIR_R_PIN_A = 26; 
+const byte DIR_R_PIN_B = 28; 
 
 
 Encoder *leftEncoder;
@@ -84,15 +86,15 @@ void setup()
     rightEncoder = new Encoder(ENCODER_R_A_PIN, ENCODER_R_B_PIN);
 
     //Motors
-    leftMotor = new Motor(MOTOR_L_PIN, DIR_L_PIN);
-    rightMotor = new Motor(MOTOR_R_PIN, DIR_R_PIN);
+    leftMotor = new Motor(MOTOR_L_PIN, DIR_L_PIN_A, DIR_L_PIN_B);
+    rightMotor = new Motor(MOTOR_R_PIN, DIR_R_PIN_A, DIR_R_PIN_B);
 
     //Init odometry singleton, because enslavement object won't have access to encoders object.
     //This is dirty work, but it works, and it needs to be refactored. :)
     Odometry::getInst(leftEncoder, rightEncoder);
 
     //Enslavement
-    enslavement = new Enslavement(5000, 1, 2, leftMotor, rightMotor);
+    enslavement = new Enslavement(1000, 0.05, 1, leftMotor, rightMotor);
 
     //Interrupts
     attachInterrupt(getInterruptNumber(ENCODER_L_A_PIN), leftTicks, FALLING);
@@ -100,10 +102,10 @@ void setup()
 
 
     //Override PWM frequency
-//     int eraser = 7;
-//     int prescaler = 1;
+     int eraser = 7;
+     int prescaler = 1;
 
-//     TCCR1B &= ~eraser;
+     TCCR3B &= ~eraser;
 
     //Init serial communication
     serialCom = new SerialCom();
@@ -114,11 +116,8 @@ void setup()
     // serialCom->writeUInt8(0);
     // serialCom->send();
     //
-    Serial.begin(9600);
-    enslavement->goTo(10, 0);
-
-    leftMotor->run(255);
-    rightMotor->run(255);
+    Serial.begin(115200);
+    enslavement->goTo({1, 0});
 }
 
 
@@ -129,5 +128,5 @@ void loop()
     // serialCom->doReadJob();
 
     //Motor enslavement
-    //enslavement->compute();
+    enslavement->compute();
 }

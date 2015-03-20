@@ -4,21 +4,21 @@
 /**
  * @brief Constructor
  *
- * @param pwmPIN PWM pin
+ * @param pwmPin PWM pin
  * @param dir dir pin
  * @param brake brake pin
  */
 
-Motor::Motor(const byte &pwmPIN, const byte &dirPIN, const byte &brake)
+Motor::Motor(const byte &pwmPin, const byte &dirPinA, const byte &dirPinB)
 {
-    this->pwmPIN = pwmPIN;
-    this->dirPIN = dirPIN;
-    this->brake = brake;
-    this->dir = 0;
+    this->pwmPin = pwmPin;
+    this->dirPinA = dirPinA;
+    this->dirPinB = dirPinB;
     this->PWM = 0;
 
-    pinMode(pwmPIN, OUTPUT);
-    pinMode(dirPIN, OUTPUT);
+    pinMode(pwmPin, OUTPUT);
+    pinMode(dirPinA, OUTPUT);
+    pinMode(dirPinB, OUTPUT);
 }
 
 
@@ -61,7 +61,7 @@ void Motor::run(int PWM_)
         this->PWM = PWM_;
     }
 
-    analogWrite(this->pwmPIN, this->PWM);
+    analogWrite(this->pwmPin, this->PWM);
 }
 
 
@@ -72,7 +72,8 @@ void Motor::run(int PWM_)
 void Motor::stop()
 {
     this->PWM = 0;
-    analogWrite(this->pwmPIN, this->PWM);
+    digitalWrite(this->dirPinA, HIGH);
+    digitalWrite(this->dirPinB, HIGH);
 }
 
 
@@ -82,10 +83,15 @@ void Motor::stop()
 
 void Motor::setDir(const bool &dir)
 {
-    if (this->dir != dir)
+    if (!dir)
     {
-        this->dir = dir;
-        digitalWrite(this->dirPIN, dir);
+        digitalWrite(this->dirPinA, LOW);
+        digitalWrite(this->dirPinB, HIGH);
+    }
+    else
+    {
+        digitalWrite(this->dirPinA, HIGH);
+        digitalWrite(this->dirPinB, LOW);
     }
 }
 

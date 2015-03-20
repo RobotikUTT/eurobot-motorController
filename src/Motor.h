@@ -7,7 +7,7 @@
 class Motor
 {
     public:
-        Motor(const byte &pwmPIN, const byte &dirPIN, const byte &brake = 0);
+        Motor(const byte &pwmPin, const byte &dirPinA, const byte &dirPinB);
         ~Motor();
 
         void run(int PWM);
@@ -23,9 +23,9 @@ class Motor
 
         byte PWM;
         bool dir;
-        byte pwmPIN;
-        byte dirPIN;
-        byte brake;
+        byte pwmPin;
+        byte dirPinA;
+        byte dirPinB;
 };
 
 #endif
