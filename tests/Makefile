@@ -16,7 +16,7 @@ all: gmock.a arduinoLib tests directory
 
 arduinoLib:
 	make -C ./lib/arduino
-	
+
 clean:
 	rm -f $(TESTS) gmock.a gmock_main.a *.o
 	rm -f $(TESTS) ../src/*.o

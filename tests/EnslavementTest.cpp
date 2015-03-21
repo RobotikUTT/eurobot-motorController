@@ -21,21 +21,39 @@ using ::testing::Invoke;
 
 namespace EnslavementTest
 {
-    ACTION_P4(FakeGetTicks, motor, Vmax, deltaT, enslavement)
+    /**
+     * Emulate perfect DC motor and encoder,
+     * generating linear response to PWM
+     */
+    
+    ACTION_P2(FakeGetTicks, motor, Vmax)
     {
-        double ticks = Odometry::metersToTicks( (float)(motor->getPWM()) / (float) 255 * (float)Vmax );
-        return ticks;
+        return Odometry::metersToTicks( (float)(motor->getPWM()) / (float) 255 * (float)Vmax );
     }
 
 
-    Motor *leftMotor = new Motor(0, 0, 0);
+    /*
+        Params
+     */
+    
+    unsigned long deltaT = 1000; //10^-3s
+    double maxAcceleration = 0.05; //m.s^-2
+    double maxVelocity = 1; //m.s^-1
+
+
+    Motor *leftMotor = new Motor(0, 0, 0); //Pin value are not relevant here
     Motor *rightMotor = new Motor(0, 0, 0);
 
+    //NiceMock used to avoid warning of "WillByDefault"
     testing::NiceMock<MockEncoder> leftEncoder(1, 2);
     testing::NiceMock<MockEncoder> rightEncoder(3, 4);
 
+    /* Odometry singleton already exists thanks to OdometryTest
+        TODO: better using of singleton pattern
+     */
     Odometry *odometry = Odometry::getInst(NULL, NULL);
-    Enslavement enslavement(1000, 0.05, 1, leftMotor, rightMotor);
+    Enslavement enslavement(deltaT, maxAcceleration, maxVelocity, 
+        leftMotor, rightMotor);
 
 
     TEST(Enslavement, straightLine)
@@ -51,12 +69,13 @@ namespace EnslavementTest
         for (int i = 0; i < 250; i++)
         {
             ON_CALL(leftEncoder, getTicks())
-                .WillByDefault(FakeGetTicks(leftMotor, 1, 1000, enslavement));
+                .WillByDefault(FakeGetTicks(leftMotor, maxVelocity));
             ON_CALL(rightEncoder, getTicks())
-                .WillByDefault(FakeGetTicks(leftMotor, 1, 1000, enslavement));
+                .WillByDefault(FakeGetTicks(leftMotor, maxVelocity));
 
+            //Test is based on Serial output. Ctrl+c to end. TODO: find better solution
             enslavement.compute();
-            // std::this_thread::sleep_for(std::chrono::milliseconds(15));
+            //std::this_thread::sleep_for(std::chrono::milliseconds(deltaT));
         }
     }
 }

@@ -1,9 +1,9 @@
 all: motorController unit
 
-motorController: 
+motorController:
 	make -C ./src
 
-unit: 
+unit:
 	make -C ./tests && ./bin/tests/tests
 
 deploy:

@@ -4,39 +4,84 @@
 #include <Arduino.h>
 
 
+/**
+ * PID controller used to compute a new motor
+ * command from an error between a velocity objective
+ * and the real velocity.
+ */
 class Pid
 {
     public:
 
         /**
-         * @brief Constructor
-         * 
-         * @param kp proportional gain
-         * @param ki integral gain
-         * @param kd derivative gain
-         * @param deltaT sample time
-         * @param input value to compare to setPoint
-         * @param setPoint reference
+         * Constructor
+         * @param kp     Proportionnal term
+         * @param ki     Integral term
+         * @param kd     Derivative term
+         * @param deltaT Period
          */
-        
         Pid(double kp, double ki, double kd, unsigned long deltaT);
 
         /**
-         * @brief Destructor
+         * Destructor
          */
-
         ~Pid();
-        
-        double getKp();
-        void setKp(double kp);
-        double getKi();
-        void setKi(double ki);
-        double getKd();
-        void setKd(double kd);
-        unsigned long getDeltaT();
-        void setDeltaT(unsigned long deltaT);
 
+        /**
+         * Compute a new command
+         * @param  input    Real value
+         * @param  setPoint Objective
+         * @return          Motor command
+         */
         double compute(double input, double setPoint);
+
+        /**
+         * kp getter
+         * @return kp
+         */
+        double getKp();
+
+        /**
+         * kp setter
+         * @param kp new kp
+         */
+        void setKp(double kp);
+
+        /**
+         * ki getter
+         * @return ki
+         */
+        double getKi();
+
+        /**
+         * ki setter
+         * @param ki new ki
+         */
+        void setKi(double ki);
+
+        /**
+         * kd getter
+         * @return kd
+         */
+        double getKd();
+
+        /**
+         * kd setter
+         * @param kd new kd
+         */
+        void setKd(double kd);
+
+        /**
+         * deltaT getter
+         * @return deltaT
+         */
+        unsigned long getDeltaT();
+
+        /**
+         * deltaT setter
+         * @param deltaT new deltaT
+         */
+        void setDeltaT(unsigned long deltaT);
 
 
     private:

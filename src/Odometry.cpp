@@ -1,9 +1,8 @@
 #include "Odometry.h"
 
 
-const double Odometry::ENTRAXE = 1;
+const double Odometry::ENTRAXE = 1; //m
 Odometry* Odometry::inst = NULL;
-
 
 Odometry* Odometry::getInst(Encoder *leftEncoder, Encoder *rightEncoder)
 {
@@ -29,16 +28,71 @@ double Odometry::ticksToMeters(double ticks)
 }
 
 
-Odometry::Odometry(Encoder *leftEncoder, Encoder *rightEncoder)
+void Odometry::reset()
 {
-    this->leftEncoder = leftEncoder;
-    this->rightEncoder = rightEncoder;
+    this->leftEncoder->resetTicks();
+    this->rightEncoder->resetTicks();
 
-    this->reset();
+    this->ticks.left = 0;
+    this->ticks.right = 0;
+
+    this->coordinates.x = 0;
+    this->coordinates.y = 0;
+
+    this->orientation = 0;
 }
 
 
-Odometry::~Odometry(){ }
+void Odometry::update()
+{
+    this->ticks.left = this->leftEncoder->getTicks();
+    this->ticks.right = this->rightEncoder->getTicks();
+
+    /* Debug rotary encoders
+        Serial.print("left ticks: ");
+        Serial.println(ticks.left);
+        Serial.print("right ticks: ")
+        Serial.println(ticks.right);
+    */
+
+    this->leftEncoder->resetTicks();
+    this->rightEncoder->resetTicks();
+
+    double oldOrientation = this->orientation;
+    double rayon = 0;
+
+    double left = Odometry::ticksToMeters(this->ticks.left);
+    double right = Odometry::ticksToMeters(this->ticks.right);
+
+    if (((right > 0) && (left < 0)) || ((left > 0) && (right < 0)))
+    {
+        rayon = Odometry::ENTRAXE * (0.5 - (fmin(fabs(left), fabs(right))/fabs(left - right)));
+    }
+    else if (right != left)
+    {
+        rayon = Odometry::ENTRAXE * (0.5 + (fmin(fabs(left), fabs(right)) / fabs(right - left)));
+    }
+
+    this->setOrientation(this->orientation + (right - left)/ Odometry::ENTRAXE);
+
+    if (right != left)
+    {
+        if (fabs(right) > fabs(left))
+        {
+            this->setCoordinates(this->coordinates.x + rayon * (sin(this->orientation) - sin(oldOrientation)),
+            this->coordinates.y + rayon * (cos(oldOrientation) - cos(this->orientation)));
+        } else
+        {
+            this->setCoordinates(this->coordinates.x + rayon * (sin(oldOrientation) - sin(this->orientation)),
+            this->coordinates.y + rayon * (cos(this->orientation) - cos(oldOrientation)));
+        }
+    }
+    else
+    {
+        this->setCoordinates(this->coordinates.x + right * cos(this->orientation),
+            this->coordinates.y + right * sin(this->orientation));
+    }
+}
 
 
 Encoder* Odometry::getLeftEncoder()
@@ -94,68 +148,13 @@ void Odometry::setOrientation(double newOrientation)
 }
 
 
-void Odometry::reset()
+Odometry::Odometry(Encoder *leftEncoder, Encoder *rightEncoder)
 {
-    this->leftEncoder->resetTicks();
-    this->rightEncoder->resetTicks();
+    this->leftEncoder = leftEncoder;
+    this->rightEncoder = rightEncoder;
 
-    this->ticks.left = 0;
-    this->ticks.right = 0;
-
-    this->coordinates.x = 0;
-    this->coordinates.y = 0;
-
-    this->orientation = 0;
+    this->reset();
 }
 
 
-void Odometry::update()
-{
-    this->ticks.left = this->leftEncoder->getTicks();
-    this->ticks.right = this->rightEncoder->getTicks();
-
-    /* debug
-    Serial.print("left: ");
-    Serial.println(ticks.left);
-    Serial.print("right: ")
-    Serial.println(ticks.right);
-    */
-   
-    this->leftEncoder->resetTicks();
-    this->rightEncoder->resetTicks();
-
-    double oldOrientation = this->orientation;
-    double rayon = 0;
-
-    double left = Odometry::ticksToMeters(this->ticks.left);
-    double right = Odometry::ticksToMeters(this->ticks.right);
-
-    if (((right > 0) && (left < 0)) || ((left > 0) && (right < 0)))
-    {
-        rayon = Odometry::ENTRAXE * (0.5 - (fmin(fabs(left), fabs(right))/fabs(left - right)));
-    }
-    else if (right != left)
-    {
-        rayon = Odometry::ENTRAXE * (0.5 + (fmin(fabs(left), fabs(right)) / fabs(right - left)));
-    }
-
-    this->setOrientation(this->orientation + (right - left)/ Odometry::ENTRAXE);
-
-    if (right != left)
-    {
-        if (fabs(right) > fabs(left))
-        {
-            this->setCoordinates(this->coordinates.x + rayon * (sin(this->orientation) - sin(oldOrientation)),
-            this->coordinates.y + rayon * (cos(oldOrientation) - cos(this->orientation)));
-        } else
-        {
-            this->setCoordinates(this->coordinates.x + rayon * (sin(oldOrientation) - sin(this->orientation)),
-            this->coordinates.y + rayon * (cos(this->orientation) - cos(oldOrientation)));
-        }
-    }
-    else
-    {
-        this->setCoordinates(this->coordinates.x + right * cos(this->orientation),
-            this->coordinates.y + right * sin(this->orientation));
-    }
-}
+Odometry::~Odometry(){ }

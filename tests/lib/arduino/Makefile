@@ -9,7 +9,7 @@ all: arduino
 
 arduino: $(LIBS)
 
-$(OBJS) : %.o : %.cpp 
+$(OBJS) : %.o : %.cpp
 
 %.a : $(OBJS)
 	ar rcs $@ $^

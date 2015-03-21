@@ -7,7 +7,7 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->odometry = Odometry::getInst(NULL, NULL);
     this->leftMotor = leftMotor;
     this->rightMotor = rightMotor;
-    this->distancePID = new Pid(1, 0, 0, deltaT);
+    this->distancePID = new Pid(0.01, 0.1, 0, deltaT);
 
     this->deltaT = deltaT;
     this->lastMillis = 0;
@@ -27,21 +27,21 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
 }
 
 
-Enslavement::~Enslavement()
-{
-
-}
+Enslavement::~Enslavement() { }
 
 
 void Enslavement::setDeltaT(int deltaT)
 {
     if (deltaT > 0)
+    {
         this->deltaT = deltaT;
+    }
 }
 
 
 void Enslavement::goTo(CarthesianCoordinates newCoordinates)
 {
+    //TODO: incorporate orientation
     // CarthesianCoordinates coordinates = this->odometry->getCoordinates();
     double newDistance = sqrt(pow(newCoordinates.x, 2) + pow(newCoordinates.y, 2));
     // double newAngle = 0;
@@ -57,6 +57,7 @@ void Enslavement::goTo(CarthesianCoordinates newCoordinates)
 
 void Enslavement::turn(double theta)
 {
+    //TODO
 }
 
 
@@ -64,6 +65,7 @@ void Enslavement::compute()
 {
     unsigned long now = millis();
     unsigned int timeElapsed = (now - this->lastMillis);
+    // unsigned int timeElapsed = this->deltaT;
 
     if (timeElapsed >= this->deltaT)
     {
@@ -82,7 +84,16 @@ void Enslavement::compute()
         */
 
         double remainingDistance = this->distanceObjective - this->actualDistance;
-        Serial.println(actualDistanceVelocity);
+
+        /*
+            Debug
+            TODO: ifef DEBUG, find a way to properly deploy debug or release
+         */
+
+        Serial.print(actualDistanceVelocity);
+        Serial.print(",");
+
+        // Serial.print("remainingDistance: ")
         // Serial.println(remainingDistance);
         // Serial.print("velocityOjective :");
         // Serial.println(this->velocityObjective);

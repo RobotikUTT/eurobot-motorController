@@ -81,6 +81,7 @@ double Pid::compute(double input, double setPoint)
 {
     unsigned long now = millis();
     unsigned int timeElapsed = (now - this->lastMillis);
+    //unsigned int timeElapsed = this->deltaT;
 
     if (timeElapsed >= this->deltaT)
     {
@@ -100,7 +101,7 @@ double Pid::compute(double input, double setPoint)
         // Serial.println(pwm);
         return pwm;
     }
-    else 
+    else
     {
         /**
          * TODO: fix this

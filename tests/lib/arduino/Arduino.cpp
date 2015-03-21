@@ -27,13 +27,13 @@ FakeSerial::~FakeSerial()
 }
 
 
-void FakeSerial::begin(unsigned long speed) 
+void FakeSerial::begin(unsigned long speed)
 {
 
 }
 
 
-void FakeSerial::end() 
+void FakeSerial::end()
 {
 
 }
@@ -57,13 +57,13 @@ int FakeSerial::available()
 }
 
 
-size_t FakeSerial::write(byte value) 
+size_t FakeSerial::write(byte value)
 {
     return 1;
 }
 
 
-size_t FakeSerial::write(const byte *buffer, size_t length) 
+size_t FakeSerial::write(const byte *buffer, size_t length)
 {
     return length;
 }
@@ -114,7 +114,7 @@ FakeSerial Serial(0), Serial1(1), Serial2(2), Serial3(3);
 
 timeb startTime;
 
-unsigned long millis() 
+unsigned long millis()
 {
   timeb now;
   ftime(&now);
@@ -127,7 +127,7 @@ unsigned long millis()
  * Digital I/O
  */
 
-void pinMode(byte pin, byte mode) 
+void pinMode(byte pin, byte mode)
 {
     // TODO: set the mode of the pin in a Map and check when using digitalRead/write
 }
@@ -148,7 +148,7 @@ void digitalWrite(byte pin, int value)
 /**
  * Analog I/O
  */
- 
+
  void analogWrite(byte pin, int value)
  {
 

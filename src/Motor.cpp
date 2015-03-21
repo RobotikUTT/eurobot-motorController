@@ -1,15 +1,10 @@
 #include "Motor.h"
 
 
-/**
- * @brief Constructor
- *
- * @param pwmPin PWM pin
- * @param dir dir pin
- * @param brake brake pin
- */
+const double Motor::WHEEL_RADIUS = 0.03;
 
-Motor::Motor(const byte &pwmPin, const byte &dirPinA, const byte &dirPinB)
+
+Motor::Motor(byte pwmPin, byte dirPinA, byte dirPinB)
 {
     this->pwmPin = pwmPin;
     this->dirPinA = dirPinA;
@@ -22,32 +17,18 @@ Motor::Motor(const byte &pwmPin, const byte &dirPinA, const byte &dirPinB)
 }
 
 
-/**
- * @brief Destructor
- */
-
 Motor::~Motor() {};
 
-
-const byte Motor::REDUCTOR_RATIO = 48;
-const double Motor::WHEEL_RADIUS = 0.03;
-
-
-/**
- * @brief Set the motor speed
- *
- * @param PWM PWM
- */
 
 void Motor::run(int PWM_)
 {
     if (PWM_ > 0)
     {
-        this->setDir(0);
+        this->setDir(FORWARD);
     }
     else
     {
-        this->setDir(1);
+        this->setDir(BACKWARD);
     }
 
     PWM_ = abs(PWM_);
@@ -65,10 +46,6 @@ void Motor::run(int PWM_)
 }
 
 
-/**
- * @brief Stop the motor
- */
-
 void Motor::stop()
 {
     this->PWM = 0;
@@ -77,11 +54,7 @@ void Motor::stop()
 }
 
 
-/**
- * @brief Set the motor dir
- */
-
-void Motor::setDir(const bool &dir)
+void Motor::setDir(Direction dir)
 {
     if (!dir)
     {
