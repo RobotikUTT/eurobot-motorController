@@ -25,8 +25,8 @@ namespace OdometryTest
 
     TEST(Odometry, straightLine)
     {
-        srand(time(NULL));
-
+        leftEncoder.resetTicks();
+        rightEncoder.resetTicks();
 
         EXPECT_CALL(leftEncoder, getTicks())
           .WillOnce(Return(Odometry::metersToTicks(2)));
@@ -44,6 +44,9 @@ namespace OdometryTest
     //TODO: find better test tag
     TEST(Odometry, valueTest2)
     {
+        leftEncoder.resetTicks();
+        rightEncoder.resetTicks();
+
         EXPECT_CALL(leftEncoder, getTicks())
           .WillOnce(Return(Odometry::metersToTicks(-M_PI/2)));
         EXPECT_CALL(rightEncoder, getTicks())
@@ -60,6 +63,9 @@ namespace OdometryTest
 
     TEST(Odometry, valueTest3)
     {
+        leftEncoder.resetTicks();
+        rightEncoder.resetTicks();
+
         EXPECT_CALL(leftEncoder, getTicks())
           .WillOnce(Return(Odometry::metersToTicks(-M_PI/2)));
         EXPECT_CALL(rightEncoder, getTicks())
@@ -76,6 +82,9 @@ namespace OdometryTest
 
     TEST(Odometry, valueTest4)
     {
+        leftEncoder.resetTicks();
+        rightEncoder.resetTicks();
+
         EXPECT_CALL(leftEncoder, getTicks())
           .WillOnce(Return(Odometry::metersToTicks(M_PI/4)));
         EXPECT_CALL(rightEncoder, getTicks())

@@ -117,7 +117,7 @@ void setup()
     // serialCom->send();
     //
     Serial.begin(115200);
-    enslavement->goTo({1, 0});
+    enslavement->goTo(1, 0, false);
 }
 
 
@@ -131,4 +131,6 @@ void loop()
 
     //Motor enslavement
     enslavement->compute();
+    leftEncoder->resetTicks();
+    rightEncoder->resetTicks();
 }

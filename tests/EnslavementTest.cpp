@@ -21,21 +21,14 @@ using ::testing::Invoke;
 
 namespace EnslavementTest
 {
-    /**
-     * Emulate perfect DC motor and encoder,
-     * generating linear response to PWM
-     */
-    
-    ACTION_P2(FakeGetTicks, motor, Vmax)
+    double fakeGetTicks(Motor* motor, Enslavement* enslavement, double Vmax)
     {
         return Odometry::metersToTicks( (float)(motor->getPWM()) / (float) 255 * (float)Vmax );
     }
 
-
     /*
-        Params
      */
-    
+
     unsigned long deltaT = 1000; //10^-3s
     double maxAcceleration = 0.05; //m.s^-2
     double maxVelocity = 1; //m.s^-1
@@ -52,7 +45,7 @@ namespace EnslavementTest
         TODO: better using of singleton pattern
      */
     Odometry *odometry = Odometry::getInst(NULL, NULL);
-    Enslavement enslavement(deltaT, maxAcceleration, maxVelocity, 
+    Enslavement enslavement(deltaT, maxAcceleration, maxVelocity,
         leftMotor, rightMotor);
 
 
@@ -64,14 +57,29 @@ namespace EnslavementTest
         odometry->setRightEncoder(&rightEncoder);
         odometry->reset();
 
-        enslavement.goTo((CarthesianCoordinates){150, 0});
+        odometry->setCoordinates(0, 0);
+        enslavement.goTo(-25, 0, false);
 
-        for (int i = 0; i < 250; i++)
+
+        for (int i = 0; i < 45; i++)
         {
             ON_CALL(leftEncoder, getTicks())
-                .WillByDefault(FakeGetTicks(leftMotor, maxVelocity));
+                .WillByDefault(Return(fakeGetTicks(leftMotor, &enslavement, maxVelocity)));
             ON_CALL(rightEncoder, getTicks())
-                .WillByDefault(FakeGetTicks(leftMotor, maxVelocity));
+                .WillByDefault(Return(fakeGetTicks(rightMotor, &enslavement, maxVelocity)));
+
+            //Test is based on Serial output. Ctrl+c to end. TODO: find better solution
+            enslavement.compute();
+            //std::this_thread::sleep_for(std::chrono::milliseconds(deltaT));
+        }
+
+        enslavement.goTo(0,0,false);
+        for (int i = 0; i < 50; i++)
+        {
+            ON_CALL(leftEncoder, getTicks())
+                .WillByDefault(Return(fakeGetTicks(leftMotor, &enslavement, maxVelocity)));
+            ON_CALL(rightEncoder, getTicks())
+                .WillByDefault(Return(fakeGetTicks(leftMotor, &enslavement, maxVelocity)));
 
             //Test is based on Serial output. Ctrl+c to end. TODO: find better solution
             enslavement.compute();

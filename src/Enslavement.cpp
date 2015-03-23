@@ -23,7 +23,6 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->theoricalVelocity = 0;
 
     this->previousDistance = 0;
-    this->actualDistance = 0;
 }
 
 
@@ -39,19 +38,21 @@ void Enslavement::setDeltaT(int deltaT)
 }
 
 
-void Enslavement::goTo(CarthesianCoordinates newCoordinates)
+void Enslavement::goTo(double x, double y, bool forceFace)
 {
-    //TODO: incorporate orientation
-    // CarthesianCoordinates coordinates = this->odometry->getCoordinates();
-    double newDistance = sqrt(pow(newCoordinates.x, 2) + pow(newCoordinates.y, 2));
-    // double newAngle = 0;
+    CarthesianCoordinates coordinates = this->odometry->getCoordinates();
+    CarthesianCoordinates newCoordinates = {x - coordinates.x, y - coordinates.y};
+    this->orientationObjective = atan2(newCoordinates.y, newCoordinates.x) - this->odometry->getOrientation();
 
-    // if (newCoordinates.x - coordinates.x != 0)
-    // {
-    //     newAngle = atan2(newCoordinates.y - coordinates.y, newCoordinates.x - coordinates.x);
-    // }
+    int face = 1;
+    if (!forceFace && fabs(this->orientationObjective) >= M_PI)
+    {
+        int sign = (this->orientationObjective >= 0) ? 1 : -1;
+        this->orientationObjective -= sign * M_PI;
+        face = -1;
+    }
 
-    this->distanceObjective = Odometry::metersToTicks(newDistance);
+    this->distanceObjective = Odometry::metersToTicks(face * sqrt(pow(newCoordinates.x, 2) + pow(newCoordinates.y, 2)));
 }
 
 
@@ -64,26 +65,28 @@ void Enslavement::turn(double theta)
 void Enslavement::compute()
 {
     unsigned long now = millis();
-    unsigned int timeElapsed = (now - this->lastMillis);
-    // unsigned int timeElapsed = this->deltaT;
+    // unsigned int timeElapsed = (now - this->lastMillis);
+    unsigned int timeElapsed = this->deltaT;
 
     if (timeElapsed >= this->deltaT)
     {
         this->lastMillis = now;
+
         this->odometry->update();
+        Ticks ticks = this->odometry->getTicks();
+
         CarthesianCoordinates coordinates = this->odometry->getCoordinates();
 
-        this->actualDistance = Odometry::metersToTicks(sqrt(pow(coordinates.x, 2) + pow(coordinates.y, 2)));
-        actualDistanceVelocity = this->actualDistance - this->previousDistance;
+        double actualDistance = this->previousDistance + (ticks.left + ticks.right) / 2.0;
+        double actualDistanceVelocity = actualDistance - previousDistance;
 
-
-        this->previousDistance = this->actualDistance;
+        this->previousDistance = actualDistance;
 
         /*
             Generate next point
         */
 
-        double remainingDistance = this->distanceObjective - this->actualDistance;
+        double remainingDistance = this->distanceObjective - actualDistance;
 
         /*
             Debug
@@ -92,39 +95,34 @@ void Enslavement::compute()
 
         Serial.print(actualDistanceVelocity);
         Serial.print(",");
-
         // Serial.print("remainingDistance: ")
         // Serial.println(remainingDistance);
-        // Serial.print("velocityOjective :");
-        // Serial.println(this->velocityObjective);
-        // Serial.print("TheoricalVelocity: ");
-        //Serial.print(this->theoricalVelocity);
-        //Serial.println(",");
+        //Serial.print("velocityOjective :");
+        //Serial.println(this->velocityObjective);
+        // Serial.print(this->theoricalVelocity);
+        // Serial.print(",");
         // Serial.print("Real velocity: ");
         // Serial.println(actualDistanceVelocity);
         //Serial.println("----------------------------");
 
-
-        bool done = false;
         if (fabs(remainingDistance) <= this->distanceAcceleration)
         {
-            // Serial.println("FINIIIIIIIIIIIIIIIIII");
-            done = true;
-        }
-
-        if (done)
-        {
             this->velocityObjective = 0;
+            this->distanceObjective = 0;
+            this->previousDistance = 0;
+            this->leftMotor->stop();
+            this->rightMotor->stop();
         }
         else
         {
-            /**
-             * TODO : fabs() ?
-             * if/else if order
-             */
-            if ((remainingDistance <=  pow(this->actualDistanceVelocity, 2) /( 2 * this->distanceAcceleration)))
+            if ((fabs(remainingDistance) <=  fabs(pow(theoricalVelocity, 2) /( 2 * this->distanceAcceleration))))
             {
-                //Serial.println('ici');
+                /*
+                Serial.println("Deccelerate !");
+                Serial.print("remaining: ");
+                Serial.print(fabs(remainingDistance));
+                Serial.print(" vs: ");
+                Serial.println(fabs(pow(this->theoricalVelocity, 2) /( 2 * this->distanceAcceleration)));*/
                 // Serial.print(remainingDistance);
                 // Serial.print(" <= ");
                 // Serial.println(pow(this->actualDistanceVelocity, 2) /( 2 * this->distanceAcceleration));
@@ -136,16 +134,11 @@ void Enslavement::compute()
             }
             else if (remainingDistance < 0)
             {
-                //Serial.println('la');
                 this->velocityObjective = -(this->distanceVelocityMax);
             }
         }
 
-        if ((int)(this->theoricalVelocity/0.01)*0.01 == this->velocityObjective)
-        {
-            this->theoricalVelocity = this->velocityObjective;
-        }
-        else if ((int)((this->theoricalVelocity + this->distanceAcceleration)/0.01)*0.01 <= this->velocityObjective)
+        if ((int)((this->theoricalVelocity + this->distanceAcceleration)/0.01)*0.01 <= this->velocityObjective)
         {
             this->theoricalVelocity += this->distanceAcceleration;
         }

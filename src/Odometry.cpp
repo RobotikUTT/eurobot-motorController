@@ -55,9 +55,6 @@ void Odometry::update()
         Serial.println(ticks.right);
     */
 
-    this->leftEncoder->resetTicks();
-    this->rightEncoder->resetTicks();
-
     double oldOrientation = this->orientation;
     double rayon = 0;
 
@@ -145,6 +142,12 @@ void Odometry::setOrientation(double newOrientation)
     this->orientation = fmod(this->orientation, M_PI * 2);
     if (this->orientation < 0)
         this->orientation += M_PI * 2;
+}
+
+
+Ticks Odometry::getTicks()
+{
+    return this->ticks;
 }
 
 

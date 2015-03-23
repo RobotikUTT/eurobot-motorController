@@ -127,6 +127,8 @@ class Odometry
         void setOrientation(double newOrdientation);
 
 
+        Ticks getTicks();
+
     private:
 
         /**

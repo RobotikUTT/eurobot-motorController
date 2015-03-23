@@ -63,7 +63,7 @@ class Motor
          * PWM getter
          * @return PWM
          */
-        byte getPWM();
+        int getPWM();
 
 
     protected:

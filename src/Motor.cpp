@@ -32,8 +32,7 @@ void Motor::run(int PWM_)
     }
 
     PWM_ = abs(PWM_);
-
-    if (PWM_ > 255)
+    if (PWM_> 255)
     {
         this->PWM = 255;
     }
@@ -56,21 +55,23 @@ void Motor::stop()
 
 void Motor::setDir(Direction dir)
 {
-    if (!dir)
+    if (dir == BACKWARD)
     {
+        this->dir = BACKWARD;
         digitalWrite(this->dirPinA, LOW);
         digitalWrite(this->dirPinB, HIGH);
     }
     else
     {
+        this->dir = FORWARD;
         digitalWrite(this->dirPinA, HIGH);
         digitalWrite(this->dirPinB, LOW);
     }
 }
 
 
-byte Motor::getPWM()
+int Motor::getPWM()
 {
-    int sign = (this->dir) ? -1 : 1;
+    int sign = (this->dir == BACKWARD) ? -1 : 1;
     return sign * this->PWM;
 }

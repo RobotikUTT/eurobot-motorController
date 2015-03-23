@@ -25,6 +25,8 @@ class Enslavement
          * @param deltaT       Minimal time before compute() call (10^-3s)
          * @param acceleration Maximal acceleration (m.s^-2)
          * @param velocityMax  Maximal velocity (m.s^-1)
+         * @param leftEncoder  Left encoder
+         * @param rightEncoder Right encoder
          * @param leftMotor    Left motor
          * @param rightMotor   Right motor
          */
@@ -42,7 +44,7 @@ class Enslavement
          * Set destination to a (x, y) point
          * @param coordinates Destination point
          */
-        void goTo(CarthesianCoordinates coordinates);
+        void goTo(double x, double y, bool forceFace);
 
 
         /**
@@ -64,6 +66,8 @@ class Enslavement
          * @param deltaT deltaT
          */
         void setDeltaT(int deltaT);
+
+        double theoricalVelocity;
 
 
     private:
@@ -88,9 +92,9 @@ class Enslavement
             Values used to generate objectives and update
             theorical values
          */
-        double actualDistanceVelocity;
-        double actualDistance;
+
         double previousDistance;
+        double previousOrientation;
 
 
         /*
@@ -98,13 +102,13 @@ class Enslavement
          */
         double distanceObjective;
         double velocityObjective;
-
+        double orientationObjective;
 
         /*
             Theorical values
          */
         double theoricalDistance;
-        double theoricalVelocity;
+        //double theoricalVelocity;
 };
 
 #endif
