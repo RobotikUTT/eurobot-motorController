@@ -8,7 +8,7 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->leftMotor = leftMotor;
     this->rightMotor = rightMotor;
     this->distancePID = new Pid(0.01, 0.1, 0, deltaT);
-    this->orientationPID = new Pid(0.01, 0.1, 0, deltaT);
+    this->orientationPID = new Pid(0.05, 0, 0, deltaT);
 
     this->deltaT = deltaT;
     this->lastMillis = 0;
@@ -73,8 +73,8 @@ void Enslavement::turn(double theta)
 void Enslavement::compute()
 {
     unsigned long now = millis();
-    // unsigned int timeElapsed = (now - this->lastMillis);
-    unsigned int timeElapsed = this->deltaT;
+    unsigned int timeElapsed = (now - this->lastMillis);
+    // unsigned int timeElapsed = this->deltaT;
 
     if (timeElapsed >= this->deltaT)
     {
@@ -86,7 +86,7 @@ void Enslavement::compute()
         double actualDistance = this->previousDistance + (ticks.left + ticks.right) / 2.0;
         double actualDistanceVelocity = actualDistance - this->previousDistance;
 
-        double actualOrientation = this->previousOrientation + (ticks.left - ticks.right) / Odometry::ENTRAXE / 2.0;
+        double actualOrientation = this->previousOrientation + (ticks.right - ticks.left) / Odometry::ENTRAXE / 2.0;
         double actualOrientationVelocity = actualOrientation - this->previousOrientation;
 
         this->previousDistance = actualDistance;
@@ -102,12 +102,8 @@ void Enslavement::compute()
         double remainingDistance = this->distanceObjective - actualDistance;
         double remainingOrientation = this->orientationObjective - actualOrientation;
 
-        Serial.print(actualOrientationVelocity);
-        Serial.print(",");
-
         if (fabs(remainingDistance) <= this->distanceAcceleration)
         {
-            //Serial.println("STOP");
             this->distanceVelocityObjective = 0;
             this->distanceObjective = 0;
             this->previousDistance = 0;
@@ -139,12 +135,9 @@ void Enslavement::compute()
 
         this->theoricalDistance += this->theoricalDistanceVelocity;
 
-        // Serial.print(actualOrientationVelocity);
-        // Serial.print(",");
 
         if (fabs(remainingOrientation) <= this->orientationAcceleration)
         {
-            //Serial.println("STOP");
             this->orientationVelocityObjective = 0;
             this->orientationObjective = 0;
             this->previousOrientation = 0;
@@ -183,7 +176,18 @@ void Enslavement::compute()
         double distanceCommand = this->distancePID->compute(actualDistanceVelocity, this->theoricalDistanceVelocity);
         double orientationCommand = this->orientationPID->compute(actualOrientationVelocity, this->theoricalOrientationVelocity);
 
-        this->leftMotor->run((int)(distanceCommand + orientationCommand));
-        this->rightMotor->run((int)distanceCommand - orientationCommand);
+        double leftCommand = distanceCommand + orientationCommand;
+        double getRightEncoder = distanceCommand - orientationCommand;
+
+        // Serial.print("Rem ");
+        // Serial.println(remainingOrientation);
+        // Serial.print("Th ");
+        // Serial.println(theoricalOrientationVelocity);
+        // Serial.print("Rl ");
+        // Serial.println(actualOrientationVelocity);
+        // Serial.println("___");
+        Serial.println(remainingOrientation);
+        this->leftMotor->run((int)orientationCommand);
+        this->rightMotor->run((int)-orientationCommand);
     }
 }
