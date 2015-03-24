@@ -79,30 +79,11 @@ void Pid::setDeltaT(unsigned long deltaT)
 
 double Pid::compute(double input, double setPoint)
 {
-    unsigned long now = millis();
-    //unsigned int timeElapsed = (now - this->lastMillis);
-    unsigned int timeElapsed = this->deltaT;
-
-    if (timeElapsed >= this->deltaT)
-    {
-
-        this->lastMillis = now;
-
         double error = setPoint - input;
         this->ITerm += (this->ki * error);
 
         this->lastInput = input;
         int pwm = this->kp * error + this->ITerm;
 
-
         return pwm;
-    }
-    else
-    {
-        /**
-         * TODO: fix this
-         */
-        Serial.println("Issue here");
-        return 0;
-    }
 }

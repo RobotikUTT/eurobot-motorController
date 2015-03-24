@@ -67,7 +67,8 @@ class Enslavement
          */
         void setDeltaT(int deltaT);
 
-        double theoricalVelocity;
+        double theoricalDistanceVelocity;
+        double theoricalOrientationVelocity;
 
 
     private:
@@ -76,7 +77,7 @@ class Enslavement
         Motor *leftMotor;
         Motor *rightMotor;
         Pid *distancePID;
-
+        Pid *orientationPID;
 
         /*
             Constants
@@ -86,29 +87,29 @@ class Enslavement
 
         double distanceVelocityMax;  //ticks.deltaT^-1
         double distanceAcceleration; //ticks.deltaT^-2
-
+        double orientationVelocityMax; //ticks.deltaT^-1
+        double orientationAcceleration; //ticks.deltaT^-2
 
         /*
             Values used to generate objectives and update
             theorical values
          */
-
         double previousDistance;
         double previousOrientation;
-
 
         /*
             Objectives
          */
         double distanceObjective;
-        double velocityObjective;
+        double distanceVelocityObjective;
         double orientationObjective;
+        double orientationVelocityObjective;
 
         /*
             Theorical values
          */
         double theoricalDistance;
-        //double theoricalVelocity;
-};
+        double theoricalOrientation;
+}; //5=105mm
 
 #endif

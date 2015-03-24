@@ -8,21 +8,29 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->leftMotor = leftMotor;
     this->rightMotor = rightMotor;
     this->distancePID = new Pid(0.01, 0.1, 0, deltaT);
+    this->orientationPID = new Pid(0.01, 0.1, 0, deltaT);
 
     this->deltaT = deltaT;
     this->lastMillis = 0;
 
 
-    this->distanceAcceleration = Odometry::metersToTicks(acceleration / 1000 / 1000 * deltaT * deltaT); //m.s^-2 => m.deltaT^-2
     this->distanceVelocityMax = Odometry::metersToTicks(velocityMax / 1000 * deltaT); //m.s^-1 => m.deltaT^-1
-
-    this->distanceObjective = 0;
-    this->theoricalDistance = 0;
-
-    this->velocityObjective = 0;
-    this->theoricalVelocity = 0;
+    this->distanceAcceleration = Odometry::metersToTicks(acceleration / 1000 / 1000 * deltaT * deltaT); //m.s^-2 => m.deltaT^-2
+    this->orientationVelocityMax = this->distanceVelocityMax / Odometry::ENTRAXE / 2.0;
+    this->orientationAcceleration = this->distanceAcceleration / Odometry::ENTRAXE / 2.0;
 
     this->previousDistance = 0;
+    this->previousOrientation = 0;
+
+    this->distanceObjective = 0;
+    this->distanceVelocityObjective = 0;
+    this->orientationObjective = 0;
+    this->orientationVelocityObjective = 0;
+
+    this->theoricalDistance = 0;
+    this->theoricalDistanceVelocity = 0;
+    this->theoricalOrientation = 0;
+    this->theoricalOrientationVelocity = 0;
 }
 
 
@@ -58,7 +66,7 @@ void Enslavement::goTo(double x, double y, bool forceFace)
 
 void Enslavement::turn(double theta)
 {
-    //TODO
+    this->orientationObjective = theta * Encoder::TICK_PER_SPIN / 360;
 }
 
 
@@ -75,87 +83,107 @@ void Enslavement::compute()
         this->odometry->update();
         Ticks ticks = this->odometry->getTicks();
 
-        CarthesianCoordinates coordinates = this->odometry->getCoordinates();
-
         double actualDistance = this->previousDistance + (ticks.left + ticks.right) / 2.0;
-        double actualDistanceVelocity = actualDistance - previousDistance;
+        double actualDistanceVelocity = actualDistance - this->previousDistance;
+
+        double actualOrientation = this->previousOrientation + (ticks.left - ticks.right) / Odometry::ENTRAXE / 2.0;
+        double actualOrientationVelocity = actualOrientation - this->previousOrientation;
 
         this->previousDistance = actualDistance;
+        this->previousOrientation = actualOrientation;
+
+        this->odometry->getLeftEncoder()->resetTicks();
+        this->odometry->getRightEncoder()->resetTicks();
 
         /*
             Generate next point
         */
 
         double remainingDistance = this->distanceObjective - actualDistance;
+        double remainingOrientation = this->orientationObjective - actualOrientation;
 
-        /*
-            Debug
-            TODO: ifef DEBUG, find a way to properly deploy debug or release
-         */
-
-        Serial.print(actualDistanceVelocity);
+        Serial.print(actualOrientationVelocity);
         Serial.print(",");
-        // Serial.print("remainingDistance: ")
-        // Serial.println(remainingDistance);
-        //Serial.print("velocityOjective :");
-        //Serial.println(this->velocityObjective);
-        // Serial.print(this->theoricalVelocity);
-        // Serial.print(",");
-        // Serial.print("Real velocity: ");
-        // Serial.println(actualDistanceVelocity);
-        //Serial.println("----------------------------");
 
         if (fabs(remainingDistance) <= this->distanceAcceleration)
         {
-            this->velocityObjective = 0;
+            //Serial.println("STOP");
+            this->distanceVelocityObjective = 0;
             this->distanceObjective = 0;
             this->previousDistance = 0;
-            this->leftMotor->stop();
-            this->rightMotor->stop();
         }
         else
         {
-            if ((fabs(remainingDistance) <=  fabs(pow(theoricalVelocity, 2) /( 2 * this->distanceAcceleration))))
+            if ((fabs(remainingDistance) <=  fabs(pow(actualDistanceVelocity, 2) /( 2 * this->distanceAcceleration))))
             {
-                /*
-                Serial.println("Deccelerate !");
-                Serial.print("remaining: ");
-                Serial.print(fabs(remainingDistance));
-                Serial.print(" vs: ");
-                Serial.println(fabs(pow(this->theoricalVelocity, 2) /( 2 * this->distanceAcceleration)));*/
-                // Serial.print(remainingDistance);
-                // Serial.print(" <= ");
-                // Serial.println(pow(this->actualDistanceVelocity, 2) /( 2 * this->distanceAcceleration));
-                this->velocityObjective = 0;
+                this->distanceVelocityObjective = 0;
             }
             else if (remainingDistance > 0)
             {
-                this->velocityObjective = this->distanceVelocityMax;
+                this->distanceVelocityObjective = this->distanceVelocityMax;
             }
             else if (remainingDistance < 0)
             {
-                this->velocityObjective = -(this->distanceVelocityMax);
+                this->distanceVelocityObjective = -(this->distanceVelocityMax);
             }
         }
 
-        if ((int)((this->theoricalVelocity + this->distanceAcceleration)/0.01)*0.01 <= this->velocityObjective)
+        if ((int)((this->theoricalDistanceVelocity + this->distanceAcceleration)/0.01)*0.01 <= this->distanceVelocityObjective)
         {
-            this->theoricalVelocity += this->distanceAcceleration;
+            this->theoricalDistanceVelocity += this->distanceAcceleration;
         }
-        else if ((int)((this->theoricalVelocity - this->distanceAcceleration)/0.01)*0.01 >= this->velocityObjective)
+        else if ((int)((this->theoricalDistanceVelocity - this->distanceAcceleration)/0.01)*0.01 >= this->distanceVelocityObjective)
         {
-            this->theoricalVelocity -= this->distanceAcceleration;
+            this->theoricalDistanceVelocity -= this->distanceAcceleration;
         }
 
-        this->theoricalDistance += this->theoricalVelocity;
+        this->theoricalDistance += this->theoricalDistanceVelocity;
 
+        // Serial.print(actualOrientationVelocity);
+        // Serial.print(",");
+
+        if (fabs(remainingOrientation) <= this->orientationAcceleration)
+        {
+            //Serial.println("STOP");
+            this->orientationVelocityObjective = 0;
+            this->orientationObjective = 0;
+            this->previousOrientation = 0;
+        }
+        else
+        {
+            if ((fabs(remainingOrientation) <=  fabs(pow(actualOrientationVelocity, 2) /( 2 * this->orientationAcceleration))))
+            {
+                this->orientationVelocityObjective = 0;
+            }
+            else if (remainingOrientation > 0)
+            {
+                this->orientationVelocityObjective = this->orientationVelocityMax;
+            }
+            else if (remainingOrientation < 0)
+            {
+                this->orientationVelocityObjective = -(this->orientationVelocityMax);
+            }
+        }
+
+        if ((int)((this->theoricalOrientationVelocity + this->orientationAcceleration)/0.01)*0.01 <= this->orientationVelocityObjective)
+        {
+            this->theoricalOrientationVelocity += this->orientationAcceleration;
+        }
+        else if ((int)((this->theoricalOrientationVelocity - this->orientationAcceleration)/0.01)*0.01 >= this->orientationVelocityObjective)
+        {
+            this->theoricalOrientationVelocity -= this->orientationAcceleration;
+        }
+
+        this->theoricalOrientation += this->theoricalOrientationVelocity;
 
         /*
             Error correction
         */
 
-        double distanceCommand = this->distancePID->compute(actualDistanceVelocity, this->theoricalVelocity);
-        this->leftMotor->run((int)distanceCommand);
-        this->rightMotor->run((int)distanceCommand);
+        double distanceCommand = this->distancePID->compute(actualDistanceVelocity, this->theoricalDistanceVelocity);
+        double orientationCommand = this->orientationPID->compute(actualOrientationVelocity, this->theoricalOrientationVelocity);
+
+        this->leftMotor->run((int)(distanceCommand + orientationCommand));
+        this->rightMotor->run((int)distanceCommand - orientationCommand);
     }
 }

@@ -94,7 +94,7 @@ void setup()
     Odometry::getInst(leftEncoder, rightEncoder);
 
     //Enslavement
-    enslavement = new Enslavement(15, 0.05, 1, leftMotor, rightMotor);
+    enslavement = new Enslavement(100, 0.05, 0.5, leftMotor, rightMotor);
 
     //Interrupts
     attachInterrupt(getInterruptNumber(ENCODER_L_A_PIN), leftTicks, FALLING);
@@ -115,9 +115,8 @@ void setup()
     // serialCom->setSendCommand(SerialComCmd::CMD_TEST);
     // serialCom->writeUInt8(0);
     // serialCom->send();
-    //
     Serial.begin(115200);
-    enslavement->goTo(1, 0, false);
+    enslavement->goTo(2, 0, false);
 }
 
 
@@ -131,6 +130,4 @@ void loop()
 
     //Motor enslavement
     enslavement->compute();
-    leftEncoder->resetTicks();
-    rightEncoder->resetTicks();
 }

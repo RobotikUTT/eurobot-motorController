@@ -18,6 +18,13 @@ Encoder::~Encoder() {}
 
 double Encoder::getTicks()
 {
+    /**
+     * Debug
+        Serial.print(this->chanA);
+        Serial.print(" ");
+        Serial.println(this->ticks);
+     */
+
     return this->ticks;
 }
 
