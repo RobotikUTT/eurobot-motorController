@@ -93,7 +93,7 @@ namespace EnslavementTest
     {
         //Ridiculously high value because of very high acceleration
         //TODO: reduce acceleration given the objective
-        enslavement.turn(21000);
+        enslavement.turn(180);
 
         for (int i = 0; i < 46; i++)
         {

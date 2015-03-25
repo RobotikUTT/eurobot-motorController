@@ -8,7 +8,7 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->leftMotor = leftMotor;
     this->rightMotor = rightMotor;
     this->distancePID = new Pid(0.01, 0.1, 0, deltaT);
-    this->orientationPID = new Pid(0.05, 0, 0, deltaT);
+    this->orientationPID = new Pid(0.01, 0.1, 0, deltaT);
 
     this->deltaT = deltaT;
     this->lastMillis = 0;
@@ -65,16 +65,15 @@ void Enslavement::goTo(double x, double y, bool forceFace)
 
 
 void Enslavement::turn(double theta)
-{
-    this->orientationObjective = theta * Encoder::TICK_PER_SPIN / 360;
+{this->orientationObjective = Odometry::metersToTicks(theta * 0.0174532925 * Odometry::ENTRAXE / 2.0);
 }
 
 
 void Enslavement::compute()
 {
     unsigned long now = millis();
-    unsigned int timeElapsed = (now - this->lastMillis);
-    // unsigned int timeElapsed = this->deltaT;
+    // unsigned int timeElapsed = (now - this->lastMillis);
+    unsigned int timeElapsed = this->deltaT;
 
     if (timeElapsed >= this->deltaT)
     {
@@ -186,8 +185,9 @@ void Enslavement::compute()
         // Serial.print("Rl ");
         // Serial.println(actualOrientationVelocity);
         // Serial.println("___");
-        Serial.println(remainingOrientation);
-        this->leftMotor->run((int)orientationCommand);
-        this->rightMotor->run((int)-orientationCommand);
+        Serial.print(remainingOrientation);
+        Serial.print(",");
+        this->leftMotor->run((int)-orientationCommand);
+        this->rightMotor->run((int)orientationCommand);
     }
 }
