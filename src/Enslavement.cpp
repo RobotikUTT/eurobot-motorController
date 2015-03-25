@@ -8,7 +8,7 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->leftMotor = leftMotor;
     this->rightMotor = rightMotor;
     this->distancePID = new Pid(0.01, 0.1, 0, deltaT);
-    this->orientationPID = new Pid(0.01, 0.1, 0, deltaT);
+    this->orientationPID = new Pid(0.01, 0, 0, deltaT);
 
     this->deltaT = deltaT;
     this->lastMillis = 0;
@@ -72,8 +72,8 @@ void Enslavement::turn(double theta)
 void Enslavement::compute()
 {
     unsigned long now = millis();
-    // unsigned int timeElapsed = (now - this->lastMillis);
-    unsigned int timeElapsed = this->deltaT;
+    unsigned int timeElapsed = (now - this->lastMillis);
+    // unsigned int timeElapsed = this->deltaT;
 
     if (timeElapsed >= this->deltaT)
     {
@@ -100,6 +100,7 @@ void Enslavement::compute()
 
         double remainingDistance = this->distanceObjective - actualDistance;
         double remainingOrientation = this->orientationObjective - actualOrientation;
+
 
         if (fabs(remainingDistance) <= this->distanceAcceleration)
         {
@@ -178,15 +179,15 @@ void Enslavement::compute()
         double leftCommand = distanceCommand + orientationCommand;
         double getRightEncoder = distanceCommand - orientationCommand;
 
-        // Serial.print("Rem ");
-        // Serial.println(remainingOrientation);
-        // Serial.print("Th ");
-        // Serial.println(theoricalOrientationVelocity);
-        // Serial.print("Rl ");
-        // Serial.println(actualOrientationVelocity);
-        // Serial.println("___");
-        Serial.print(remainingOrientation);
-        Serial.print(",");
+        Serial.print("Rem ");
+        Serial.println(remainingOrientation);
+        Serial.print("Th ");
+        Serial.println(theoricalOrientationVelocity);
+        Serial.print("Rl ");
+        Serial.println(actualOrientationVelocity);
+        Serial.println("___");
+        // Serial.print(remainingOrientation);
+        // Serial.print(",");
         this->leftMotor->run((int)-orientationCommand);
         this->rightMotor->run((int)orientationCommand);
     }
