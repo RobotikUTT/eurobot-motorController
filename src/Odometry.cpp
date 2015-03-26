@@ -48,13 +48,6 @@ void Odometry::update()
     this->ticks.left = this->leftEncoder->getTicks();
     this->ticks.right = this->rightEncoder->getTicks();
 
-    /* Debug rotary encoders
-        Serial.print("left ticks: ");
-        Serial.println(ticks.left);
-        Serial.print("right ticks: ")
-        Serial.println(ticks.right);
-    */
-
     double oldOrientation = this->orientation;
     double rayon = 0;
 
