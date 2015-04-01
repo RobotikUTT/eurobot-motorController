@@ -57,7 +57,7 @@ class Encoder
 
         byte chanA;
         byte chanB;
-        long ticks;
+        double ticks;
 
 };
 

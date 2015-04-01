@@ -1,3 +1,4 @@
+
 #include "Encoder.h"
 #include "Motor.h"
 #include "SerialCom.h"
@@ -14,21 +15,21 @@
 //Encoders
 //Channel A is used for the interupt
 
-const byte ENCODER_R_A_PIN = 20;
-const byte ENCODER_R_B_PIN = 36;
+const byte ENCODER_R_A_PIN = 21;
+const byte ENCODER_R_B_PIN = 22;
 
-const byte ENCODER_L_A_PIN = 21;
-const byte ENCODER_L_B_PIN = 34;
+const byte ENCODER_L_A_PIN = 20;
+const byte ENCODER_L_B_PIN = 24;
 
 
 //Motors
-const byte MOTOR_L_PIN = 13;
-const byte DIR_L_PIN_A = 24;
-const byte DIR_L_PIN_B = 22;
+const byte MOTOR_L_PIN = 12;
+const byte DIR_L_PIN_A = 30;
+const byte DIR_L_PIN_B = 32;
 
-const byte MOTOR_R_PIN = 12;
-const byte DIR_R_PIN_A = 26; 
-const byte DIR_R_PIN_B = 28; 
+const byte MOTOR_R_PIN = 11;
+const byte DIR_R_PIN_A = 26;
+const byte DIR_R_PIN_B = 28;
 
 
 Encoder *leftEncoder;
@@ -45,11 +46,17 @@ SerialCom* serialCom;
 void leftTicks()
 {
     leftEncoder->listenToTicks();
+    // Debug
+    // Serial.print("left: ");
+    // Serial.println(leftEncoder->getTicks());
 }
 
 void rightTicks()
 {
     rightEncoder->listenToTicks();
+    // Debug
+    // Serial.print("right: ");
+    // Serial.println(rightEncoder->getTicks());
 }
 
 int getInterruptNumber(int pin)
@@ -94,7 +101,7 @@ void setup()
     Odometry::getInst(leftEncoder, rightEncoder);
 
     //Enslavement
-    enslavement = new Enslavement(500, 0.05, 0.5, leftMotor, rightMotor);
+    enslavement = new Enslavement(2, 0.5, 1, leftMotor, rightMotor);
 
     //Interrupts
     attachInterrupt(getInterruptNumber(ENCODER_L_A_PIN), leftTicks, FALLING);
@@ -116,18 +123,18 @@ void setup()
     // serialCom->writeUInt8(0);
     // serialCom->send();
     Serial.begin(115200);
-    enslavement->turn(180);
+    // enslavement->goTo(5, 0, false);
+    enslavement->turn(360);
+    // Debug
+
 }
 
 
 
 void loop()
 {
-    //leftMotor->run(255);
-    //rightMotor->run(255);
     //Read serial packets
     // serialCom->doReadJob();
-
     //Motor enslavement
     enslavement->compute();
 }
