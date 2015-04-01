@@ -1,6 +1,14 @@
 ################# EDIT BELOW #######################
 PROJECT_DIR       = [path to /src]
 
+### BOARD SELECTION
+## Arduino nano 3.0
+#BOARD_TAG         = nano
+#BOARD_SUB         = atmega328
+## Arduino mega 2560
+BOARD_TAG         = mega
+BOARD_SUB         = atmega2560
+
 ################# DONT TOUCH #######################
 ARDMK_DIR         = $(PROJECT_DIR)/../make
 ARDUINO_DIR       = /usr/share/arduino
@@ -15,5 +23,6 @@ CXXFLAGS         += -pedantic -Wall -Wextra
 MONITOR_PORT      = /dev/ttyACM*
 CURRENT_DIR       = $(shell basename $(CURDIR))
 OBJDIR            = $(PROJECT_DIR)/bin/$(BOARD_TAG)/$(CURRENT_DIR)
+ARDUINO_LIBS      = Wire
 
 include $(ARDMK_DIR)/Arduino.mk
