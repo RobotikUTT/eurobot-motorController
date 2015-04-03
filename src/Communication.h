@@ -63,6 +63,11 @@ class Communication
         static void received(int count);
 
         /**
+         * Called when data is required
+         */
+        static void requested();
+
+        /**
          * Called when a command is received
          * @param command - The command number
          * @param paramLength - The length of the param buffer
@@ -71,10 +76,43 @@ class Communication
         static void execute(byte command, byte paramLength, byte *paramBuf);
 
 
+// ----------------------------------------------
+//      Extract functions
+// ----------------------------------------------
+
+        /**
+         * Extract an unsigned int of 8 bit from a buffer
+         * @param pos - A pointer to the pos value (that will be decremented of the size extracted)
+         * @param paramBuf - The byte array
+         */
+        static byte extractUInt8(byte *pos, byte *buf);
+
+        /**
+         * Extract an int of 8 bit from a buffer
+         * @param pos - A pointer to the pos value (that will be decremented of the size extracted)
+         * @param paramBuf - The byte array
+         */
+        static char extractInt8(byte *pos, byte *buf);
+
+        /**
+         * Extract an unsigned int of 16 bit from a buffer
+         * @param pos - A pointer to the pos value (that will be decremented of the size extracted)
+         * @param paramBuf - The byte array
+         */
+        static short extractUInt16(byte *pos, byte *buf);
+
+        /**
+         * Extract an int of 16 bit from a buffer
+         * @param pos - A pointer to the pos value (that will be decremented of the size extracted)
+         * @param paramBuf - The byte array
+         */
+        static unsigned short extractInt16(byte *pos, byte *buf);
+
+
+
+
         static byte dataAvailablePin;
         static byte lastRcvCheck;
-
-
         static RcvState rcvState;
         static byte rcvCmd;
         static byte rcvLength;

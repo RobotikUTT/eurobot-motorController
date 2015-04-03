@@ -2,8 +2,6 @@
         
 byte Communication::dataAvailablePin = 0xff;
 byte Communication::lastRcvCheck = 0xff;
-
-
 RcvState Communication::rcvState = CMD;
 byte Communication::rcvCmd = 0;
 byte Communication::rcvLength = 0;
@@ -21,7 +19,14 @@ void Communication::open(byte address)
 {
     Wire.begin(address);
     Wire.onReceive(Communication::received);
+    Wire.onRequest(Communication::requested);
     Serial.println("Com Ready !");
+}
+
+void Communication::requested()
+{
+    Wire.write(Communication::rcvCheck);
+    Serial.print("Warn : There is nothing to require");
 }
 
 void Communication::received(int count)
@@ -50,11 +55,11 @@ void Communication::received(int count)
             }
             case PARAM:
             {
-                    Communication::rcvBuf[Communication::rcvPos] = Wire.read();
-                    Communication::rcvCheck ^= Communication::rcvBuf[Communication::rcvPos];
-                    Communication::rcvPos++;
-                    if(Communication::rcvPos >= Communication::rcvLength || Communication::rcvPos >= 32)
-                        Communication::rcvState = CHECK;
+                Communication::rcvBuf[Communication::rcvPos] = Wire.read();
+                Communication::rcvCheck ^= Communication::rcvBuf[Communication::rcvPos];
+                Communication::rcvPos++;
+                if(Communication::rcvPos >= Communication::rcvLength || Communication::rcvPos >= 32)
+                    Communication::rcvState = CHECK;
                 break;
             }
             case CHECK:
@@ -62,7 +67,10 @@ void Communication::received(int count)
                 byte readCheck = Wire.read();
                 //Check sum that is on the last 6 bits of the command
                 if((readCheck&0x3f) == (Communication::rcvCheck%64))
+                {
                     Communication::execute(Communication::rcvCmd, Communication::rcvLength, Communication::rcvBuf);
+                    Communication::lastRcvCheck = Communication::rcvCheck;
+                }
                 Communication::rcvState = CMD;
                 break;
             }
@@ -78,8 +86,7 @@ void Communication::received(int count)
 
 void Communication::execute(byte command, byte length, byte* params)
 {
-    switch(command)
-    {
-
-    }
+    Serial.print("Warn : Command 0x");
+    Serial.print(command, HEX);
+    Serial.println(" doen't exist (There is no functions defined)");
 }
