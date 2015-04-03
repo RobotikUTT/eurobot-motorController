@@ -35,6 +35,5 @@ node_modules
 *.a
 
 # Build js
-raspi/build/
-raspi/build/src/*.js
-raspi/build/src/*.map
+src/bin
+src/Makefile
