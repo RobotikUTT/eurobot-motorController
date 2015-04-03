@@ -1,7 +1,7 @@
 
 #include "Encoder.h"
 #include "Motor.h"
-#include "SerialCom.h"
+#include "Communication.h"
 #include "Enslavement.h"
 #include "Odometry.h"
 
@@ -39,8 +39,6 @@ Motor *leftMotor;
 Motor *rightMotor;
 
 Enslavement *enslavement;
-
-SerialCom* serialCom;
 
 
 void leftTicks()
@@ -88,6 +86,7 @@ int getInterruptNumber(int pin)
 
 void setup()
 {
+
     //Encoders
     leftEncoder = new Encoder(ENCODER_L_A_PIN, ENCODER_L_B_PIN);
     rightEncoder = new Encoder(ENCODER_R_A_PIN, ENCODER_R_B_PIN);
@@ -108,24 +107,21 @@ void setup()
     attachInterrupt(getInterruptNumber(ENCODER_R_A_PIN), rightTicks, FALLING);
 
 
-    //Override PWM frequency
-     int eraser = 7;
-     int prescaler = 1;
+    //Override PWM frequency TODO WARN : Doesn't work on nano
+     // int eraser = 7;
+     // int prescaler = 1;
 
-     TCCR3B &= ~eraser;
+     // TCCR3B &= ~eraser;
 
-    //Init serial communication
-    serialCom = new SerialCom();
-
-    //Ping pong ~ test the communication
-    //TODO: serialCom->test
-    // serialCom->setSendCommand(SerialComCmd::CMD_TEST);
-    // serialCom->writeUInt8(0);
-    // serialCom->send();
-    Serial.begin(115200);
     // enslavement->goTo(5, 0, false);
-    enslavement->turn(360);
-    // Debug
+    //enslavement->turn(360);
+
+    //Debug
+    Serial.begin(115200);
+    Serial.println("Ready !");
+
+    //Communication configuration
+    Communication::open(0x02);
 
 }
 
@@ -136,5 +132,5 @@ void loop()
     //Read serial packets
     // serialCom->doReadJob();
     //Motor enslavement
-    enslavement->compute();
+    //enslavement->compute();
 }
