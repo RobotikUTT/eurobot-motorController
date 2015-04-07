@@ -4,6 +4,8 @@
 #include <Wire.h>
 #include <Arduino.h>
 
+#define I2CSP_SND_BUF 32
+#define I2CSP_RCV_BUF 32
 
 enum RcvState {
     CMD,
@@ -30,12 +32,10 @@ enum RcvState {
  *  
  * All slaves uses this type of packets
  * * 8 bits : Last command received (Check byte)
- * * 8 bits : Command ID
  * * 8 bits : Param length
  * * X bits : Params
  * * 6 bits : 8 bit XOR checksum
  *
- * If slave has nothing to say, it can only send the last command checkbyte.
  * In this way if you want to see if the command has been executed, you just have to read the first byte and check
  * if the value is the same as your command checkbyte
  */
@@ -56,11 +56,7 @@ class I2cSlaveProtocol
          */
         static void open(byte address);
 
-        /**
-         * Called when data is received
-         * @param count - Byte count available in receive buffer
-         */
-        static void received(int count);
+
 
         /**
          * Called when data is required
@@ -68,12 +64,37 @@ class I2cSlaveProtocol
         static void requested();
 
         /**
+         * Called when data is requested from master
+         */
+        static void sendDefault();
+
+        /**
+         * Set the function that will be executed when data is requested (by default this function is `sendDefault()`)
+         * @param a pointer to the function that will be executed wich should have the same structure as `sendDefault()`
+         */
+        static void setSend(void (*send)());
+
+
+
+        /**
+         * Called when data is received
+         * @param count - Byte count available in receive buffer
+         */
+        static void received(int count);      
+        
+        /**
+         * Set the function that will be executed when a command is received (by default this function is `executeDefault()`)
+         * @param a pointer to the function that will be executed wich should have the same structure as `executeDefault()`
+         */
+        static void setExecute(void (*execute)(byte command, byte paramLength, byte *paramBuf));
+
+        /**
          * Called when a command is received
          * @param command - The command number
          * @param paramLength - The length of the param buffer
          * @param paramBuf - The list of bytes that constitue params
          */
-        static void execute(byte command, byte paramLength, byte *paramBuf);
+        static void executeDefault(byte command, byte paramLength, byte *paramBuf);
 
 
 // ----------------------------------------------
@@ -99,26 +120,61 @@ class I2cSlaveProtocol
          * @param pos - A pointer to the pos value (that will be decremented of the size extracted)
          * @param paramBuf - The byte array
          */
-        static short extractUInt16(byte *pos, byte *buf);
+        static unsigned short extractUInt16(byte *pos, byte *buf);
 
         /**
          * Extract an int of 16 bit from a buffer
          * @param pos - A pointer to the pos value (that will be decremented of the size extracted)
          * @param paramBuf - The byte array
          */
-        static unsigned short extractInt16(byte *pos, byte *buf);
+        static short extractInt16(byte *pos, byte *buf);
+
+// ----------------------------------------------
+//      Send functions
+// ----------------------------------------------
+
+        /**
+        * @brief Add a byte as unsigned integer to parameters
+        * @param data - The value that will be added to the buffer
+        */
+        static void addUInt8(byte data);
+
+        /**
+        * @brief Add a byte as integer to parameters
+        * @param data - The value that will be added to the buffer
+        */
+        static void addInt8(char data);
+
+        /**
+        * @brief Add two bytes as unsigned integer to parameters
+        * @param data - The value that will be added to the buffer
+        */
+        static void addUInt16(unsigned short data);
+
+        /**
+        * @brief Add two bytes as integer to parameters
+        * @param data - The value that will be added to the buffer
+        */
+        static void addInt16(short data);
 
 
 
+
+        static void (*execute)(byte command, byte paramLength, byte *paramBuf);
+        static void (*send)();
 
         static byte dataAvailablePin;
         static byte lastRcvCheck;
+
         static RcvState rcvState;
         static byte rcvCmd;
         static byte rcvLength;
         static byte rcvPos;
-        static byte rcvBuf[32];
+        static byte rcvBuf[I2CSP_RCV_BUF];
         static byte rcvCheck;
+
+        static byte sndPos;
+        static byte sndBuf[I2CSP_SND_BUF];
 
 };
 

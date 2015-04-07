@@ -118,7 +118,7 @@ void setup()
 
     //Debug
     Serial.begin(115200);
-    Serial.println("Ready !");
+    Serial.println("Debug ready !");
 
     //Communication configuration
     Communication::open(0x02);
