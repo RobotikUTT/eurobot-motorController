@@ -19,7 +19,7 @@ class Encoder
         /**
          * Tick per wheel spin
          */
-        static const int TICK_PER_SPIN = 500;
+        static const double TICK_PER_SPIN;
 
         /**
          * Constructor

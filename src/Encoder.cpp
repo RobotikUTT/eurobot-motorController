@@ -1,6 +1,8 @@
 #include "Encoder.h"
 
 
+const double Encoder::TICK_PER_SPIN = 293.3333;
+
 Encoder::Encoder(byte chanA, byte chanB)
 {
     this->chanA = chanA;

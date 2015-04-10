@@ -46,6 +46,12 @@ class Odometry
         static Odometry* getInst(Encoder *leftEncoder, Encoder *rightEncoder);
 
         /**
+         * inst getter
+         * @return Odometry unique instance
+         */
+        static Odometry* getInst();
+
+        /**
          * Convert meters to ticks
          * @param  meters Meters
          * @return        Ticks
