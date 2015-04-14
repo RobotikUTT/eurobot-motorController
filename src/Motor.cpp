@@ -1,7 +1,7 @@
 #include "Motor.h"
 
 
-const double Motor::WHEEL_RADIUS = 0.03;
+const double Motor::WHEEL_RADIUS = 0.0345;
 
 
 Motor::Motor(byte pwmPin, byte dirPinA, byte dirPinB)

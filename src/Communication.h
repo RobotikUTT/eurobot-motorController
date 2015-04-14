@@ -4,6 +4,8 @@
 #include <Wire.h>
 #include <Arduino.h>
 #include "I2cSlaveProtocol.h"
+#include "Odometry.h"
+#include "Enslavement.h"
 
 
 /**
@@ -45,8 +47,12 @@ class Communication : public I2cSlaveProtocol
         static char lastPingS8;
         static unsigned short lastPingU16;
         static short lastPingS16;
+        static Odometry* odometry;
+        static Enslavement* enslavement;
 
         static const byte cmd_ping = 0x0;
+        static const byte cmd_move = 0x1;
+        static const byte cmd_odometry = 0x2;
 };
 
 #endif

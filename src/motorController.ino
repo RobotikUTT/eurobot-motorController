@@ -14,22 +14,21 @@
 
 //Encoders
 //Channel A is used for the interupt
+const byte ENCODER_R_A_PIN = 3;
+const byte ENCODER_R_B_PIN = 5;
 
-const byte ENCODER_R_A_PIN = 21;
-const byte ENCODER_R_B_PIN = 22;
-
-const byte ENCODER_L_A_PIN = 20;
-const byte ENCODER_L_B_PIN = 24;
+const byte ENCODER_L_A_PIN = 2;
+const byte ENCODER_L_B_PIN = 4;
 
 
 //Motors
-const byte MOTOR_L_PIN = 12;
-const byte DIR_L_PIN_A = 30;
-const byte DIR_L_PIN_B = 32;
+const byte MOTOR_R_PIN = 9;
+const byte DIR_R_PIN_A = 11;
+const byte DIR_R_PIN_B = 10;
 
-const byte MOTOR_R_PIN = 11;
-const byte DIR_R_PIN_A = 26;
-const byte DIR_R_PIN_B = 28;
+const byte MOTOR_L_PIN = 6;
+const byte DIR_L_PIN_A = 8;
+const byte DIR_L_PIN_B = 7;
 
 
 Encoder *leftEncoder;
@@ -39,7 +38,10 @@ Motor *leftMotor;
 Motor *rightMotor;
 
 Enslavement *enslavement;
+Odometry *odometry;
 
+unsigned long previous = 0;
+int orientation = 0;
 
 void leftTicks()
 {
@@ -97,10 +99,10 @@ void setup()
 
     //Init odometry singleton, because enslavement object won't have access to encoders object.
     //This is dirty work, but it works, and it needs to be refactored. :)
-    Odometry::getInst(leftEncoder, rightEncoder);
+    odometry = Odometry::getInst(leftEncoder, rightEncoder);
 
     //Enslavement
-    enslavement = new Enslavement(2, 0.5, 1, leftMotor, rightMotor);
+    enslavement = Enslavement::getInst(2, 0.5, 1, leftMotor, rightMotor);
 
     //Interrupts
     attachInterrupt(getInterruptNumber(ENCODER_L_A_PIN), leftTicks, FALLING);
@@ -114,14 +116,15 @@ void setup()
      // TCCR3B &= ~eraser;
 
     // enslavement->goTo(5, 0, false);
-    //enslavement->turn(360);
+    enslavement->turn(180);
 
     //Debug
     Serial.begin(115200);
-    Serial.println("Debug ready !");
+    // Serial.println("Debug ready !");
 
     //Communication configuration
     Communication::open(0x02);
+
 
 }
 
@@ -129,8 +132,30 @@ void setup()
 
 void loop()
 {
+    // Serial.print("left: ");
+    // Serial.println(leftEncoder->getTicks());
+    // Serial.print("right: ");
+    // Serial.println(rightEncoder->getTicks());
+
+    // odometry->update();
+    // Serial.println(odometry->getOrientation());
+
+    // CarthesianCoordinates coordinates = odometry->getCoordinates();
+
+    // Serial.print("x: ");
+    // Serial.print(coordinates.x);
+    // Serial.print(" ");
+    // Serial.print("y: ");
+    // Serial.println(coordinates.y);
+
+
+    //     Serial.println(odometry->getOrientation());
+
+    // leftEncoder->resetTicks();
+    // rightEncoder->resetTicks();
+
+    // delay(1000);
     //Read serial packets
-    // serialCom->doReadJob();
     //Motor enslavement
-    //enslavement->compute();
+    // enslavement->compute();
 }

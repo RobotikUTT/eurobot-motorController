@@ -1,6 +1,27 @@
 #include "Enslavement.h"
 
 
+Enslavement* Enslavement::inst = NULL;
+
+Enslavement* Enslavement::getInst(unsigned long deltaT, double acceleration, double velocityMax,
+    Motor *leftMotor, Motor *rightMotor)
+{
+    if (Enslavement::inst == NULL)
+    {
+        Enslavement::inst = new Enslavement(deltaT, acceleration, velocityMax,
+            leftMotor, rightMotor);
+        return Enslavement::inst;
+    }
+
+    return Enslavement::inst;
+}
+
+
+Enslavement* Enslavement::getInst() {
+    return Enslavement::inst;
+}
+
+
 Enslavement::Enslavement(unsigned long deltaT, double acceleration, double velocityMax,
     Motor *leftMotor, Motor *rightMotor)
 {
@@ -86,7 +107,7 @@ void Enslavement::compute()
         double actualDistance = this->previousDistance + (ticks.left + ticks.right) / 2.0;
         double actualDistanceVelocity = actualDistance - this->previousDistance;
 
-        double actualOrientation = this->previousOrientation + (ticks.right - ticks.left);
+        double actualOrientation = this->previousOrientation + (ticks.right - ticks.left) / Odometry::metersToTicks(Odometry::ENTRAXE);
         double actualOrientationVelocity = actualOrientation - this->previousOrientation;
 
         this->previousDistance = actualDistance;
@@ -199,10 +220,6 @@ void Enslavement::compute()
         // Serial.print("Rl ");
         // Serial.println(actualOrientationVelocity);
         // Serial.println("___");
-
-        Serial.print(remainingOrientation);
-        Serial.print(",");
-
 
         this->leftMotor->run(leftCommand);
         this->rightMotor->run(rightCommand);

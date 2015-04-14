@@ -1,6 +1,6 @@
 #include "I2cSlaveProtocol.h"
         
-byte I2cSlaveProtocol::dataAvailablePin = 0xff;
+byte I2cSlaveProtocol::dataAvailablePin = 0x02;
 byte I2cSlaveProtocol::lastRcvCheck = 0xff;
 
 RcvState I2cSlaveProtocol::rcvState = CMD;
@@ -51,13 +51,13 @@ void I2cSlaveProtocol::requested()
     I2cSlaveProtocol::addUInt8(chk);
 
     // Debug
-    // Serial.print("SndBuf:");
-    // for (int i = 0; i < I2cSlaveProtocol::sndPos; ++i)
-    // {
-    //     Serial.print(I2cSlaveProtocol::sndBuf[i],HEX);
-    //     Serial.print("|");
-    // }
-    // Serial.println();
+    Serial.print("SndBuf:");
+    for (int i = 0; i < I2cSlaveProtocol::sndPos; ++i)
+    {
+        Serial.print(I2cSlaveProtocol::sndBuf[i],HEX);
+        Serial.print("|");
+    }
+    Serial.println();
 
     //Send via i2c
     Wire.write(I2cSlaveProtocol::sndBuf, I2cSlaveProtocol::sndPos);
@@ -67,41 +67,44 @@ void I2cSlaveProtocol::received(int count)
 {
 
     // Debug
-    // Serial.print("RcvBuf:");
-    // for (int i = 0; i < 6; ++i)
-    // {
-    //     Serial.print(params[i],HEX);
-    //     Serial.print("|");
-    // }
-    // Serial.println();
+    Serial.print("RcvBuf:");
 
     while(Wire.available())
     {
+        byte curByte = Wire.read();
+
+        // Debug
+        Serial.print(curByte,HEX);
+        Serial.print("|");
+
         switch(I2cSlaveProtocol::rcvState)
         {
             case CMD:
             {
-                I2cSlaveProtocol::rcvCmd = Wire.read();
+                I2cSlaveProtocol::rcvCmd = curByte;
                 I2cSlaveProtocol::rcvCheck = I2cSlaveProtocol::rcvCmd;
                 I2cSlaveProtocol::rcvState = LENGTH;
                 break;
             }
             case LENGTH:
             {
-                I2cSlaveProtocol::rcvLength = Wire.read();
+                I2cSlaveProtocol::rcvLength = curByte;
                 I2cSlaveProtocol::rcvCheck ^= I2cSlaveProtocol::rcvLength;
                 I2cSlaveProtocol::rcvState = PARAM;
                 I2cSlaveProtocol::rcvPos = 0;
+                if(I2cSlaveProtocol::rcvLength == 0)
+                    I2cSlaveProtocol::rcvState = CHECK;
                 break;
             }
             case PARAM:
             {
-                I2cSlaveProtocol::rcvBuf[I2cSlaveProtocol::rcvPos] = Wire.read();
+                I2cSlaveProtocol::rcvBuf[I2cSlaveProtocol::rcvPos] = curByte;
                 I2cSlaveProtocol::rcvCheck ^= I2cSlaveProtocol::rcvBuf[I2cSlaveProtocol::rcvPos];
                 I2cSlaveProtocol::rcvPos++;
 
                 if(I2cSlaveProtocol::rcvPos >= I2CSP_RCV_BUF)
                 {
+                    Serial.println();
                     Serial.println("Warn : Packet dropped (buffer overflow)");
                     I2cSlaveProtocol::rcvState = CMD;
                 }
@@ -113,15 +116,19 @@ void I2cSlaveProtocol::received(int count)
             }
             case CHECK:
             {
-                byte readCheck = Wire.read();
+                byte readCheck = curByte;
                 //Check sum that is on the last 6 bits of the command
                 if((readCheck&0x3f) == (I2cSlaveProtocol::rcvCheck%64))
                 {
+                    // Debug
+                    Serial.println();
+
                     I2cSlaveProtocol::execute(I2cSlaveProtocol::rcvCmd, I2cSlaveProtocol::rcvLength, I2cSlaveProtocol::rcvBuf);
                     I2cSlaveProtocol::lastRcvCheck = I2cSlaveProtocol::rcvCheck;
                 }
                 else
                 {
+                    Serial.println();
                     Serial.println("Warn : Packet dropped (bad checksum)");
                 }
                 I2cSlaveProtocol::rcvState = CMD;
@@ -129,6 +136,8 @@ void I2cSlaveProtocol::received(int count)
             }
         }
     }
+    // Debug
+    Serial.println();
 
     //Reset state if packet not received totally
     if(I2cSlaveProtocol::rcvState != CMD)
