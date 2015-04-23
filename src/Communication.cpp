@@ -9,6 +9,11 @@ short Communication::lastPingS16 = 0;
 Odometry* Communication::odometry = Odometry::getInst();
 Enslavement* Communication::enslavement = Enslavement::getInst();
 
+Encoder* Communication::leftEncoder = NULL;
+Encoder* Communication::rightEncoder = NULL;
+Motor* Communication::leftMotor = NULL;
+Motor* Communication::rightMotor = NULL;
+
 
 void Communication::open(byte address, byte dataAvailablePin)
 {
@@ -72,6 +77,35 @@ void Communication::execute(byte command, byte length, byte* params)
             enslavement->stop();
             break;
         }
+        case Communication::cmd_set_motor_pwm:
+        {
+            if(length >= 3)
+            {
+                byte pos = 0;
+                byte motor = extractUInt8(&pos, params);
+                short value = extractInt16(&pos, params);
+
+                if(motor == 0 && Communication::leftMotor != NULL)
+                    Communication::leftMotor->run((int) value);
+                else if(motor == 1 && Communication::rightMotor != NULL)
+                    Communication::rightMotor->run((int) value);
+            }
+            break;
+        }
+        case Communication::cmd_reset_encoder_ticks:
+        {
+            if(length >= 1)
+            {
+                byte pos = 0;
+                byte motor = extractUInt8(&pos, params);
+
+                if(motor == 0 && Communication::leftMotor != NULL)
+                    Communication::leftEncoder->resetTicks();
+                else if(motor == 1 && Communication::rightMotor != NULL)
+                    Communication::rightEncoder->resetTicks();
+            }
+            break;
+        }
         default:
         {
             // Serial.print("Warn : Command 0x");
@@ -105,6 +139,17 @@ void Communication::send()
             Communication::addInt16(orientation);
             break;
         }
+        case Communication::cmd_get_encoder_ticks:
+        {
+            if(Communication::leftEncoder != NULL && Communication::rightEncoder != NULL)
+            {
+                Communication::addInt16((short)Communication::leftEncoder->getTicks());
+                Communication::addInt16((short)Communication::rightEncoder->getTicks());
+            }
+            break;
+        }
+
+
         default:
         {
             Serial.print("Warn : There is nothing to send with the command 0x");
@@ -112,4 +157,16 @@ void Communication::send()
         }
 
     }
+}
+
+void Communication::setMotors(Motor* left, Motor* right)
+{
+    Communication::leftMotor = left;
+    Communication::rightMotor = right;
+}
+
+void Communication::setEncoders(Encoder* left, Encoder* right)
+{
+    Communication::leftEncoder = left;
+    Communication::rightEncoder = right;
 }

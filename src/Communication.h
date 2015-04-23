@@ -6,6 +6,8 @@
 #include "I2cSlaveProtocol.h"
 #include "Odometry.h"
 #include "Enslavement.h"
+#include "Motor.h"
+#include "Encoder.h"
 
 
 /**
@@ -41,6 +43,20 @@ class Communication : public I2cSlaveProtocol
          */
         static void send();
 
+        /**
+         * Give motors objects for debug
+         * @param left - The left motor object
+         * @param right - The right motor object
+         */
+        static void setMotors(Motor* left, Motor* right);
+
+        /**
+         * Give encoders objects for debug
+         * @param left - The left encoder object
+         * @param right - The right encoder object
+         */
+        static void setEncoders(Encoder* left, Encoder* right);
+
 
         static byte lastCmd;
         static byte lastPingU8;
@@ -50,10 +66,19 @@ class Communication : public I2cSlaveProtocol
         static Odometry* odometry;
         static Enslavement* enslavement;
 
+        static Encoder *leftEncoder;
+        static Encoder *rightEncoder;
+        static Motor *leftMotor;
+        static Motor *rightMotor;
+
+
         static const byte cmd_ping = 0x0;
         static const byte cmd_move = 0x1;
         static const byte cmd_odometry = 0x2;
         static const byte cmd_stop = 0x3;
+        static const byte cmd_set_motor_pwm = 0x4;
+        static const byte cmd_get_encoder_ticks = 0x5;
+        static const byte cmd_reset_encoder_ticks = 0x6;
 };
 
 #endif

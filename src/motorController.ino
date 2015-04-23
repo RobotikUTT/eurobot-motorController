@@ -124,6 +124,8 @@ void setup()
 
     //Communication configuration
     Communication::open(0x02);
+    Communication::setMotors(leftMotor, rightMotor);
+    Communication::setEncoders(leftEncoder, rightEncoder);
 
 
 }
