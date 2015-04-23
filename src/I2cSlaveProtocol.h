@@ -47,8 +47,9 @@ class I2cSlaveProtocol
          * Constructor with a data available line
          * @param address - i2c address
          * @param dataAvailablePin - Pin that will be put up when the slave has data available
+         * @param dataAvailableCmd - The cmd number that will make the pin fall after a call of dataAvailable()
          */
-        static void open(byte address, byte dataAvailablePin);
+        static void open(byte address, char dataAvailablePin, char dataAvailableCmd);
 
         /**
          * Constructor without a data available line
@@ -96,6 +97,11 @@ class I2cSlaveProtocol
          */
         static void executeDefault(byte command, byte paramLength, byte *paramBuf);
 
+
+        /**
+         * Will rise the data available pin
+         */
+        static void dataAvailable();
 
 // ----------------------------------------------
 //      Extract functions
@@ -163,7 +169,8 @@ class I2cSlaveProtocol
         static void (*execute)(byte command, byte paramLength, byte *paramBuf);
         static void (*send)();
 
-        static byte dataAvailablePin;
+        static char dataAvailablePin;
+        static char dataAvailableCmd;
         static byte lastRcvCheck;
 
         static RcvState rcvState;

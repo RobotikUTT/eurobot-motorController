@@ -1,6 +1,7 @@
 #include "I2cSlaveProtocol.h"
         
-byte I2cSlaveProtocol::dataAvailablePin = 0x02;
+char I2cSlaveProtocol::dataAvailablePin = -1;
+char I2cSlaveProtocol::dataAvailableCmd = -1;
 byte I2cSlaveProtocol::lastRcvCheck = 0xff;
 
 RcvState I2cSlaveProtocol::rcvState = CMD;
@@ -16,9 +17,11 @@ void (*I2cSlaveProtocol::execute)(byte command, byte paramLength, byte *paramBuf
 void (*I2cSlaveProtocol::send)() = I2cSlaveProtocol::sendDefault;
 
 
-void I2cSlaveProtocol::open(byte address, byte dataAvailablePin)
+void I2cSlaveProtocol::open(byte address, char dataAvailablePin, char dataAvailableCmd)
 {
+    I2cSlaveProtocol::dataAvailableCmd = dataAvailableCmd;
     I2cSlaveProtocol::dataAvailablePin = dataAvailablePin;
+    pinMode(dataAvailablePin, OUTPUT);
     I2cSlaveProtocol::open(address);
 }
 
@@ -123,6 +126,11 @@ void I2cSlaveProtocol::received(int count)
                     // Debug
                     Serial.println();
 
+                    //Make dataAvailablePin falling if this is the right command
+                    if (I2cSlaveProtocol::dataAvailableCmd == I2cSlaveProtocol::rcvCmd)
+                        digitalWrite(I2cSlaveProtocol::dataAvailablePin, LOW);
+
+                    //execute command
                     I2cSlaveProtocol::execute(I2cSlaveProtocol::rcvCmd, I2cSlaveProtocol::rcvLength, I2cSlaveProtocol::rcvBuf);
                     I2cSlaveProtocol::lastRcvCheck = I2cSlaveProtocol::rcvCheck;
                 }
@@ -170,7 +178,13 @@ void I2cSlaveProtocol::setExecute(void (*execute)(byte command, byte paramLength
     I2cSlaveProtocol::execute = execute;
 }
 
-
+void I2cSlaveProtocol::dataAvailable()
+{
+    if(I2cSlaveProtocol::dataAvailablePin != -1)
+    {
+        digitalWrite(I2cSlaveProtocol::dataAvailablePin, HIGH);
+    }
+}
 
 void I2cSlaveProtocol::addUInt8(byte data)
 {
