@@ -53,6 +53,7 @@ class Communication : public I2cSlaveProtocol
         static const byte cmd_ping = 0x0;
         static const byte cmd_move = 0x1;
         static const byte cmd_odometry = 0x2;
+        static const byte cmd_stop = 0x3;
 };
 
 #endif

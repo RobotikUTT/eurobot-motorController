@@ -40,6 +40,11 @@ class Enslavement
 
 
         /**
+         * Stop and reset calculs
+         */
+        void stop();
+
+        /**
          * Function called periodically (each deltaT).:
          * Generate a trajectory and control motor speed to reach it.
          * Use PID controller in order to deal with errors.

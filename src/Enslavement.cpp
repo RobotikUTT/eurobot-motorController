@@ -40,18 +40,7 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->orientationVelocityMax = this->distanceVelocityMax / Odometry::ENTRAXE / 2.0;
     this->orientationAcceleration = this->distanceAcceleration / Odometry::ENTRAXE / 2.0;
 
-    this->previousDistance = 0;
-    this->previousOrientation = 0;
-
-    this->distanceObjective = 0;
-    this->distanceVelocityObjective = 0;
-    this->orientationObjective = 0;
-    this->orientationVelocityObjective = 0;
-
-    this->theoricalDistance = 0;
-    this->theoricalDistanceVelocity = 0;
-    this->theoricalOrientation = 0;
-    this->theoricalOrientationVelocity = 0;
+    this->stop();
 }
 
 
@@ -224,4 +213,20 @@ void Enslavement::compute()
         this->leftMotor->run(leftCommand);
         this->rightMotor->run(rightCommand);
     }
+}
+
+void Enslavement::stop()
+{
+    this->previousDistance = 0;
+    this->previousOrientation = 0;
+
+    this->distanceObjective = 0;
+    this->distanceVelocityObjective = 0;
+    this->orientationObjective = 0;
+    this->orientationVelocityObjective = 0;
+
+    this->theoricalDistance = 0;
+    this->theoricalDistanceVelocity = 0;
+    this->theoricalOrientation = 0;
+    this->theoricalOrientationVelocity = 0;
 }

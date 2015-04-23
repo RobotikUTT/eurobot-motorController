@@ -56,12 +56,20 @@ void Communication::execute(byte command, byte length, byte* params)
         }
         case Communication::cmd_move:
         {
-            byte pos = 0;
-            short x = extractInt16(&pos, params);
-            short y = extractInt16(&pos, params);
-            bool forceFace = extractUInt8(&pos, params);
+            if(length >= 5)
+            {
+                byte pos = 0;
+                short x = extractInt16(&pos, params);
+                short y = extractInt16(&pos, params);
+                bool forceFace = extractUInt8(&pos, params);
 
-            enslavement->goTo(x, y, forceFace);
+                enslavement->goTo(x, y, forceFace);
+            }
+            break;
+        }
+        case Communication::cmd_stop:
+        {
+            enslavement->stop();
             break;
         }
         default:
