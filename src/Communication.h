@@ -57,6 +57,8 @@ class Communication : public I2cSlaveProtocol
          */
         static void setEncoders(Encoder* left, Encoder* right);
 
+        static void setEnslavement(Enslavement* enslavement);
+
 
         static byte lastCmd;
         static byte lastPingU8;

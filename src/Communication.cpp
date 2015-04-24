@@ -7,7 +7,7 @@ char Communication::lastPingS8 = 0;
 unsigned short Communication::lastPingU16 = 0;
 short Communication::lastPingS16 = 0;
 Odometry* Communication::odometry = Odometry::getInst();
-Enslavement* Communication::enslavement = Enslavement::getInst();
+Enslavement* Communication::enslavement;
 
 Encoder* Communication::leftEncoder = NULL;
 Encoder* Communication::rightEncoder = NULL;
@@ -68,13 +68,13 @@ void Communication::execute(byte command, byte length, byte* params)
                 short y = extractInt16(&pos, params);
                 bool forceFace = extractUInt8(&pos, params);
 
-                enslavement->goTo(x, y, forceFace);
+                Communication::enslavement->turn(180);
             }
             break;
         }
         case Communication::cmd_stop:
         {
-            enslavement->stop();
+            Communication::enslavement->stop();
             break;
         }
         case Communication::cmd_set_motor_pwm:
@@ -169,4 +169,9 @@ void Communication::setEncoders(Encoder* left, Encoder* right)
 {
     Communication::leftEncoder = left;
     Communication::rightEncoder = right;
+}
+
+void Communication::setEnslavement(Enslavement* enslavement)
+{
+    Communication::enslavement = enslavement;
 }

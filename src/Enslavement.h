@@ -20,11 +20,25 @@ class Enslavement
 {
     public:
 
-        static Enslavement* getInst(unsigned long deltaT, double acceleration, double velocityMax,
+        /**
+         * Constructor
+         * @param deltaT       Minimal time before compute() call (10^-3s)
+         * @param acceleration Maximal acceleration (m.s^-2)
+         * @param velocityMax  Maximal velocity (m.s^-1)
+         * @param leftEncoder  Left encoder
+         * @param rightEncoder Right encoder
+         * @param leftMotor    Left motor
+         * @param rightMotor   Right motor
+         */
+        Enslavement(unsigned long deltaT, double acceleration, double velocityMax,
             Motor *leftMotor, Motor *rightMotor);
 
-        static Enslavement* getInst();
 
+        /**
+         * Destructor
+         */
+        ~Enslavement();
+        
         /**
          * Set destination to a (x, y) point
          * @param coordinates Destination point
@@ -63,26 +77,6 @@ class Enslavement
 
     private:
 
-        /**
-         * Constructor
-         * @param deltaT       Minimal time before compute() call (10^-3s)
-         * @param acceleration Maximal acceleration (m.s^-2)
-         * @param velocityMax  Maximal velocity (m.s^-1)
-         * @param leftEncoder  Left encoder
-         * @param rightEncoder Right encoder
-         * @param leftMotor    Left motor
-         * @param rightMotor   Right motor
-         */
-        Enslavement(unsigned long deltaT, double acceleration, double velocityMax,
-            Motor *leftMotor, Motor *rightMotor);
-
-
-        /**
-         * Destructor
-         */
-        ~Enslavement();
-
-        static Enslavement *inst;
 
         Odometry *odometry;
         Motor *leftMotor;

@@ -102,7 +102,7 @@ void setup()
     odometry = Odometry::getInst(leftEncoder, rightEncoder);
 
     //Enslavement
-    enslavement = Enslavement::getInst(2, 0.5, 1, leftMotor, rightMotor);
+    enslavement = new Enslavement(50, 0.5, 1, leftMotor, rightMotor);
 
     //Interrupts
     attachInterrupt(getInterruptNumber(ENCODER_L_A_PIN), leftTicks, FALLING);
@@ -116,7 +116,7 @@ void setup()
      // TCCR3B &= ~eraser;
 
     // enslavement->goTo(5, 0, false);
-    enslavement->turn(180);
+    // enslavement->turn(180);
 
     //Debug
     Serial.begin(115200);
@@ -126,8 +126,7 @@ void setup()
     Communication::open(0x02);
     Communication::setMotors(leftMotor, rightMotor);
     Communication::setEncoders(leftEncoder, rightEncoder);
-
-
+    Communication::setEnslavement(enslavement);
 }
 
 
@@ -159,5 +158,5 @@ void loop()
     // delay(1000);
     //Read serial packets
     //Motor enslavement
-    // enslavement->compute();
+    enslavement->compute();
 }

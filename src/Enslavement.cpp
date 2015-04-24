@@ -1,35 +1,14 @@
 #include "Enslavement.h"
 
 
-Enslavement* Enslavement::inst = NULL;
-
-Enslavement* Enslavement::getInst(unsigned long deltaT, double acceleration, double velocityMax,
-    Motor *leftMotor, Motor *rightMotor)
-{
-    if (Enslavement::inst == NULL)
-    {
-        Enslavement::inst = new Enslavement(deltaT, acceleration, velocityMax,
-            leftMotor, rightMotor);
-        return Enslavement::inst;
-    }
-
-    return Enslavement::inst;
-}
-
-
-Enslavement* Enslavement::getInst() {
-    return Enslavement::inst;
-}
-
-
 Enslavement::Enslavement(unsigned long deltaT, double acceleration, double velocityMax,
     Motor *leftMotor, Motor *rightMotor)
 {
     this->odometry = Odometry::getInst(NULL, NULL);
     this->leftMotor = leftMotor;
     this->rightMotor = rightMotor;
-    this->distancePID = new Pid(0.7, 0.3, 0, deltaT);
-    this->orientationPID = new Pid(0.7, 0.3, 0, deltaT);
+    this->distancePID = new Pid(0.7, 0, 0, deltaT);
+    this->orientationPID = new Pid(0.7, 0, 0, deltaT);
 
     this->deltaT = deltaT;
     this->lastMillis = 0;
@@ -39,6 +18,12 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->distanceAcceleration = Odometry::metersToTicks(acceleration / 1000 / 1000 * deltaT * deltaT); //m.s^-2 => ticks.deltaT^-2
     this->orientationVelocityMax = this->distanceVelocityMax / Odometry::ENTRAXE / 2.0;
     this->orientationAcceleration = this->distanceAcceleration / Odometry::ENTRAXE / 2.0;
+
+    this->theoricalDistance = 0;
+    this->theoricalDistanceVelocity = 0;
+
+    this->theoricalOrientation = 0;
+    this->theoricalOrientationVelocity = 0;
 
     this->stop();
 }
@@ -96,7 +81,7 @@ void Enslavement::compute()
         double actualDistance = this->previousDistance + (ticks.left + ticks.right) / 2.0;
         double actualDistanceVelocity = actualDistance - this->previousDistance;
 
-        double actualOrientation = this->previousOrientation + (ticks.right - ticks.left) / Odometry::metersToTicks(Odometry::ENTRAXE);
+        double actualOrientation = this->previousOrientation + (ticks.right - ticks.left);
         double actualOrientationVelocity = actualOrientation - this->previousOrientation;
 
         this->previousDistance = actualDistance;
@@ -113,7 +98,7 @@ void Enslavement::compute()
         double remainingOrientation = this->orientationObjective - actualOrientation;
 
 
-        if (fabs(remainingDistance) <= 80)
+        if (fabs(remainingDistance) <= this->distanceAcceleration)
         {
             this->distanceVelocityObjective = 0;
             this->distanceObjective = 0;
@@ -147,7 +132,7 @@ void Enslavement::compute()
         this->theoricalDistance += this->theoricalDistanceVelocity;
 
 
-        if (fabs(remainingOrientation) <= 80)
+        if (fabs(remainingOrientation) <= this->orientationAcceleration)
         {
             this->orientationVelocityObjective = 0;
             this->orientationObjective = 0;
@@ -203,13 +188,15 @@ void Enslavement::compute()
         // Serial.println("___");
 
         // Serial.print("Rem ");
-        // Serial.println(remainingOrientation);
+        Serial.println(remainingOrientation);
         // Serial.print("Th ");
         // Serial.println(theoricalOrientationVelocity);
         // Serial.print("Rl ");
         // Serial.println(actualOrientationVelocity);
         // Serial.println("___");
 
+        // Serial.println(leftCommand);
+        // Serial.println(rightCommand);
         this->leftMotor->run(leftCommand);
         this->rightMotor->run(rightCommand);
     }
@@ -217,16 +204,11 @@ void Enslavement::compute()
 
 void Enslavement::stop()
 {
-    this->previousDistance = 0;
-    this->previousOrientation = 0;
-
     this->distanceObjective = 0;
     this->distanceVelocityObjective = 0;
+    this->previousDistance = 0;
+
     this->orientationObjective = 0;
     this->orientationVelocityObjective = 0;
-
-    this->theoricalDistance = 0;
-    this->theoricalDistanceVelocity = 0;
-    this->theoricalOrientation = 0;
-    this->theoricalOrientationVelocity = 0;
+    this->previousOrientation = 0;
 }
