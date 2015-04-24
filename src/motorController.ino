@@ -30,6 +30,10 @@ const byte MOTOR_L_PIN = 6;
 const byte DIR_L_PIN_A = 8;
 const byte DIR_L_PIN_B = 7;
 
+//Motors config
+const byte MOTOR_L_MINPWM = 20;
+const byte MOTOR_R_MINPWM = 20;
+
 
 Encoder *leftEncoder;
 Encoder *rightEncoder;
@@ -95,7 +99,9 @@ void setup()
 
     //Motors
     leftMotor = new Motor(MOTOR_L_PIN, DIR_L_PIN_A, DIR_L_PIN_B);
+    leftMotor->setMinPWM(MOTOR_L_MINPWM);
     rightMotor = new Motor(MOTOR_R_PIN, DIR_R_PIN_A, DIR_R_PIN_B);
+    rightMotor->setMinPWM(MOTOR_R_MINPWM);
 
     //Init odometry singleton, because enslavement object won't have access to encoders object.
     //This is dirty work, but it works, and it needs to be refactored. :)

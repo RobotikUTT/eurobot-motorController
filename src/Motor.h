@@ -65,6 +65,12 @@ class Motor
          */
         int getPWM();
 
+        /**
+         * Set the minimum PWM value. If the pwm command is < then pwm=0
+         * @param pwm - The minimum pwm value
+         */
+        void setMinPWM(byte pwm);
+
 
     protected:
 
@@ -79,6 +85,7 @@ class Motor
         byte pwmPin;
         byte dirPinA;
         byte dirPinB;
+        byte minPWM;
 };
 
 #endif
