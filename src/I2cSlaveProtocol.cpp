@@ -215,6 +215,16 @@ void I2cSlaveProtocol::addInt16(short data)
     addUInt16((unsigned short) data);
 }
 
+void I2cSlaveProtocol::addFloat(float data)
+{
+    byte*  bytes = (byte*) &data;
+    I2cSlaveProtocol::sndBuf[I2cSlaveProtocol::sndPos++] = bytes[3];
+    I2cSlaveProtocol::sndBuf[I2cSlaveProtocol::sndPos++] = bytes[2];
+    I2cSlaveProtocol::sndBuf[I2cSlaveProtocol::sndPos++] = bytes[1];
+    I2cSlaveProtocol::sndBuf[I2cSlaveProtocol::sndPos++] = bytes[0];
+}
+
+
 byte I2cSlaveProtocol::extractUInt8(byte *pos, byte *buf)
 {
     (*pos)++;

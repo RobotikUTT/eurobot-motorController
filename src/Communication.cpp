@@ -136,6 +136,19 @@ void Communication::execute(byte command, byte length, byte* params)
                 orientationPID->setDeltaT(dt);
             }
         }
+        case Communication::cmd_set_odometry:
+        {
+            if (length >= 6)
+            {
+                byte pos = 0;
+                double x = (double)Communication::extractFloat(&pos, params);
+                double y = (double)Communication::extractFloat(&pos, params);
+                double orientation = (double)Communication::extractFloat(&pos, params);
+
+                Communication::odometry->setOrientation(orientation);
+                Communication::odometry->setCoordinates(x,y);
+            }
+        }
         default:
         {
             // Serial.print("Warn : Command 0x");
@@ -158,15 +171,16 @@ void Communication::send()
             Communication::addInt16(Communication::lastPingS16 + 1);
             break;
         }
-        case Communication::cmd_odometry:
+        case Communication::cmd_get_odometry:
         {
-            Serial.println("Send odometry");
-            CarthesianCoordinates coordinates = Communication::odometry->getCoordinates();
-            int orientation = Communication::odometry->getOrientation();
+            if(Communication::odometry != NULL)
+            {
+                CarthesianCoordinates coordinates = Communication::odometry->getCoordinates();
 
-            Communication::addInt16(coordinates.x);
-            Communication::addInt16(coordinates.y);
-            Communication::addInt16(orientation);
+                Communication::addFloat((float)coordinates.x);
+                Communication::addFloat((float)coordinates.y);
+                Communication::addFloat((float)Communication::odometry->getOrientation());
+            }
             break;
         }
         case Communication::cmd_get_encoder_ticks:
@@ -178,8 +192,6 @@ void Communication::send()
             }
             break;
         }
-
-
         default:
         {
             Serial.print("Warn : There is nothing to send with the command 0x");

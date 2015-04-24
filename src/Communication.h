@@ -76,13 +76,14 @@ class Communication : public I2cSlaveProtocol
 
         static const byte cmd_ping = 0x0;
         static const byte cmd_move = 0x1;
-        static const byte cmd_odometry = 0x2;
+        static const byte cmd_get_odometry = 0x2;
         static const byte cmd_stop = 0x3;
         static const byte cmd_set_motor_pwm = 0x4;
         static const byte cmd_get_encoder_ticks = 0x5;
         static const byte cmd_reset_encoder_ticks = 0x6;
         static const byte cmd_turn = 0x7;
         static const byte cmd_set_tunings = 0x8;
+        static const byte cmd_set_odometry = 0x9;
 };
 
 #endif

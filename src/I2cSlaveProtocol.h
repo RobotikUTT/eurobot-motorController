@@ -135,6 +135,11 @@ class I2cSlaveProtocol
          */
         static short extractInt16(byte *pos, byte *buf);
 
+        /**
+         * Extract an float of 32 bit from a buffer
+         * @param pos - A pointer to the pos value (that will be decremented of the size extracted)
+         * @param paramBuf - The byte array
+         */
         static float extractFloat(byte *pos, byte *buf);
 
 // ----------------------------------------------
@@ -165,7 +170,11 @@ class I2cSlaveProtocol
         */
         static void addInt16(short data);
 
-
+        /**
+        * @brief Add four bytes as float to parameters
+        * @param data - The value that will be added to the buffer
+        */
+        static void addFloat(float data);
 
 
         static void (*execute)(byte command, byte paramLength, byte *paramBuf);
