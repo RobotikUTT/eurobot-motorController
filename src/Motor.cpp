@@ -10,6 +10,7 @@ Motor::Motor(byte pwmPin, byte dirPinA, byte dirPinB)
     this->dirPinA = dirPinA;
     this->dirPinB = dirPinB;
     this->PWM = 0;
+    this->minPWM = 0;
 
     pinMode(pwmPin, OUTPUT);
     pinMode(dirPinA, OUTPUT);
@@ -41,7 +42,14 @@ void Motor::run(int PWM_)
         this->PWM = PWM_;
     }
 
-    analogWrite(this->pwmPin, this->PWM);
+    if(this->PWM >= this->minPWM)
+    {
+        analogWrite(this->pwmPin, this->PWM);
+    }
+    else
+    {
+        analogWrite(this->pwmPin, 0);
+    }
 }
 
 
@@ -74,4 +82,9 @@ int Motor::getPWM()
 {
     int sign = (this->dir == BACKWARD) ? -1 : 1;
     return sign * this->PWM;
+}
+
+void Motor::setMinPWM(byte pwm)
+{
+    this->minPWM = pwm;
 }
