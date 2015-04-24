@@ -72,6 +72,16 @@ void Communication::execute(byte command, byte length, byte* params)
             }
             break;
         }
+        case Communication::cmd_turn:
+        {
+            if(length >= 2)
+            {
+                byte pos = 0;
+                short angle = extractInt16(&pos, params);
+                enslavement->turn(angle);
+            }
+            break;
+        }
         case Communication::cmd_stop:
         {
             Communication::enslavement->stop();
