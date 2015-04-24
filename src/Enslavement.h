@@ -87,7 +87,7 @@ class Enslavement
         Motor *rightMotor;
         Pid *distancePID;
         Pid *orientationPID;
-
+        bool running;
         /*
             Constants
          */

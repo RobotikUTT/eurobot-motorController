@@ -25,7 +25,7 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->theoricalOrientation = 0;
     this->theoricalOrientationVelocity = 0;
 
-    this->stop();
+    this->running = false;
 }
 
 
@@ -34,6 +34,7 @@ Enslavement::~Enslavement() { }
 
 void Enslavement::goTo(double x, double y, bool forceFace)
 {
+    this->running = true;
     CarthesianCoordinates coordinates = this->odometry->getCoordinates();
     CarthesianCoordinates newCoordinates = {x - coordinates.x, y - coordinates.y};
     this->orientationObjective = atan2(newCoordinates.y, newCoordinates.x) - this->odometry->getOrientation();
@@ -52,7 +53,7 @@ void Enslavement::goTo(double x, double y, bool forceFace)
 
 void Enslavement::turn(double theta)
 {
-    this->previousOrientation = Odometry::metersToTicks(odometry->getOrientation() * Odometry::ENTRAXE);
+    this->running = true;
     this->orientationObjective = Odometry::metersToTicks(theta * 0.0174532925 * Odometry::ENTRAXE);
 }
 
@@ -63,7 +64,7 @@ void Enslavement::compute()
     unsigned int timeElapsed = (now - this->lastMillis);
     // unsigned int timeElapsed = this->deltaT;
 
-    if (timeElapsed >= this->deltaT)
+    if (timeElapsed >= this->deltaT && this->running)
     {
         this->lastMillis = now;
 
@@ -89,10 +90,7 @@ void Enslavement::compute()
 
         double remainingDistance = this->distanceObjective - actualDistance;
         double remainingOrientation = this->orientationObjective - actualOrientation;
-        Serial.print("objective: ");
-        Serial.println(this->orientationObjective);
-        Serial.print("actual: ");
-        Serial.println(actualOrientation);
+
         if (fabs(remainingDistance) <= this->distanceAcceleration)
         {
             this->distanceVelocityObjective = 0;
@@ -196,7 +194,9 @@ void Enslavement::compute()
 
 void Enslavement::stop()
 {
-    this->orientationObjective = Odometry::metersToTicks(odometry->getOrientation() * Odometry::ENTRAXE);
+    this->leftMotor->stop();
+    this->rightMotor->stop();
+    this->running = false;
 }
 
 
