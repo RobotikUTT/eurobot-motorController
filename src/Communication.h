@@ -79,6 +79,7 @@ class Communication : public I2cSlaveProtocol
         static const byte cmd_set_motor_pwm = 0x4;
         static const byte cmd_get_encoder_ticks = 0x5;
         static const byte cmd_reset_encoder_ticks = 0x6;
+        static const byte cmd_turn = 0x7;
 };
 
 #endif
