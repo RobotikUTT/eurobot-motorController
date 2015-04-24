@@ -238,3 +238,18 @@ short I2cSlaveProtocol::extractInt16(byte *pos, byte *buf)
     (*pos) += 2;
     return (short) ((buf[*pos-2]<<8) | buf[*pos-1]);
 }
+
+float I2cSlaveProtocol::extractFloat(byte *pos, byte *buf)
+{
+    (*pos) += 4;
+
+    float rtn = 0;
+    byte*  bytes = (byte*) &rtn;
+
+    bytes[0] = buf[*pos-1];
+    bytes[1] = buf[*pos-2];
+    bytes[2] = buf[*pos-3];
+    bytes[3] = buf[*pos-4];
+
+    return rtn ;
+}

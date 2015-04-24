@@ -133,14 +133,11 @@ void setup()
 
 void loop()
 {
+
     // Serial.print("left: ");
     // Serial.println(leftEncoder->getTicks());
     // Serial.print("right: ");
     // Serial.println(rightEncoder->getTicks());
-
-    // odometry->update();
-    // Serial.println(odometry->getOrientation());
-
     // CarthesianCoordinates coordinates = odometry->getCoordinates();
 
     // Serial.print("x: ");
@@ -152,8 +149,7 @@ void loop()
 
     //     Serial.println(odometry->getOrientation());
 
-    // leftEncoder->resetTicks();
-    // rightEncoder->resetTicks();
+
 
     // delay(1000);
     //Read serial packets

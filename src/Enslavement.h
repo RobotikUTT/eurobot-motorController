@@ -38,7 +38,7 @@ class Enslavement
          * Destructor
          */
         ~Enslavement();
-        
+
         /**
          * Set destination to a (x, y) point
          * @param coordinates Destination point
@@ -69,7 +69,11 @@ class Enslavement
          * deltaT setter
          * @param deltaT deltaT
          */
-        void setDeltaT(int deltaT);
+        void setDeltaT(unsigned long deltaT);
+
+        Pid* getOrientationPID();
+
+        Pid* getDistancePID();
 
         double theoricalDistanceVelocity;
         double theoricalOrientationVelocity;

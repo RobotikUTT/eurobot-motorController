@@ -68,7 +68,7 @@ void Communication::execute(byte command, byte length, byte* params)
                 short y = extractInt16(&pos, params);
                 bool forceFace = extractUInt8(&pos, params);
 
-                Communication::enslavement->turn(180);
+                Communication::enslavement->goTo(x, y, forceFace);
             }
             break;
         }
@@ -115,6 +115,26 @@ void Communication::execute(byte command, byte length, byte* params)
                     Communication::rightEncoder->resetTicks();
             }
             break;
+        }
+        case Communication::cmd_set_tunings:
+        {
+            if (length >= 10)
+            {
+                byte pos = 0;
+                float kp = extractFloat(&pos, params);
+                float ki = extractFloat(&pos, params);
+                float kd = extractFloat(&pos, params);
+                float dt = extractUInt16(&pos, params);
+
+                Communication::enslavement->setDeltaT(dt);
+
+                // Only orientation PID for now, TODO distance PID
+                Pid* orientationPID = Communication::enslavement->getOrientationPID();
+                orientationPID->setKp(kp);
+                orientationPID->setKi(ki);
+                orientationPID->setKd(kd);
+                orientationPID->setDeltaT(dt);
+            }
         }
         default:
         {

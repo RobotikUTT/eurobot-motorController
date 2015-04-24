@@ -135,6 +135,8 @@ class I2cSlaveProtocol
          */
         static short extractInt16(byte *pos, byte *buf);
 
+        static float extractFloat(byte *pos, byte *buf);
+
 // ----------------------------------------------
 //      Send functions
 // ----------------------------------------------
