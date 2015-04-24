@@ -127,6 +127,7 @@ void setup()
     Communication::setMotors(leftMotor, rightMotor);
     Communication::setEncoders(leftEncoder, rightEncoder);
     Communication::setEnslavement(enslavement);
+    Communication::setOdometry(odometry);
 }
 
 

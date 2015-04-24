@@ -217,3 +217,8 @@ void Communication::setEnslavement(Enslavement* enslavement)
 {
     Communication::enslavement = enslavement;
 }
+
+void Communication::setOdometry(Odometry* odometry)
+{
+    Communication::odometry = odometry;
+}

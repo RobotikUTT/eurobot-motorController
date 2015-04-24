@@ -57,7 +57,17 @@ class Communication : public I2cSlaveProtocol
          */
         static void setEncoders(Encoder* left, Encoder* right);
 
+        /**
+         * Give enslavement objects for debug
+         * @param enslavement - The enslavement object
+         */
         static void setEnslavement(Enslavement* enslavement);
+
+        /**
+         * Give odometry objects for debug
+         * @param odometry - The odometry object
+         */
+        static void setOdometry(Odometry* odometry);
 
 
         static byte lastCmd;
