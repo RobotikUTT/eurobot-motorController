@@ -7,7 +7,7 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->odometry = Odometry::getInst(NULL, NULL);
     this->leftMotor = leftMotor;
     this->rightMotor = rightMotor;
-    this->distancePID = new Pid(0, 0, 0, deltaT);
+    this->distancePID = new Pid(0.9, 0, 0.1, deltaT);
     this->orientationPID = new Pid(2.3, 0, 0.25, deltaT);
 
     this->deltaT = deltaT;
@@ -28,6 +28,7 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->orientationObjective = 0;
     this->distanceObjective = 0;
     this->running = false;
+    this->mode = POLAR;
 }
 
 
@@ -50,6 +51,7 @@ void Enslavement::goTo(double x, double y, bool forceFace)
     }
 
     this->distanceObjective = Odometry::metersToTicks(face * sqrt(pow(newCoordinates.x, 2) + pow(newCoordinates.y, 2)));
+    this->orientationObjective = 0;
 }
 
 
@@ -57,6 +59,7 @@ void Enslavement::turn(double theta)
 {
     this->running = true;
     this->orientationObjective = Odometry::metersToTicks(theta * 0.0174532925 * Odometry::ENTRAXE);
+    this->distanceObjective = 0 ;
 }
 
 
@@ -64,35 +67,26 @@ void Enslavement::compute()
 {
     unsigned long now = millis();
     unsigned int timeElapsed = (now - this->lastMillis);
-    // unsigned int timeElapsed = this->deltaT;
 
     if (timeElapsed >= this->deltaT)
     {
         this->lastMillis = now;
 
         this->odometry->update();
-        Ticks ticks = this->odometry->getTicks();
         CarthesianCoordinates coordinates = this->odometry->getCoordinates();
-
-        double actualDistance = Odometry::metersToTicks(sqrt(pow(coordinates.x, 2) + pow(coordinates.y, 2)));
-        double actualDistanceVelocity = actualDistance - this->previousDistance;
-
-        double actualOrientation = Odometry::metersToTicks(odometry->getOrientation() * Odometry::ENTRAXE);
-
-        double actualOrientationVelocity = actualOrientation - this->previousOrientation;
-
-        this->previousDistance = actualDistance;
-        this->previousOrientation = actualOrientation;
 
         this->odometry->getLeftEncoder()->resetTicks();
         this->odometry->getRightEncoder()->resetTicks();
 
+        double actualDistance = Odometry::metersToTicks(sqrt(pow(coordinates.x, 2) + pow(coordinates.y, 2)));
+        double actualOrientation = Odometry::metersToTicks(odometry->getOrientation() * Odometry::ENTRAXE);
+
+        this->previousDistance = actualDistance;
+        this->previousOrientation = actualOrientation;
+
         if (!this->running) {
             return;
         }
-        /*
-            Generate next point
-        */
 
         double remainingDistance = this->distanceObjective - actualDistance;
         double remainingOrientation = fmod(this->orientationObjective - actualOrientation,
@@ -104,106 +98,32 @@ void Enslavement::compute()
             remainingOrientation -= sign * Odometry::metersToTicks(2 * M_PI * Odometry::ENTRAXE);
         }
 
-        if (fabs(remainingDistance) <= this->distanceAcceleration)
-        {
-            this->distanceVelocityObjective = 0;
-        }
-        else
-        {
-            if ((fabs(remainingDistance) <=  fabs(pow(actualDistanceVelocity, 2) /( 2 * this->distanceAcceleration))))
-            {
-                this->distanceVelocityObjective = 0;
-            }
-            else if (remainingDistance > 0)
-            {
-                this->distanceVelocityObjective = this->distanceVelocityMax;
-            }
-            else if (remainingDistance < 0)
-            {
-                this->distanceVelocityObjective = -(this->distanceVelocityMax);
-            }
-        }
-
-        if ((int)((this->theoricalDistanceVelocity + this->distanceAcceleration)/0.01)*0.01 <= this->distanceVelocityObjective)
-        {
-            this->theoricalDistanceVelocity += this->distanceAcceleration;
-        }
-        else if ((int)((this->theoricalDistanceVelocity - this->distanceAcceleration)/0.01)*0.01 >= this->distanceVelocityObjective)
-        {
-            this->theoricalDistanceVelocity -= this->distanceAcceleration;
-        }
-
-        this->theoricalDistance += this->theoricalDistanceVelocity;
-
-
-        if (fabs(remainingOrientation) <= this->orientationAcceleration)
-        {
-            this->orientationVelocityObjective = 0;
-        }
-        else
-        {
-            if ((fabs(remainingOrientation) <=  fabs(pow(actualOrientationVelocity, 2) /( 2 * this->orientationAcceleration))))
-            {
-                this->orientationVelocityObjective = 0;
-            }
-            else if (remainingOrientation > 0)
-            {
-                this->orientationVelocityObjective = this->orientationVelocityMax;
-            }
-            else if (remainingOrientation < 0)
-            {
-                this->orientationVelocityObjective = -(this->orientationVelocityMax);
-            }
-        }
-
-        if ((int)((this->theoricalOrientationVelocity + this->orientationAcceleration)/0.01)*0.01 <= this->orientationVelocityObjective)
-        {
-            this->theoricalOrientationVelocity += this->orientationAcceleration;
-        }
-        else if ((int)((this->theoricalOrientationVelocity - this->orientationAcceleration)/0.01)*0.01 >= this->orientationVelocityObjective)
-        {
-            this->theoricalOrientationVelocity -= this->orientationAcceleration;
-        }
-
-        this->theoricalOrientation += this->theoricalOrientationVelocity;
 
         /*
             Error correction
         */
 
-        //double distanceCommand = this->distancePID->compute(actualDistanceVelocity, this->theoricalDistanceVelocity);
-        double distanceCommand = this->distancePID->compute(actualDistance, this->distanceObjective);
-        //double orientationCommand = this->orientationPID->compute(actualOrientationVelocity, this->theoricalOrientationVelocity);
-        double orientationCommand = this->orientationPID->compute(actualOrientation, this->orientationObjective);
-        // distanceCommand = 0;
+        double distanceCommand = this->distancePID->compute(remainingDistance);
+        double orientationCommand = this->orientationPID->compute(remainingOrientation);
+
+        if (this->mode == DEBUG_ORIENTATION)
+        {
+            Serial.println("orientation");
+            distanceCommand = 0;
+        }
+        else if (this->mode == DEBUG_DISTANCE)
+        {
+            Serial.println("distance");
+            orientationCommand = 0;
+        }
+        else
+        {
+            Serial.println("sida");
+        }
+
         double leftCommand = distanceCommand+orientationCommand;
         double rightCommand = distanceCommand-orientationCommand;
-        Serial.print("dist:");
-        Serial.println(remainingDistance);
-        Serial.print("dCm");
-        Serial.println(distanceCommand);
-        Serial.print("oCm");
-        Serial.println(orientationCommand);
-        // Serial.print("angle:");
-        // Serial.println(remainingOrientation);
-        // Serial.print("Rem ");
-        // Serial.println(remainingOrientation);
-        // Serial.print("Th ");
-        // Serial.println(theoricalDistanceVelocity);
-        // Serial.print("Rl ");
-        // Serial.println(actualDistanceVelocity);
-        // Serial.println("___");
 
-        // Serial.print("Rem ");
-        // Serial.println(remainingOrientation);
-        // Serial.print("Th ");
-        // Serial.println(theoricalOrientationVelocity);
-        // Serial.print("Rl ");
-        // Serial.println(actualOrientationVelocity);
-        // Serial.println("___");
-
-        // Serial.println(leftCommand);
-        // Serial.println(rightCommand);
         this->leftMotor->run(leftCommand);
         this->rightMotor->run(rightCommand);
     }
@@ -223,7 +143,7 @@ void Enslavement::stop()
     this->theoricalDistance = 0;
     this->distanceVelocityObjective = 0;
     this->previousDistance = 0;
-    this->theoricalDistanceVelocity;
+    this->theoricalDistanceVelocity = 0;
 
     this->running = false;
 }
@@ -241,6 +161,13 @@ Pid* Enslavement::getDistancePID()
 }
 
 
-void Enslavement::setDeltaT(unsigned long deltaT) {
+void Enslavement::setDeltaT(unsigned long deltaT)
+{
     this->deltaT = deltaT;
+}
+
+
+void Enslavement::setMode(EnslavementMode newMode)
+{
+    this->mode = newMode;
 }

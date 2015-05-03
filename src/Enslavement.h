@@ -9,6 +9,14 @@
 #include "PID.h"
 
 
+enum EnslavementMode
+{
+    DEBUG_ORIENTATION,
+    DEBUG_DISTANCE,
+    POLAR
+};
+
+
 /**
  * Speed and position control.
  * Provide an API to move the robot at a given (x,y) point
@@ -75,6 +83,8 @@ class Enslavement
 
         Pid* getDistancePID();
 
+        void setMode(EnslavementMode newMode);
+
         double theoricalDistanceVelocity;
         double theoricalOrientationVelocity;
 
@@ -88,6 +98,8 @@ class Enslavement
         Pid *distancePID;
         Pid *orientationPID;
         bool running;
+        EnslavementMode mode;
+
         /*
             Constants
          */

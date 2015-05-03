@@ -51,8 +51,9 @@ void Communication::execute(byte command, byte length, byte* params)
             if(length >= 5)
             {
                 byte pos = 0;
-                short x = extractInt16(&pos, params);
-                short y = extractInt16(&pos, params);
+                double x = extractFloat(&pos, params);
+                double y = extractFloat(&pos, params);
+                Serial.println(x);
                 bool forceFace = extractUInt8(&pos, params);
                 Communication::enslavement->goTo(x, y, forceFace);
             }
@@ -107,20 +108,28 @@ void Communication::execute(byte command, byte length, byte* params)
             if (length >= 10)
             {
                 byte pos = 0;
-                float kp = extractFloat(&pos, params);
-                float ki = extractFloat(&pos, params);
-                float kd = extractFloat(&pos, params);
+                float orientationKp = extractFloat(&pos, params);
+                float orientationKi = extractFloat(&pos, params);
+                float orientationKd = extractFloat(&pos, params);
+                float distanceKp = extractFloat(&pos, params);
+                float distanceKi = extractFloat(&pos, params);
+                float distanceKd = extractFloat(&pos, params);
                 float dt = extractUInt16(&pos, params);
 
                 Communication::enslavement->setDeltaT(dt);
 
-                // Only orientation PID for now, TODO distance PID
+                Pid* orientationPID = Communication::enslavement->getOrientationPID();
+                orientationPID->setKp(orientationKp);
+                orientationPID->setKi(orientationKi);
+                orientationPID->setKd(orientationKd);
+                orientationPID->setDeltaT(dt);
                 Pid* distancePID = Communication::enslavement->getDistancePID();
-                distancePID->setKp(kp);
-                distancePID->setKi(ki);
-                distancePID->setKd(kd);
+                distancePID->setKp(distanceKp);
+                distancePID->setKi(distanceKi);
+                distancePID->setKd(distanceKd);
                 distancePID->setDeltaT(dt);
             }
+            break;
         }
         case Communication::cmd_set_odometry:
         {
@@ -133,6 +142,37 @@ void Communication::execute(byte command, byte length, byte* params)
 
                 Communication::odometry->setOrientation(orientation);
                 Communication::odometry->setCoordinates(x,y);
+            }
+            break;
+        }
+        case Communication::cmd_set_mode:
+        {
+            if (length >=  1)
+            {
+                byte pos = 0;
+                EnslavementMode mode;
+
+                switch (Communication::extractUInt8(&pos, params))
+                {
+                    case 0:
+                        mode = DEBUG_ORIENTATION;
+                        break;
+
+                    case 1:
+                        mode = DEBUG_DISTANCE;
+                        break;
+
+                    case 2:
+                        mode = POLAR;
+                        break;
+
+                    default:
+                        mode = POLAR;
+                        break;
+                }
+
+                Communication::enslavement->setMode(mode);
+                break;
             }
         }
         default:
@@ -169,8 +209,9 @@ void Communication::send()
         {
             if(Communication::leftEncoder != NULL && Communication::rightEncoder != NULL)
             {
-                Communication::addInt16((short)Communication::leftEncoder->getTicks());
-                Communication::addInt16((short)Communication::rightEncoder->getTicks());
+                Ticks ticks = odometry->getTicks();
+                Communication::addInt16((short)ticks.left);
+                Communication::addInt16((short)ticks.right);
             }
             break;
         }

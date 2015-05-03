@@ -90,6 +90,7 @@ class Communication : public I2cSlaveProtocol
         static const byte cmd_turn = 0x7;
         static const byte cmd_set_tunings = 0x8;
         static const byte cmd_set_odometry = 0x9;
+        static const byte cmd_set_mode = 0xA;
 };
 
 #endif

@@ -11,7 +11,7 @@ Pid::Pid(double kp, double ki, double kd, unsigned long deltaT)
     this->lastMillis = 0;
 
     this->ITerm = 0;
-    this->lastInput = 0;
+    this->lastErr = 0;
 }
 
 
@@ -77,16 +77,14 @@ void Pid::setDeltaT(unsigned long deltaT)
 }
 
 
-double Pid::compute(double input, double setPoint)
+double Pid::compute(double error)
 {
-        double error = setPoint - input;
-        this->ITerm += (this->ki * error);
+    this->ITerm += (this->ki * error);
 
-        double dInput = (input - this->lastInput);
+    double dErr = (error - this->lastErr);
 
-        this->lastInput = input;
-        int pwm = this->kp * error + this->ITerm - this->kd * dInput;
+    int pwm = this->kp * error + this->ITerm + this->kd * dErr;
 
-        this->lastInput = input;
-        return pwm;
+    this->lastErr = error;
+    return pwm;
 }

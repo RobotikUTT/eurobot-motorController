@@ -33,7 +33,7 @@ class Pid
          * @param  setPoint Objective
          * @return          Motor command
          */
-        double compute(double input, double setPoint);
+        double compute(double error);
 
         /**
          * kp getter
@@ -94,6 +94,6 @@ class Pid
         unsigned long lastMillis;
 
         double ITerm;
-        double lastInput;
+        double lastErr;
 };
 #endif
