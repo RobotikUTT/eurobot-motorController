@@ -142,6 +142,13 @@ class I2cSlaveProtocol
          */
         static float extractFloat(byte *pos, byte *buf);
 
+        /**
+         * Extract an int of 32 bit from a buffer
+         * @param pos - A pointer to the pos value (that will be decremented of the size extracted)
+         * @param paramBuf - The byte array
+         */
+        static long extractInt32(byte *pos, byte *buf);
+
 // ----------------------------------------------
 //      Send functions
 // ----------------------------------------------
@@ -176,10 +183,17 @@ class I2cSlaveProtocol
         */
         static void addFloat(float data);
 
+        /**
+        * @brief Add four bytes as integer to parameters
+        * @param data - The value that will be added to the buffer
+        */
+        static void addInt32(long data);
+
 
         static void (*execute)(byte command, byte paramLength, byte *paramBuf);
         static void (*send)();
 
+        static byte address;
         static char dataAvailablePin;
         static char dataAvailableCmd;
         static byte lastRcvCheck;

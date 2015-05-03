@@ -71,10 +71,6 @@ class Communication : public I2cSlaveProtocol
 
 
         static byte lastCmd;
-        static byte lastPingU8;
-        static char lastPingS8;
-        static unsigned short lastPingU16;
-        static short lastPingS16;
         static Odometry* odometry;
         static Enslavement* enslavement;
 

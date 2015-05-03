@@ -1,5 +1,6 @@
 #include "I2cSlaveProtocol.h"
         
+byte I2cSlaveProtocol::address = 0;
 char I2cSlaveProtocol::dataAvailablePin = -1;
 char I2cSlaveProtocol::dataAvailableCmd = -1;
 byte I2cSlaveProtocol::lastRcvCheck = 0xff;
@@ -223,6 +224,14 @@ void I2cSlaveProtocol::addFloat(float data)
     I2cSlaveProtocol::sndBuf[I2cSlaveProtocol::sndPos++] = bytes[1];
     I2cSlaveProtocol::sndBuf[I2cSlaveProtocol::sndPos++] = bytes[0];
 }
+void I2cSlaveProtocol::addInt32(long data)
+{
+    byte*  bytes = (byte*) &data;
+    I2cSlaveProtocol::sndBuf[I2cSlaveProtocol::sndPos++] = bytes[3];
+    I2cSlaveProtocol::sndBuf[I2cSlaveProtocol::sndPos++] = bytes[2];
+    I2cSlaveProtocol::sndBuf[I2cSlaveProtocol::sndPos++] = bytes[1];
+    I2cSlaveProtocol::sndBuf[I2cSlaveProtocol::sndPos++] = bytes[0];
+}
 
 
 byte I2cSlaveProtocol::extractUInt8(byte *pos, byte *buf)
@@ -254,6 +263,20 @@ float I2cSlaveProtocol::extractFloat(byte *pos, byte *buf)
     (*pos) += 4;
 
     float rtn = 0;
+    byte*  bytes = (byte*) &rtn;
+
+    bytes[0] = buf[*pos-1];
+    bytes[1] = buf[*pos-2];
+    bytes[2] = buf[*pos-3];
+    bytes[3] = buf[*pos-4];
+
+    return rtn ;
+}
+long I2cSlaveProtocol::extractInt32(byte *pos, byte *buf)
+{
+    (*pos) += 4;
+
+    long rtn = 0;
     byte*  bytes = (byte*) &rtn;
 
     bytes[0] = buf[*pos-1];
