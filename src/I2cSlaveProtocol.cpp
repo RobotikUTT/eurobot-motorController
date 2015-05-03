@@ -31,6 +31,7 @@ void I2cSlaveProtocol::open(byte address)
     Wire.begin(address);
     Wire.onReceive(I2cSlaveProtocol::received);
     Wire.onRequest(I2cSlaveProtocol::requested);
+    I2cSlaveProtocol::address = address;
     Serial.println("Com i2c Ready !");
 }
 
