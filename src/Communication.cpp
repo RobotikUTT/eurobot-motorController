@@ -35,7 +35,7 @@ void Communication::execute(byte command, byte length, byte* params)
     {
         case Communication::cmd_ping:
         {
-            if(length >= 6)
+            if(length >= 1)
             {
                 byte pos = 0;
                 byte val = extractUInt8(&pos, params);
