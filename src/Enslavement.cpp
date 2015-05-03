@@ -64,7 +64,7 @@ void Enslavement::compute()
     unsigned int timeElapsed = (now - this->lastMillis);
     // unsigned int timeElapsed = this->deltaT;
 
-    if (timeElapsed >= this->deltaT && this->running)
+    if (timeElapsed >= this->deltaT)
     {
         this->lastMillis = now;
 
@@ -84,12 +84,22 @@ void Enslavement::compute()
         this->odometry->getLeftEncoder()->resetTicks();
         this->odometry->getRightEncoder()->resetTicks();
 
+        if (!this->running) {
+            return;
+        }
         /*
             Generate next point
         */
 
         double remainingDistance = this->distanceObjective - actualDistance;
-        double remainingOrientation = this->orientationObjective - actualOrientation;
+        double remainingOrientation = fmod(this->orientationObjective - actualOrientation,
+            Odometry::metersToTicks(2 * M_PI * Odometry::ENTRAXE));
+
+        if (fabs(remainingOrientation) > Odometry::metersToTicks(M_PI * Odometry::ENTRAXE))
+        {
+            int sign = (remainingOrientation > 0) - (remainingOrientation < 0);
+            remainingOrientation -= sign * Odometry::metersToTicks(2 * M_PI * Odometry::ENTRAXE);
+        }
 
         if (fabs(remainingDistance) <= this->distanceAcceleration)
         {
@@ -161,8 +171,8 @@ void Enslavement::compute()
         double distanceCommand = this->distancePID->compute(actualDistanceVelocity, this->theoricalDistanceVelocity);
         double orientationCommand = this->orientationPID->compute(actualOrientationVelocity, this->theoricalOrientationVelocity);
         distanceCommand = 0;
-        double leftCommand = distanceCommand-orientationCommand;
-        double rightCommand = distanceCommand+orientationCommand;
+        double leftCommand = distanceCommand+orientationCommand;
+        double rightCommand = distanceCommand-orientationCommand;
 
         // Serial.print("dist:");
         // Serial.println(remainingDistance);
@@ -196,6 +206,10 @@ void Enslavement::stop()
 {
     this->leftMotor->stop();
     this->rightMotor->stop();
+    this->theoricalOrientation = 0;
+    this->orientationVelocityObjective = 0;
+    this->previousOrientation = 0;
+    this->theoricalOrientationVelocity = 0;
     this->running = false;
 }
 

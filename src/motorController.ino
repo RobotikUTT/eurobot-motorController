@@ -15,24 +15,24 @@
 //Encoders
 //Channel A is used for the interupt
 const byte ENCODER_R_A_PIN = 3;
-const byte ENCODER_R_B_PIN = 5;
+const byte ENCODER_R_B_PIN = 12;
 
 const byte ENCODER_L_A_PIN = 2;
 const byte ENCODER_L_B_PIN = 4;
 
 
 //Motors
-const byte MOTOR_R_PIN = 6;
-const byte DIR_R_PIN_A = 8;
-const byte DIR_R_PIN_B = 7;
+const byte MOTOR_R_PIN = 5;
+const byte DIR_R_PIN_A = 10;
+const byte DIR_R_PIN_B = 9;
 
-const byte MOTOR_L_PIN = 5;
-const byte DIR_L_PIN_A = 9;
-const byte DIR_L_PIN_B = 10;
+const byte MOTOR_L_PIN = 6;
+const byte DIR_L_PIN_A = 8;
+const byte DIR_L_PIN_B = 7;
 
 //Motors config
-const byte MOTOR_L_MINPWM = 0;
-const byte MOTOR_R_MINPWM = 0;
+const byte MOTOR_L_MINPWM = 20;
+const byte MOTOR_R_MINPWM = 20;
 
 
 Encoder *leftEncoder;
@@ -51,16 +51,16 @@ void leftTicks()
 {
     leftEncoder->listenToTicks();
     // Debug
-    // Serial.print("left: ");
-    // Serial.println(leftEncoder->getTicks());
+    //Serial.print("left: ");
+    //Serial.println(leftEncoder->getTicks());
 }
 
 void rightTicks()
 {
     rightEncoder->listenToTicks();
     // Debug
-    // Serial.print("right: ");
-    // Serial.println(rightEncoder->getTicks());
+    //Serial.print("right: ");
+    //Serial.println(rightEncoder->getTicks());
 }
 
 int getInterruptNumber(int pin)
@@ -108,7 +108,7 @@ void setup()
     odometry = Odometry::getInst(leftEncoder, rightEncoder);
 
     //Enslavement
-    enslavement = new Enslavement(50, 0.5, 1, leftMotor, rightMotor);
+    enslavement = new Enslavement(50, 0.1, 1, leftMotor, rightMotor);
 
     //Interrupts
     attachInterrupt(getInterruptNumber(ENCODER_L_A_PIN), leftTicks, FALLING);
@@ -116,11 +116,10 @@ void setup()
 
 
     //Override PWM frequency TODO WARN : Doesn't work on nano
-    //TCCR0B = TCCR0B & B11111000 | B00000001;    // set timer 0 divisor to     1 for PWM frequency of 62500.00 Hz  : doesn't work with PWM = 10
-    //TCCR0B = TCCR0B & B11111000 | B00000010;    // set timer 0 divisor to     8 for PWM frequency of  7812.50 Hz    : doesn't work either
-    TCCR0B = TCCR0B & B11111000 | B00000011;    // set timer 0 divisor to    64 for PWM frequency of   976.56 Hz (The DEFAULT)
-    //TCCR0B = TCCR0B & B11111000 | B00000100;    // set timer 0 divisor to   256 for PWM frequency of   244.14 Hz  : ok
-    //TCCR0B = TCCR0B & B11111000 | B00000101;    // set timer 0 divisor to  1024 for PWM frequency of    61.04 Hz  : doesn't work either
+     // int eraser = 7;
+     // int prescaler = 1;
+
+     // TCCR3B &= ~eraser;
 
     // enslavement->goTo(5, 0, false);
     // enslavement->turn(180);
@@ -141,28 +140,27 @@ void setup()
 
 void loop()
 {
-
+    // odometry->update();
+    // rightMotor->run(255);
     // Serial.print("left: ");
     // Serial.println(leftEncoder->getTicks());
     // Serial.print("right: ");
     // Serial.println(rightEncoder->getTicks());
-    CarthesianCoordinates coordinates = odometry->getCoordinates();
-    odometry->update();
-    leftMotor->run(10);
-    rightMotor->run(10);
+    /* CarthesianCoordinates coordinates = odometry->getCoordinates();
 
      Serial.print("x: ");
      Serial.print(coordinates.x);
      Serial.print(" ");
      Serial.print("y: ");
      Serial.println(coordinates.y);
+       leftEncoder->resetTicks();
+     rightEncoder->resetTicks(); */
 
 
     //     Serial.println(odometry->getOrientation());
 
 
 
-    // delay(1000);
     //Read serial packets
     //Motor enslavement
     enslavement->compute();

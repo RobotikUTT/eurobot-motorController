@@ -82,8 +82,11 @@ double Pid::compute(double input, double setPoint)
         double error = setPoint - input;
         this->ITerm += (this->ki * error);
 
-        this->lastInput = input;
-        int pwm = this->kp * error + this->ITerm;
+        double dInput = (input - this->lastInput);
 
+        this->lastInput = input;
+        int pwm = this->kp * error + this->ITerm - this->kd * dInput;
+
+        this->lastInput = input;
         return pwm;
 }
