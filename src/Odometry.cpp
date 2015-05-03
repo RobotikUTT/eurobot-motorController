@@ -1,7 +1,7 @@
 #include "Odometry.h"
 
 
-const double Odometry::ENTRAXE = Odometry::ticksToMeters(421.4025);
+const double Odometry::ENTRAXE = Odometry::ticksToMeters(416.19);
 Odometry* Odometry::inst = NULL;
 
 Odometry* Odometry::getInst(Encoder *leftEncoder, Encoder *rightEncoder)

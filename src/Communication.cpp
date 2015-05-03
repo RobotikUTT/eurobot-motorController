@@ -67,7 +67,6 @@ void Communication::execute(byte command, byte length, byte* params)
                 short x = extractInt16(&pos, params);
                 short y = extractInt16(&pos, params);
                 bool forceFace = extractUInt8(&pos, params);
-
                 Communication::enslavement->goTo(x, y, forceFace);
             }
             break;
@@ -129,11 +128,11 @@ void Communication::execute(byte command, byte length, byte* params)
                 Communication::enslavement->setDeltaT(dt);
 
                 // Only orientation PID for now, TODO distance PID
-                Pid* orientationPID = Communication::enslavement->getOrientationPID();
-                orientationPID->setKp(kp);
-                orientationPID->setKi(ki);
-                orientationPID->setKd(kd);
-                orientationPID->setDeltaT(dt);
+                Pid* distancePID = Communication::enslavement->getDistancePID();
+                distancePID->setKp(kp);
+                distancePID->setKi(ki);
+                distancePID->setKd(kd);
+                distancePID->setDeltaT(dt);
             }
         }
         case Communication::cmd_set_odometry:

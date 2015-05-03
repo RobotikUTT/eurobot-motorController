@@ -7,8 +7,8 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->odometry = Odometry::getInst(NULL, NULL);
     this->leftMotor = leftMotor;
     this->rightMotor = rightMotor;
-    this->distancePID = new Pid(0.7, 0, 0, deltaT);
-    this->orientationPID = new Pid(0.7, 0, 0, deltaT);
+    this->distancePID = new Pid(0, 0, 0, deltaT);
+    this->orientationPID = new Pid(2.3, 0, 0.25, deltaT);
 
     this->deltaT = deltaT;
     this->lastMillis = 0;
@@ -25,6 +25,8 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->theoricalOrientation = 0;
     this->theoricalOrientationVelocity = 0;
 
+    this->orientationObjective = 0;
+    this->distanceObjective = 0;
     this->running = false;
 }
 
@@ -70,8 +72,9 @@ void Enslavement::compute()
 
         this->odometry->update();
         Ticks ticks = this->odometry->getTicks();
+        CarthesianCoordinates coordinates = this->odometry->getCoordinates();
 
-        double actualDistance = this->previousDistance + (ticks.left + ticks.right) / 2.0;
+        double actualDistance = Odometry::metersToTicks(sqrt(pow(coordinates.x, 2) + pow(coordinates.y, 2)));
         double actualDistanceVelocity = actualDistance - this->previousDistance;
 
         double actualOrientation = Odometry::metersToTicks(odometry->getOrientation() * Odometry::ENTRAXE);
@@ -168,14 +171,19 @@ void Enslavement::compute()
             Error correction
         */
 
-        double distanceCommand = this->distancePID->compute(actualDistanceVelocity, this->theoricalDistanceVelocity);
-        double orientationCommand = this->orientationPID->compute(actualOrientationVelocity, this->theoricalOrientationVelocity);
-        distanceCommand = 0;
+        //double distanceCommand = this->distancePID->compute(actualDistanceVelocity, this->theoricalDistanceVelocity);
+        double distanceCommand = this->distancePID->compute(actualDistance, this->distanceObjective);
+        //double orientationCommand = this->orientationPID->compute(actualOrientationVelocity, this->theoricalOrientationVelocity);
+        double orientationCommand = this->orientationPID->compute(actualOrientation, this->orientationObjective);
+        // distanceCommand = 0;
         double leftCommand = distanceCommand+orientationCommand;
         double rightCommand = distanceCommand-orientationCommand;
-
-        // Serial.print("dist:");
-        // Serial.println(remainingDistance);
+        Serial.print("dist:");
+        Serial.println(remainingDistance);
+        Serial.print("dCm");
+        Serial.println(distanceCommand);
+        Serial.print("oCm");
+        Serial.println(orientationCommand);
         // Serial.print("angle:");
         // Serial.println(remainingOrientation);
         // Serial.print("Rem ");
@@ -206,10 +214,17 @@ void Enslavement::stop()
 {
     this->leftMotor->stop();
     this->rightMotor->stop();
+
     this->theoricalOrientation = 0;
     this->orientationVelocityObjective = 0;
     this->previousOrientation = 0;
     this->theoricalOrientationVelocity = 0;
+
+    this->theoricalDistance = 0;
+    this->distanceVelocityObjective = 0;
+    this->previousDistance = 0;
+    this->theoricalDistanceVelocity;
+
     this->running = false;
 }
 

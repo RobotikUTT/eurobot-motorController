@@ -108,7 +108,7 @@ void setup()
     odometry = Odometry::getInst(leftEncoder, rightEncoder);
 
     //Enslavement
-    enslavement = new Enslavement(50, 0.1, 1, leftMotor, rightMotor);
+    enslavement = new Enslavement(50, 0.3, 1, leftMotor, rightMotor);
 
     //Interrupts
     attachInterrupt(getInterruptNumber(ENCODER_L_A_PIN), leftTicks, FALLING);
@@ -140,7 +140,10 @@ void setup()
 
 void loop()
 {
+    // Serial.println((leftEncoder->getTicks() - rightEncoder->getTicks())/(2*M_PI));
     // odometry->update();
+    // CarthesianCoordinates coordinates = odometry->getCoordinates();
+    // Serial.println(sqrt(pow(coordinates.x, 2) + pow(coordinates.y, 2)));
     // rightMotor->run(255);
     // Serial.print("left: ");
     // Serial.println(leftEncoder->getTicks());
@@ -158,6 +161,9 @@ void loop()
 
 
     //     Serial.println(odometry->getOrientation());
+    //     leftEncoder->resetTicks();
+    //     rightEncoder->resetTicks();
+    // delay(1000);
 
 
 

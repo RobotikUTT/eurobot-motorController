@@ -54,13 +54,13 @@ void I2cSlaveProtocol::requested()
     I2cSlaveProtocol::addUInt8(chk);
 
     // Debug
-    Serial.print("SndBuf:");
-    for (int i = 0; i < I2cSlaveProtocol::sndPos; ++i)
-    {
-        Serial.print(I2cSlaveProtocol::sndBuf[i],HEX);
-        Serial.print("|");
-    }
-    Serial.println();
+    // Serial.print("SndBuf:");
+    // for (int i = 0; i < I2cSlaveProtocol::sndPos; ++i)
+    // {
+    //     Serial.print(I2cSlaveProtocol::sndBuf[i],HEX);
+    //     Serial.print("|");
+    // }
+    // Serial.println();
 
     //Send via i2c
     Wire.write(I2cSlaveProtocol::sndBuf, I2cSlaveProtocol::sndPos);
@@ -70,15 +70,15 @@ void I2cSlaveProtocol::received(int count)
 {
 
     // Debug
-    Serial.print("RcvBuf:");
+    // Serial.print("RcvBuf:");
 
     while(Wire.available())
     {
         byte curByte = Wire.read();
 
         // Debug
-        Serial.print(curByte,HEX);
-        Serial.print("|");
+        // Serial.print(curByte,HEX);
+        // Serial.print("|");
 
         switch(I2cSlaveProtocol::rcvState)
         {
@@ -145,7 +145,7 @@ void I2cSlaveProtocol::received(int count)
         }
     }
     // Debug
-    Serial.println();
+    // Serial.println();
 
     //Reset state if packet not received totally
     if(I2cSlaveProtocol::rcvState != CMD)
