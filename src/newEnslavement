@@ -19,35 +19,40 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->orientationVelocityMax = this->distanceVelocityMax / Odometry::ENTRAXE / 2.0;
     this->orientationAcceleration = this->distanceAcceleration / Odometry::ENTRAXE / 2.0;
 
-    this->actualDistance = 0;
-    this->actualOrientation = 0;
+    this->theoricalDistance = 0;
+    this->theoricalDistanceVelocity = 0;
 
-    this->orientationObjective = 0;
-    this->distanceObjective = 0;
+    this->theoricalOrientation = 0;
+    this->theoricalOrientationVelocity = 0;
+
+    this->xObjective = 0;
+    this->yObjective = 0;
     this->running = false;
     this->mode = POLAR;
-    this->orientationOffset = 0;
 }
 
 
 Enslavement::~Enslavement() { }
 
 
-void Enslavement::go(double distance)
+void Enslavement::goTo(double x, double y, bool forceFace)
 {
-    this->running = true;
-    this->actualDistance = 0;
-    this->distanceObjective = Odometry::metersToTicks(distance);
-    this->orientationObjective = 0;
+    if (!this->running)
+        this->running = true;
+
+    this->xObjective = x;
+    this->yObjective = y;
 }
 
 
 void Enslavement::turn(double theta)
 {
     this->running = true;
-    // this->orientationOffset = Odometry::metersToTicks(this->odometry->getOrientation() * Odometry::ENTRAXE);
-    this->orientationObjective = Odometry::metersToTicks(theta * 0.0174532925 * Odometry::ENTRAXE);
-    this->distanceObjective = 0 ;
+    this->orientationObjective = theta * 0.0174532925;
+
+    CarthesianCoordinates coordinates = this->odometry->getCoordinates();
+    this->xObjective = coordinates.x;
+    this->yObjective = coordinates.y;
 }
 
 
@@ -61,32 +66,36 @@ void Enslavement::compute()
         this->lastMillis = now;
 
         this->odometry->update();
-
-        Ticks ticks = this->odometry->getTicks();
+        CarthesianCoordinates coordinates = this->odometry->getCoordinates();
+        double orientation = this->odometry->getOrientation();
 
         this->odometry->getLeftEncoder()->resetTicks();
         this->odometry->getRightEncoder()->resetTicks();
-
-        this->actualDistance += (ticks.left + ticks.right) / 2;
-        double actualOrientation = ticks.left - ticks.right;
-        // double actualOrientation = Odometry::metersToTicks(this->odometry->getOrientation() * Odometry::ENTRAXE) - this->orientationOffset;
 
         if (!this->running) {
             return;
         }
 
-        double remainingDistance = this->distanceObjective - actualDistance;
-        double remainingOrientation = fmod(this->orientationObjective - actualOrientation,
-            Odometry::metersToTicks(2 * M_PI * Odometry::ENTRAXE));
 
-        Serial.println(remainingDistance, 5);
-        Serial.println(remainingOrientation, 5);
+        CarthesianCoordinates moveCoordinates = {this->xObjective - coordinates.x, this->yObjective - coordinates.y};
+        double moveAngle = atan2(moveCoordinates.y, moveCoordinates.x) - orientation;
 
-        if (fabs(remainingOrientation) > Odometry::metersToTicks(M_PI * Odometry::ENTRAXE))
+        double remainingDistance = 0;
+        int direction = 1;
+        if (fabs(moveAngle) > M_PI)
         {
-            int sign = (remainingOrientation > 0) - (remainingOrientation < 0);
-            remainingOrientation -= sign * Odometry::metersToTicks(2 * M_PI * Odometry::ENTRAXE);
+            direction = -1;
         }
+        remainingDistance = direction * sqrt(pow(moveCoordinates.x, 2) + pow(moveCoordinates.y, 2));
+
+        double remainingOrientation = this->orientationObjective - orientation;
+        if (fabs(remainingOrientation) > M_PI)
+        {
+            int sign = (remainingDistance > 0) - (remainingDistance < 0);
+            remainingDistance -= sign * 2 * M_PI;
+            direction = -1;
+        }
+
 
         /*
             Error correction
@@ -107,6 +116,13 @@ void Enslavement::compute()
         double leftCommand = distanceCommand+orientationCommand;
         double rightCommand = distanceCommand-orientationCommand;
 
+        // Serial.print("moveDistance: ");
+        // Serial.println(moveDistance);
+        // Serial.print("moveOrientation: ");
+        // Serial.println(moveAngle);
+        // Serial.println();
+        // Serial.print("orientationCoomand: ");
+        // Serial.println(orientationCommand);
         this->leftMotor->run(leftCommand);
         this->rightMotor->run(rightCommand);
     }
@@ -118,6 +134,20 @@ void Enslavement::stop()
     this->leftMotor->stop();
     this->rightMotor->stop();
 
+    this->theoricalOrientation = 0;
+    this->orientationVelocityObjective = 0;
+    this->theoricalOrientationVelocity = 0;
+
+    this->theoricalDistance = 0;
+    this->distanceVelocityObjective = 0;
+    this->theoricalDistanceVelocity = 0;
+
+    CarthesianCoordinates coordinates = this->odometry->getCoordinates();
+    double orientation = this->odometry->getOrientation();
+
+    this->orientationObjective = orientation;
+    this->xObjective = coordinates.x;
+    this->yObjective = coordinates.y;
     this->running = false;
 }
 

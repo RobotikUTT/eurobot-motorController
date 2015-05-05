@@ -109,7 +109,7 @@ void I2cSlaveProtocol::received(int count)
 
                 if(I2cSlaveProtocol::rcvPos >= I2CSP_RCV_BUF)
                 {
-                    Serial.println();
+                    //Serial.println();
                     Serial.println("Warn : Packet dropped (buffer overflow)");
                     I2cSlaveProtocol::rcvState = CMD;
                 }

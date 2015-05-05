@@ -47,11 +47,7 @@ class Enslavement
          */
         ~Enslavement();
 
-        /**
-         * Set destination to a (x, y) point
-         * @param coordinates Destination point
-         */
-        void goTo(double x, double y, bool forceFace);
+        void go(double distance);
 
 
         /**
@@ -87,6 +83,9 @@ class Enslavement
 
         double theoricalDistanceVelocity;
         double theoricalOrientationVelocity;
+        double actualDistance;
+        double actualOrientation;
+        double orientationOffset;
 
 
     private:
@@ -117,20 +116,12 @@ class Enslavement
          */
         double previousDistance;
         double previousOrientation;
-
         /*
             Objectives
          */
         double distanceObjective;
-        double distanceVelocityObjective;
         double orientationObjective;
-        double orientationVelocityObjective;
 
-        /*
-            Theorical values
-         */
-        double theoricalDistance;
-        double theoricalOrientation;
 }; //5=105mm
 
 #endif

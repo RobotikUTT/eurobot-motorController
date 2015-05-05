@@ -31,8 +31,8 @@ const byte DIR_L_PIN_A = 8;
 const byte DIR_L_PIN_B = 7;
 
 //Motors config
-const byte MOTOR_L_MINPWM = 20;
-const byte MOTOR_R_MINPWM = 20;
+const byte MOTOR_L_MINPWM = 0;
+const byte MOTOR_R_MINPWM = 0;
 
 
 Encoder *leftEncoder;
@@ -166,7 +166,7 @@ void loop()
     // delay(1000);
 
 
-
+    
     //Read serial packets
     //Motor enslavement
     enslavement->compute();

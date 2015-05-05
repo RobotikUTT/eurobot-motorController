@@ -48,14 +48,11 @@ void Communication::execute(byte command, byte length, byte* params)
         }
         case Communication::cmd_move:
         {
-            if(length >= 5)
+            if(length >= 2)
             {
                 byte pos = 0;
-                double x = extractFloat(&pos, params);
-                double y = extractFloat(&pos, params);
-                Serial.println(x);
-                bool forceFace = extractUInt8(&pos, params);
-                Communication::enslavement->goTo(x, y, forceFace);
+                double distance = extractFloat(&pos, params);
+                Communication::enslavement->go(distance);
             }
             break;
         }
@@ -142,6 +139,9 @@ void Communication::execute(byte command, byte length, byte* params)
 
                 Communication::odometry->setOrientation(orientation);
                 Communication::odometry->setCoordinates(x,y);
+                Communication::enslavement->actualDistance = 0;
+                Communication::enslavement->actualOrientation = 0;
+                Communication::enslavement->orientationOffset = 0;
             }
             break;
         }

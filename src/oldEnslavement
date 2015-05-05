@@ -19,25 +19,38 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->orientationVelocityMax = this->distanceVelocityMax / Odometry::ENTRAXE / 2.0;
     this->orientationAcceleration = this->distanceAcceleration / Odometry::ENTRAXE / 2.0;
 
-    this->actualDistance = 0;
-    this->actualOrientation = 0;
+    this->theoricalDistance = 0;
+    this->theoricalDistanceVelocity = 0;
+
+    this->theoricalOrientation = 0;
+    this->theoricalOrientationVelocity = 0;
 
     this->orientationObjective = 0;
     this->distanceObjective = 0;
     this->running = false;
     this->mode = POLAR;
-    this->orientationOffset = 0;
 }
 
 
 Enslavement::~Enslavement() { }
 
 
-void Enslavement::go(double distance)
+void Enslavement::goTo(double x, double y, bool forceFace)
 {
     this->running = true;
-    this->actualDistance = 0;
-    this->distanceObjective = Odometry::metersToTicks(distance);
+    CarthesianCoordinates coordinates = this->odometry->getCoordinates();
+    CarthesianCoordinates newCoordinates = {x - coordinates.x, y - coordinates.y};
+    this->orientationObjective = atan2(newCoordinates.y, newCoordinates.x) - this->odometry->getOrientation();
+
+    int face = 1;
+    if (!forceFace && fabs(this->orientationObjective) >= M_PI)
+    {
+        int sign = (this->orientationObjective >= 0) ? 1 : -1;
+        this->orientationObjective -= sign * M_PI;
+        face = -1;
+    }
+
+    this->distanceObjective = Odometry::metersToTicks(face * sqrt(pow(newCoordinates.x, 2) + pow(newCoordinates.y, 2)));
     this->orientationObjective = 0;
 }
 
@@ -45,7 +58,6 @@ void Enslavement::go(double distance)
 void Enslavement::turn(double theta)
 {
     this->running = true;
-    // this->orientationOffset = Odometry::metersToTicks(this->odometry->getOrientation() * Odometry::ENTRAXE);
     this->orientationObjective = Odometry::metersToTicks(theta * 0.0174532925 * Odometry::ENTRAXE);
     this->distanceObjective = 0 ;
 }
@@ -61,15 +73,16 @@ void Enslavement::compute()
         this->lastMillis = now;
 
         this->odometry->update();
-
-        Ticks ticks = this->odometry->getTicks();
+        CarthesianCoordinates coordinates = this->odometry->getCoordinates();
 
         this->odometry->getLeftEncoder()->resetTicks();
         this->odometry->getRightEncoder()->resetTicks();
 
-        this->actualDistance += (ticks.left + ticks.right) / 2;
-        double actualOrientation = ticks.left - ticks.right;
-        // double actualOrientation = Odometry::metersToTicks(this->odometry->getOrientation() * Odometry::ENTRAXE) - this->orientationOffset;
+        double actualDistance = Odometry::metersToTicks(sqrt(pow(coordinates.x, 2) + pow(coordinates.y, 2)));
+        double actualOrientation = Odometry::metersToTicks(odometry->getOrientation() * Odometry::ENTRAXE);
+
+        this->previousDistance = actualDistance;
+        this->previousOrientation = actualOrientation;
 
         if (!this->running) {
             return;
@@ -79,20 +92,19 @@ void Enslavement::compute()
         double remainingOrientation = fmod(this->orientationObjective - actualOrientation,
             Odometry::metersToTicks(2 * M_PI * Odometry::ENTRAXE));
 
-        Serial.println(remainingDistance, 5);
-        Serial.println(remainingOrientation, 5);
-
         if (fabs(remainingOrientation) > Odometry::metersToTicks(M_PI * Odometry::ENTRAXE))
         {
             int sign = (remainingOrientation > 0) - (remainingOrientation < 0);
             remainingOrientation -= sign * Odometry::metersToTicks(2 * M_PI * Odometry::ENTRAXE);
         }
 
+
         /*
             Error correction
         */
 
         double distanceCommand = this->distancePID->compute(remainingDistance);
+        Serial.println(remainingDistance);
         double orientationCommand = this->orientationPID->compute(remainingOrientation);
 
         if (this->mode == DEBUG_ORIENTATION)
@@ -117,6 +129,16 @@ void Enslavement::stop()
 {
     this->leftMotor->stop();
     this->rightMotor->stop();
+
+    this->theoricalOrientation = 0;
+    this->orientationVelocityObjective = 0;
+    this->previousOrientation = 0;
+    this->theoricalOrientationVelocity = 0;
+
+    this->theoricalDistance = 0;
+    this->distanceVelocityObjective = 0;
+    this->previousDistance = 0;
+    this->theoricalDistanceVelocity = 0;
 
     this->running = false;
 }
