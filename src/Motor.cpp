@@ -18,7 +18,7 @@ Motor::Motor(byte pwmPin, byte dirPinA, byte dirPinB)
 }
 
 
-Motor::~Motor() {};
+Motor::~Motor() {}
 
 
 void Motor::run(int PWM_)
@@ -87,4 +87,9 @@ int Motor::getPWM()
 void Motor::setMinPWM(byte pwm)
 {
     this->minPWM = pwm;
+}
+
+byte Motor::getMinPWM()
+{
+    return this->minPWM;
 }

@@ -1,7 +1,7 @@
 #include "Odometry.h"
 
 
-const double Odometry::ENTRAXE = Odometry::ticksToMeters(400);
+double Odometry::ENTRAXE = Odometry::ticksToMeters(434.01519775390625);
 Odometry* Odometry::inst = NULL;
 
 Odometry* Odometry::getInst(Encoder *leftEncoder, Encoder *rightEncoder)
@@ -52,6 +52,10 @@ void Odometry::update()
 {
     this->ticks.left = this->leftEncoder->getTicks();
     this->ticks.right = this->rightEncoder->getTicks();
+
+    // Entraxe is getting reset
+    if (ENTRAXE == 0)
+        return;
 
     double oldOrientation = this->orientation;
     double rayon = 0;
@@ -153,7 +157,6 @@ Odometry::Odometry(Encoder *leftEncoder, Encoder *rightEncoder)
 {
     this->leftEncoder = leftEncoder;
     this->rightEncoder = rightEncoder;
-
     this->reset();
 }
 

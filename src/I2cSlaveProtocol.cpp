@@ -1,5 +1,5 @@
 #include "I2cSlaveProtocol.h"
-        
+
 byte I2cSlaveProtocol::address = 0;
 char I2cSlaveProtocol::dataAvailablePin = -1;
 char I2cSlaveProtocol::dataAvailableCmd = -1;
@@ -23,6 +23,7 @@ void I2cSlaveProtocol::open(byte address, char dataAvailablePin, char dataAvaila
     I2cSlaveProtocol::dataAvailableCmd = dataAvailableCmd;
     I2cSlaveProtocol::dataAvailablePin = dataAvailablePin;
     pinMode(dataAvailablePin, OUTPUT);
+    digitalWrite(dataAvailablePin, HIGH);
     I2cSlaveProtocol::open(address);
 }
 
@@ -125,9 +126,6 @@ void I2cSlaveProtocol::received(int count)
                 //Check sum that is on the last 6 bits of the command
                 if((readCheck&0x3f) == (I2cSlaveProtocol::rcvCheck%64))
                 {
-                    // Debug
-                    Serial.println();
-
                     //Make dataAvailablePin falling if this is the right command
                     if (I2cSlaveProtocol::dataAvailableCmd == I2cSlaveProtocol::rcvCmd)
                         digitalWrite(I2cSlaveProtocol::dataAvailablePin, LOW);

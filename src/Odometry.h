@@ -34,7 +34,7 @@ typedef struct
 class Odometry
 {
     public:
-        static const double ENTRAXE; //m
+        static double ENTRAXE; //m
 
         /**
          * inst getter.
@@ -131,7 +131,6 @@ class Odometry
          * @param newOrdientation new orientation
          */
         void setOrientation(double newOrdientation);
-
 
         Ticks getTicks();
 

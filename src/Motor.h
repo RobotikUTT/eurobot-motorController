@@ -71,6 +71,8 @@ class Motor
          */
         void setMinPWM(byte pwm);
 
+        byte getMinPWM();
+
 
     protected:
 

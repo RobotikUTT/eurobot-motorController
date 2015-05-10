@@ -11,8 +11,9 @@ Motor* Communication::leftMotor = NULL;
 Motor* Communication::rightMotor = NULL;
 
 
-void Communication::open(byte address, byte dataAvailablePin)
+void Communication::open(byte address, byte dataAvailablePin, char dataAvailableCmd)
 {
+    Communication::dataAvailableCmd = dataAvailableCmd;
     Communication::dataAvailablePin = dataAvailablePin;
     Communication::open(address);
 }
@@ -48,11 +49,12 @@ void Communication::execute(byte command, byte length, byte* params)
         }
         case Communication::cmd_move:
         {
-            if(length >= 2)
+            if(length >= 4)
             {
                 byte pos = 0;
                 double distance = extractFloat(&pos, params);
                 Communication::enslavement->go(distance);
+                digitalWrite(Communication::dataAvailablePin, LOW);
             }
             break;
         }
@@ -63,6 +65,7 @@ void Communication::execute(byte command, byte length, byte* params)
                 byte pos = 0;
                 short angle = extractInt16(&pos, params);
                 enslavement->turn(angle);
+                digitalWrite(Communication::dataAvailablePin, LOW);
             }
             break;
         }
@@ -139,9 +142,6 @@ void Communication::execute(byte command, byte length, byte* params)
 
                 Communication::odometry->setOrientation(orientation);
                 Communication::odometry->setCoordinates(x,y);
-                Communication::enslavement->actualDistance = 0;
-                Communication::enslavement->actualOrientation = 0;
-                Communication::enslavement->orientationOffset = 0;
             }
             break;
         }
@@ -175,6 +175,17 @@ void Communication::execute(byte command, byte length, byte* params)
                 break;
             }
         }
+        case Communication::cmd_start_entraxe:
+        {
+            Communication::odometry->ENTRAXE = 0;
+            Communication::enslavement->setEntraxe = true;
+            break;
+        }
+        case Communication::cmd_stop_entraxe:
+        {
+            Communication::enslavement->setEntraxe = false;
+            break;
+        }
         default:
         {
             // Serial.print("Warn : Command 0x");
@@ -198,7 +209,7 @@ void Communication::send()
             if(Communication::odometry != NULL)
             {
                 CarthesianCoordinates coordinates = Communication::odometry->getCoordinates();
-
+                Serial.println(coordinates.x);
                 Communication::addFloat((float)coordinates.x);
                 Communication::addFloat((float)coordinates.y);
                 Communication::addFloat((float)Communication::odometry->getOrientation());
@@ -215,12 +226,17 @@ void Communication::send()
             }
             break;
         }
+        case Communication::cmd_stop_entraxe:
+        {
+            Communication::addFloat(Communication::odometry->ENTRAXE);
+            Communication::odometry->ENTRAXE = Odometry::ticksToMeters(Communication::odometry->ENTRAXE);
+            break;
+        }
         default:
         {
             Serial.print("Warn : There is nothing to send with the command 0x");
             Serial.println(Communication::lastCmd);
         }
-
     }
 }
 

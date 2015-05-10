@@ -23,7 +23,7 @@ class Communication : public I2cSlaveProtocol
          * @param address - i2c address
          * @param dataAvailablePin - Pin that will be put up when the slave has data available
          */
-        static void open(byte address, byte dataAvailablePin);
+        static void open(byte address, byte dataAvailablePin, char dataAvailableCmd);
 
         /**
          * Constructor without a data available line
@@ -91,6 +91,8 @@ class Communication : public I2cSlaveProtocol
         static const byte cmd_set_tunings = 0x8;
         static const byte cmd_set_odometry = 0x9;
         static const byte cmd_set_mode = 0xA;
+        static const byte cmd_start_entraxe = 0xB;
+        static const byte cmd_stop_entraxe = 0xC;
 };
 
 #endif

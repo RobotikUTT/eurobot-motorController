@@ -86,6 +86,7 @@ class Enslavement
         double actualDistance;
         double actualOrientation;
         double orientationOffset;
+        bool setEntraxe;
 
 
     private:
