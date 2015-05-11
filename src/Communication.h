@@ -22,6 +22,7 @@ class Communication : public I2cSlaveProtocol
          * Constructor with a data available line
          * @param address - i2c address
          * @param dataAvailablePin - Pin that will be put up when the slave has data available
+         * @param dataAvailableCmd - The cmd number that will make the pin fall after a call of dataAvailable()
          */
         static void open(byte address, byte dataAvailablePin, char dataAvailableCmd);
 
