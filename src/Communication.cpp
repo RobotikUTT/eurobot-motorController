@@ -10,13 +10,13 @@ Encoder* Communication::rightEncoder = NULL;
 Motor* Communication::leftMotor = NULL;
 Motor* Communication::rightMotor = NULL;
 
-
-void Communication::open(byte address, byte dataAvailablePin)
+void Communication::open(byte address, char dataAvailablePin, char dataAvailableCmd)
 {
+    Communication::dataAvailableCmd = dataAvailableCmd;
     Communication::dataAvailablePin = dataAvailablePin;
+    pinMode(dataAvailablePin, OUTPUT);
     Communication::open(address);
 }
-
 
 void Communication::open(byte address)
 {
@@ -25,7 +25,6 @@ void Communication::open(byte address)
 
     I2cSlaveProtocol::open(address);
 }
-
 
 void Communication::execute(byte command, byte length, byte* params)
 {
@@ -41,7 +40,10 @@ void Communication::execute(byte command, byte length, byte* params)
                 byte val = extractUInt8(&pos, params);
                 if(val != Communication::address)
                 {
-                    Serial.println("Warning : Bad ping address received !");
+                    Serial.print("Warning : Bad ping address received : 0x");
+                    Serial.print(val, HEX);
+                    Serial.print(" instead of 0x");
+                    Serial.println(Communication::address, HEX);
                 }
             }
             break;
