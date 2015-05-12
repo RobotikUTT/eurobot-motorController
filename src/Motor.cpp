@@ -33,9 +33,9 @@ void Motor::run(int PWM_)
     }
 
     PWM_ = abs(PWM_);
-    if (PWM_> 70)
+    if (PWM_> 100)
     {
-        this->PWM = 70;
+        this->PWM = 100;
     }
     else
     {

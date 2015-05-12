@@ -108,7 +108,7 @@ void setup()
     odometry = Odometry::getInst(leftEncoder, rightEncoder);
 
     //Enslavement
-    enslavement = new Enslavement(50, 0.3, 1, leftMotor, rightMotor);
+    enslavement = new Enslavement(10, 0.3, 1, leftMotor, rightMotor);
 
     //Interrupts
     attachInterrupt(getInterruptNumber(ENCODER_L_A_PIN), leftTicks, FALLING);
@@ -129,7 +129,7 @@ void setup()
     // Serial.println("Debug ready !");
 
     //Communication configuration
-    Communication::open(0x02);
+    Communication::open(0x02, A3, 0xFF);
     Communication::setMotors(leftMotor, rightMotor);
     Communication::setEncoders(leftEncoder, rightEncoder);
     Communication::setEnslavement(enslavement);

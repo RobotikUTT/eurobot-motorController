@@ -8,8 +8,8 @@ Enslavement::Enslavement(unsigned long deltaT, double acceleration, double veloc
     this->odometry = Odometry::getInst(NULL, NULL);
     this->leftMotor = leftMotor;
     this->rightMotor = rightMotor;
-    this->distancePID = new Pid(0.9, 0, 0.1, deltaT);
-    this->orientationPID = new Pid(2.3, 0, 0.25, deltaT);
+    this->distancePID = new Pid(0.5, 0, 0.1, deltaT);
+    this->orientationPID = new Pid(2.1, 0, 0.16, deltaT);
 
     this->deltaT = deltaT;
     this->lastMillis = 0;
@@ -48,6 +48,7 @@ void Enslavement::go(double distance)
 void Enslavement::turn(double theta)
 {
     this->running = true;
+    // Theta: degrees -> rad
     this->orientationObjective = Odometry::metersToTicks(theta * 0.0174532925 * Odometry::ENTRAXE);
     this->distanceObjective = 0 ;
 }
@@ -70,32 +71,33 @@ void Enslavement::compute()
         this->odometry->getLeftEncoder()->resetTicks();
         this->odometry->getRightEncoder()->resetTicks();
 
+        // ENTRAXE set mode
         if (this->setEntraxe)
         {
-            Serial.println(odometry->ENTRAXE);
             odometry->ENTRAXE += (ticks.left - ticks.right)/(2*M_PI);
+            return;
+        }
+
+        if (!this->running) {
             return;
         }
 
         this->actualDistance += (ticks.left + ticks.right) / 2;
         this->actualOrientation += ticks.right - ticks.left;
 
-        // Stop if enslavement is off
-        if (!this->running) {
-            return;
-        }
 
         // Error calculation
         double remainingDistance = this->distanceObjective - actualDistance;
         double remainingOrientation = fmod(this->orientationObjective - actualOrientation,
             Odometry::metersToTicks(2 * M_PI * Odometry::ENTRAXE));
 
-        // Optimise angle
+        // Optimise remaining orientation (run backward if necessary)
         if (fabs(remainingOrientation) > Odometry::metersToTicks(M_PI * Odometry::ENTRAXE))
         {
             int sign = (remainingOrientation > 0) - (remainingOrientation < 0);
             remainingOrientation -= sign * Odometry::metersToTicks(2 * M_PI * Odometry::ENTRAXE);
         }
+
 
         /*
             Error correction
@@ -106,34 +108,25 @@ void Enslavement::compute()
 
         if (this->mode == DEBUG_ORIENTATION)
         {
-            // this->distanceObjective = 0;
+            // Orientation control only
             distanceCommand = 0;
         }
         else if (this->mode == DEBUG_DISTANCE)
         {
-            // this->orientationObjective = 0;
+            // Distance control only
             orientationCommand = 0;
         }
 
-        double leftCommand = distanceCommand-orientationCommand;
-        double rightCommand = distanceCommand+orientationCommand;
+
+        double leftCommand = distanceCommand - orientationCommand;
+        double rightCommand = distanceCommand + orientationCommand;
+
 
         // Debug
-        Serial.print("reaminingOrientation: ");
-        Serial.println(remainingOrientation);
-        Serial.print("remainingDistance: ");
-        Serial.println(remainingDistance);
-
-        // Finished
-        // 1cm and 1degree
-        if (abs(remainingDistance) <= Odometry::metersToTicks(0.01) &&
-            abs(remainingOrientation) <= Odometry::metersToTicks(1 * 0.0174532925 * Odometry::ENTRAXE))
-        {
-            this->leftMotor->stop();
-            this->rightMotor->stop();
-            Communication::dataAvailable();
-            Serial.println("fini !");
-        }
+        // Serial.print("reaminingOrientation: ");
+        // Serial.println(remainingOrientation);
+        // Serial.print("remainingDistance: ");
+        // Serial.println(remainingDistance);
 
         // Apply command
         this->leftMotor->run(leftCommand);

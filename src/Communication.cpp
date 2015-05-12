@@ -210,7 +210,6 @@ void Communication::send()
             if(Communication::odometry != NULL)
             {
                 CarthesianCoordinates coordinates = Communication::odometry->getCoordinates();
-                Serial.println(coordinates.x);
                 Communication::addFloat((float)coordinates.x);
                 Communication::addFloat((float)coordinates.y);
                 Communication::addFloat((float)Communication::odometry->getOrientation());
