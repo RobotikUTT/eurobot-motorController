@@ -129,7 +129,7 @@ void setup()
     // Serial.println("Debug ready !");
 
     //Communication configuration
-    Communication::open(0x02);
+    Communication::open(0x02, A3, 0xff);
     Communication::setMotors(leftMotor, rightMotor);
     Communication::setEncoders(leftEncoder, rightEncoder);
     Communication::setEnslavement(enslavement);
