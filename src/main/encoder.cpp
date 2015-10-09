@@ -1,5 +1,4 @@
 #include "encoder.h"
-#include "io.h"
 
 volatile long leftTicks = 0,
 			 rightTicks = 0;

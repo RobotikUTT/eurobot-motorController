@@ -5,13 +5,24 @@
 #include "io.h"
 #include "motor.h"
 #include "constants.h"
-
+#include "test.h"
 
 void setup() {
 	Serial.begin(115200);
 	CanBus.begin(CAN_5KBPS);
 
 	initIO();
+	testMotor();
+
+	#ifdef TEST
+		Serial.println("Running test suite...");
+		delay(1000);
+		testMotor();
+		delay(1000);
+		testEncoder();
+		delay(1000);
+		Serial.println("Done");
+	#endif
 }
 
 void loop() {

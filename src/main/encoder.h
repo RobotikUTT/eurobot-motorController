@@ -2,6 +2,7 @@
 #define ENCODER_H
 
 #include <Arduino.h>
+#include "io.h"
 
 extern volatile long leftTicks, rightTicks;
 

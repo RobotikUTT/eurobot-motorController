@@ -54,7 +54,7 @@ CXXFLAGS_STD      = -std=gnu++11
 
 ### CPPFLAGS
 ### Flags you might want to set for debugging purpose. Comment to stop.
-CXXFLAGS         = -pedantic -Wall -Wextra
+override CXXFLAGS        += -pedantic -Wall -Wextra
 
 ### If avr-gcc -v is higher than 4.9, activate coloring of the output
 ifeq "$(AVR_GCC_VERSION)" "1"
@@ -72,4 +72,3 @@ OBJDIR            = $(PROJECT_DIR)/bin/$(CURRENT_DIR)/$(BOARD_TAG)
 
 ### path to Arduino.mk, inside the ARDMK_DIR, don't touch.
 include $(ARDMK_DIR)/Arduino.mk
-
