@@ -12,20 +12,17 @@ void setup() {
 	CanBus.begin(CAN_5KBPS);
 
 	initIO();
-	testMotor();
 
 	#ifdef TEST
-		Serial.println("Running test suite...");
-		delay(1000);
 		testMotor();
-		delay(1000);
-		testEncoder();
-		delay(1000);
-		Serial.println("Done");
 	#endif
 }
 
 void loop() {
+	#ifdef TEST
+		testEncoder();
+	#endif
+	
 	unsigned long now = micros();
 
 	long delay = DT * 1000 - (micros() - now);
