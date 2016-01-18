@@ -1,11 +1,13 @@
 #include "odometry.h"
 
-double x, y;
-float theta, previousTheta;
+double x;
+double y;
+float theta;
+
 
 inline void computeOdometry() {
-	float dL     = 1/2 * (leftTicks + rightTicks),
-		  dTheta = leftTicks - rightTicks,
+	float dL     = 1/2 * (encoder::leftTicks + encoder::rightTicks),
+		  dTheta = encoder::leftTicks - encoder::rightTicks,
 		  alpha  = theta + 0.5 * dTheta;
 
 	theta += dTheta;
@@ -15,8 +17,7 @@ inline void computeOdometry() {
 }
 
 void resetOdometry() {
-	x             = 0;
-	y             = 0;
-	theta         = 0;
-	previousTheta = 0;
+	x     = 0;
+	y     = 0;
+	theta = 0;
 }

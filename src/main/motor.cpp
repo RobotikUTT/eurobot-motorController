@@ -16,22 +16,29 @@ void runMotor(Motor motor, int value) {
 
     // Move forward
     if (value > 0) {
-        digitalWrite(dirAPin, 1);
-        digitalWrite(dirBPin, 0);
+        if (value > 255) {
+            value = 255;
+        }
+        digitalWrite(dirAPin, 0);
+        digitalWrite(dirBPin, 1);
     }
     // Move backward
     else if (value < 0) {
-        digitalWrite(dirAPin, 0);
-        digitalWrite(dirBPin, 1);
-        value = -value;
-    }
-    // Brake
-    else {
-        digitalWrite(dirAPin, 0);
+        if (value < -255) {
+            value = -255;
+        }
+        digitalWrite(dirAPin, 1);
         digitalWrite(dirBPin, 0);
+        value = -value;
     }
 
     analogWrite(pwmPin, value);
+    return;
+
+    // Brake
+    digitalWrite(pwmPin, HIGH);
+    digitalWrite(dirAPin, 0);
+    digitalWrite(dirBPin, 0);
 }
 
 void stopMotor(Motor motor) {

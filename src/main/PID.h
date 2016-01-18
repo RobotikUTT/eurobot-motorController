@@ -18,7 +18,9 @@ typedef struct PID {
  * @param  input      Measure
  * @return            Output
  */
-float PIDCompute(PID_t* pid, float error, float input);
+float computePID(PID_t* pid, float error, float input);
+
+void resetPID(PID_t* pid);
 
 
 /**

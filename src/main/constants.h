@@ -1,2 +1,3 @@
-#define TICKS_PER_SPIN 1024
-#define DT             (unsigned long) 50 * 1000
+#define TICKS_PER_REV 512                   // Encoders resolution in tick/rev
+#define DT             (unsigned long) 50   // Sample time in ms
+#define R              (float)         33.5 // Encoder's wheels radius in mm

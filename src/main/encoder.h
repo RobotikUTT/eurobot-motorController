@@ -4,17 +4,37 @@
 #include <Arduino.h>
 #include "io.h"
 
-extern volatile long leftTicks, rightTicks;
+
+namespace encoder {
+    /**
+     * Count left encoder ticks. Reset every DT
+     */
+    extern volatile long leftTicks;
+
+    /**
+     * Count right encoder ticks. Reset every DT
+     */
+    extern volatile long rightTicks;
+}
 
 /**
- * Left encoder interruption routine
+ * Left encoder chanA interruption routine
  */
-void leftEncInterrupt();
+void leftAEncInterrupt();
 
 /**
- * Right encoder interruption routine
- * @method rightEncInterrupt
+ * Right encoder chanB interruption routine
  */
-void rightEncInterrupt();
+void rightAEncInterrupt();
+
+/**
+ * Left/Right encoder chanA/chanB interruption routine
+ */
+void bothBEncInterrupt();
+
+/**
+ * Reset leftTicks and rightTicks
+ */
+void resetEncoders();
 
 #endif

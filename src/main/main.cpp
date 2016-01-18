@@ -1,35 +1,60 @@
-#include <Wire.h>
-#include <SPI.h>
-#include "mcp_can.h"
-#include "CanBus.h"
+#include "communication.h"
 #include "io.h"
 #include "motor.h"
 #include "constants.h"
+#include "odometry.h"
+#include "PID.h"
+#include "control.h"
 #include "test.h"
 
-void setup() {
-	Serial.begin(115200);
-	CanBus.begin(CAN_5KBPS);
+namespace main {
+	unsigned long lastMillis = 0;
+}
 
+
+/**
+ * Entry point. Called once
+ */
+void setup() {
+	initCommunication();
 	initIO();
 
-	#ifdef TEST
-		testMotor();
+	#ifdef ACTUATOR_TEST
+		testMotors();
+	#elif CONTROL_TEST
+
+	#else
+		// rightVelPID.kP = 0.6;
+		// rightVelPID.kI = 0.1;
+		// rightVelPID.kD = 0.003;
+		rightVelPID.kP = 0;
+		rightVelPID.kI = 0;
+		rightVelPID.kD = 0;
+
+		leftVelPID.kP  = 0.43;
+		leftVelPID.kI  = 0.017;
+		leftVelPID.kD  = 0.001;
+
+		control::rightVelGoal = 200;
+		control::leftVelGoal  = 400;
 	#endif
 }
 
+/**
+ * Loop routine
+ */
 void loop() {
-	#ifdef TEST
+	#ifdef ACTUATOR_TEST
 		testEncoder();
-	#endif
-	
-	unsigned long now = micros();
+	#elif CONTROL_TEST
+		testMotionControl();
+	#else
+	    unsigned long now = millis();
+	    unsigned int timeElapsed = (now - main::lastMillis);
 
-	long delay = DT * 1000 - (micros() - now);
-	if (delay < 0) {
-		Serial.println("Iteration too slow");
-	}
-	else {
-		delayMicroseconds(delay);
-	}
+	    if (timeElapsed >= DT) {
+			main::lastMillis = millis();
+			motionControl();
+		}
+	#endif
 }

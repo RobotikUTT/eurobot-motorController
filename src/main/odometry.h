@@ -4,18 +4,21 @@
 #include "constants.h"
 #include "encoder.h"
 
-#define TICKS_TO_MM(R, ticks) ((float) 2.0*M_PI*R*ticks/TICKS_PER_SPIN)
-#define MM_TO_TICKS(R, mm) ((float) TICKS_PER_SPIN/(2.0*M_PI*R*mm))
+#define TICKS_TO_MM(ticks) ((float) 2.0*M_PI*R*ticks/TICKS_PER_REV)
+#define MM_TO_TICKS(mm) ((float) mm*TICKS_PER_SPIN/(2.0*M_PI*R))
 
-/**
- * Carthesian position
- */
-extern double x, y;
+namespace odometry {
+    /**
+     * Carthesian position
+     */
+    extern double x;
+    extern double y;
 
-/**
- * Orientation
- */
-extern float theta;
+    /**
+     * Orientation
+     */
+    extern float theta;
+}
 
 
 /**
