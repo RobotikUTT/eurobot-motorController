@@ -12,19 +12,19 @@ void leftAEncInterrupt() {
 	if(PIND & (_BV(PD7))) {
 		// Pin A2 is high
 		if(PINC & _BV(PC2)) {
-			leftTicks--;
+			leftTicks++;
 		}
 		else {
-			leftTicks++;
+			leftTicks--;
 		}
 	}
 	else {
 		// Pin A2 is high
 		if(PINC & _BV(PC2)) {
-			leftTicks++;
+			leftTicks--;
 		}
 		else {
-			leftTicks--;
+			leftTicks++;
 		}
 	}
 }
@@ -58,19 +58,19 @@ void bothBEncInterrupt() {
 		if(PIND & (_BV(PD7))) {
 			// Pin A2 is high
 			if(PINC & _BV(PC2)) {
-				leftTicks++;
+				leftTicks--;
 			}
 			else {
-				leftTicks--;
+				leftTicks++;
 			}
 		}
 		else {
 			// Pin A2 is high
 			if(PINC & _BV(PC2)) {
-				leftTicks--;
+				leftTicks++;
 			}
 			else {
-				leftTicks++;
+				leftTicks--;
 			}
 		}
 	}

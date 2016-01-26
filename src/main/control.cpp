@@ -39,10 +39,10 @@ void motionControl() {
 }
 
 void velocityControl() {
-    Serial.println(control::leftVelGoal);
+    // Serial.println(control::leftVelGoal);
     Serial.println(encoder::leftTicks);
-    Serial.println(control::rightVelGoal);
-    Serial.println(encoder::rightTicks);
+    // Serial.println(control::rightVelGoal);
+    // Serial.println(encoder::rightTicks);
 
     float leftError   = control::leftVelGoal - encoder::leftTicks;
     float rightError  = control::rightVelGoal - encoder::rightTicks;

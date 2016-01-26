@@ -1,3 +1,4 @@
+
 #include "test.h"
 
 
@@ -59,7 +60,7 @@ void testMotionControl() {
 
 			if (timeElapsed >= DT) {
 				lastMillis = now;
-		    	velocityControl();
+		    	motionControl();
 				resetEncoders();
 			}
 
@@ -75,16 +76,16 @@ void testMotionControl() {
 void testMotors() {
 	Serial.println("Running left motor...");
 	runMotor(LEFT, 155);
-	delay(2000);
+	delay(3000);
 	runMotor(LEFT, -155);
-	delay(2000);
+	delay(3000);
 	stopMotor(LEFT);
 
 	Serial.println("Running right motor...");
 	runMotor(RIGHT, 155);
-	delay(2000);
+	delay(3000);
 	runMotor(RIGHT, -155);
-	delay(2000);
+	delay(3000);
 	stopMotor(RIGHT);
 }
 
@@ -93,7 +94,7 @@ void testEncoder() {
 	for(int i = 0; i < 15; i++) {
 		Serial.print("l = ");
 		Serial.print(encoder::leftTicks);
-		Serial.print(" r = ");
+		Serial.print("r = ");
 		Serial.println(encoder::rightTicks);
 		delay(1000);
 	}

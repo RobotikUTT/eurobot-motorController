@@ -11,8 +11,8 @@ namespace odometry {
     /**
      * Carthesian position
      */
-    extern double x;
-    extern double y;
+    extern float x;
+    extern float y;
 
     /**
      * Orientation

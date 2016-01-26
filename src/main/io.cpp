@@ -1,12 +1,12 @@
 #include "io.h"
 
 void initIO() {
-    pinMode(MOTOR_L_A, OUTPUT);
-	pinMode(MOTOR_L_B, OUTPUT);
+    pinMode(MOTOR_L_DIR, OUTPUT);
+	pinMode(MOTOR_L_BRAKE, OUTPUT);
 	pinMode(MOTOR_L_PWM, OUTPUT);
 
-	pinMode(MOTOR_R_A, OUTPUT);
-	pinMode(MOTOR_R_B, OUTPUT);
+	pinMode(MOTOR_R_DIR, OUTPUT);
+	pinMode(MOTOR_R_BRAKE, OUTPUT);
 	pinMode(MOTOR_R_PWM, OUTPUT);
 
 	pinMode(ENCODER_L_A, INPUT);
@@ -15,6 +15,8 @@ void initIO() {
 	pinMode(ENCODER_R_A, INPUT);
 	pinMode(ENCODER_R_B, INPUT);
 
+    pinMode(2, INPUT_PULLUP);
+    pinMode(2, INPUT);
 	// attachInterrupt(ENCODER_L_A, leftEncInterrupt, RISING);
 	// attachInterrupt(ENCODER_R_A, rightEncInterrupt, RISING);
 

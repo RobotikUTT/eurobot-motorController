@@ -24,9 +24,6 @@ void setup() {
 	#elif CONTROL_TEST
 
 	#else
-		// rightVelPID.kP = 0.6;
-		// rightVelPID.kI = 0.1;
-		// rightVelPID.kD = 0.003;
 		rightVelPID.kP = 0;
 		rightVelPID.kI = 0;
 		rightVelPID.kD = 0;
@@ -49,12 +46,14 @@ void loop() {
 	#elif CONTROL_TEST
 		testMotionControl();
 	#else
+		processCommunication();
+
 	    unsigned long now = millis();
 	    unsigned int timeElapsed = (now - main::lastMillis);
 
 	    if (timeElapsed >= DT) {
 			main::lastMillis = millis();
-			motionControl();
+			// motionControl();
 		}
 	#endif
 }
