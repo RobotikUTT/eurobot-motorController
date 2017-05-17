@@ -1,5 +1,4 @@
 #include "motionPlanning.h"
-#include "bbpr.h"
 
 void computePeriods(double Xpeak[], double T[]) {
     int n = 0;

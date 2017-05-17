@@ -2,9 +2,6 @@
 #define BBPR_H
 
 #include <Arduino.h>
-// #include <math.h>
-// #include <stdlib.h>
-// #include <time.h>
 
 //
 // Extract individual real or complex roots from list of quadratic factors 

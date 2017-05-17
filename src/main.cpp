@@ -39,19 +39,27 @@ void setup(){
      */
     
     attachInterrupt(0, codeur_D, RISING);
-    attachInterrupt(1, codeur_G, RISING);
-
+    attachInterrupt(1, codeur_G, RISING);   
+    
     /**
-     * Reset codeurs
+     * Fréquence de PWM
      */
     
-    ticksG = 0;
-    ticksD = 0;    
+    TCCR1B = (TCCR1B & 0xF8) | 0x01 ;
+
+    /**
+     * Désactivation de l'asservissement
+     */
+
+    asserv = false;
     
     /**
      * Initialisation des moteurs
      */
     
+    moteur_stop(&moteurG);
+    moteur_stop(&moteurD);
+
     moteurG.ticks = &ticksG;
     moteurD.ticks = &ticksD;
     moteurG.pid   = &pidG;
@@ -63,11 +71,18 @@ void setup(){
     
     pid_init(&pidG);
     pid_init(&pidD);    
-    pid_config(&pidG, DT, 0, 0, 0);
+    pid_config(&pidG, DT, 1, 0, 0);
     pid_config(&pidD, DT, 0, 0, 0);
-    
+
     /**
-     * Ready !
+     * reset codeurs
+     */
+
+    ticksG = 0;
+    ticksD = 0; 
+
+    /**
+     * Prêt, on arrête tout puis on lance les tests
      */
     
     Serial.println("Setup");

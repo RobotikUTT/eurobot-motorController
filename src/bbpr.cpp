@@ -1,4 +1,4 @@
-// bbpr.c -- Finds all roots of polynomial by first finding quadratic
+// bbpr.cpp -- Finds all roots of polynomial by first finding quadratic
 //             factors using Bairstow's method, then extracting roots
 //             from quadratics. Implements new algorithm for managing
 //             multiple roots.
@@ -12,7 +12,7 @@
 int roots(double *a,int n,double *wr,double *wi)
 {
     double sq,b2,c,disc;
-    int m,numroots;
+    int i,m,numroots;
 
     m = n;
     numroots = 0;
@@ -126,7 +126,7 @@ void diff_poly(double *a,int n,double *b)
 void recurse(double *a,int n,double *b,int m,double *quad,
     double *err,int *iter)
 {
-    double *c,*x,rs[2],tst;
+    double *c,*x,rs[2],tst,e1,e2;
 
     if (fabs(b[m]) < 1e-16) m--;    // this bypasses roots at zero
     if (m == 2) {
@@ -162,6 +162,7 @@ void recurse(double *a,int n,double *b,int m,double *quad,
 void get_quads(double *a,int n,double *quad,double *x)
 {
     double *b,*z,err,tmp;
+    double xr,xs;
     int iter,i,m;
 
     if ((tmp = a[0]) != 1.0) {
@@ -237,6 +238,7 @@ double findRoot(double coeffs[], int n) {
     double wr[n+1];
     double wi[n+1];
     double quad[2];
+    int numr;
 
     // initialize estimate for 1st root pair 
     quad[0] = 2.71828e-1;
@@ -244,6 +246,7 @@ double findRoot(double coeffs[], int n) {
     
     // get roots
     get_quads(coeffs, n, quad, x);
+    numr = roots(x, n, wr, wi);
     
     // Return only the (supposed to be unique) real positive root
     for (int i = 0; i < n;i++) {

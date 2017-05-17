@@ -3,24 +3,30 @@
 #include "digitalPID.h"
 
 void pid_init(DigitalPID* pid) {
-    pid->q0  = 0;
-    pid->q1  = 0;
-    pid->q2  = 0;
-    pid->em1 = 0;
-    pid->em2 = 0;
-    pid->y   = 0;
+    pid->sommeErreur    = 0;
+    pid->derniereErreur = 0;
 }
 
 void pid_config(DigitalPID* pid, unsigned int dt, double kp, double ki, double kd) {
-    pid->q0 = kp*(ki*dt/2+kd/dt+1);
-    pid->q1 = kp*(ki*dt/2-kd/dt*2-1);
-    pid->q2 = kp*kd/dt;
+    pid->kp = kp;
+    pid->ki = ki;
+    pid->kd = kd;
 }
 
 int pid_calcul(DigitalPID* pid, int erreur) {
-    pid->y += pid->q0 * erreur + pid->q1 * pid->em1 + pid->q2 * pid->em2;
+    // Terme integral
+    pid->sommeErreur += erreur;
 
-    return pid->y;
+    // Terme dérivé avec anti windup
+    unsigned long deriveeErreur = erreur - pid->derniereErreur;
+
+    // Calcul de la sortie
+    int sortie = pid->kp * erreur + pid->ki * pid->sommeErreur + pid->kd * deriveeErreur;
+    
+    // On mémorise la dernière erreur pour le futur calcul de dérivée
+    pid->derniereErreur = erreur;
+
+    return sortie;
 }
 
 DigitalPID pidG;

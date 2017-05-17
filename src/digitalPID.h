@@ -2,12 +2,11 @@
 #define DIGITALPID_H
 
 typedef struct {
-    float q0;
-    float q1;
-    float q2;
-    int em1;
-    int em2;
-    int y;
+    double kp;
+    double ki;
+    double kd;
+    double sommeErreur;
+    double derniereErreur;
 } DigitalPID;
 
 void pid_init(DigitalPID* pid);

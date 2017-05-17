@@ -9,22 +9,23 @@ from cmath import exp
 fig, ax = plt.subplots()
 
 # Constantes
-DT         = 0.05                                # s
-K          = 238.011474213
-Tau        = 88.9635887765 * DT                  # DT^-1
+DT         = 0.05                                 # s
+K          = 194.031480972
+Tau        = 195.862916726 * DT                  # DT^-1
 DIAMETRE   =  52                                 # mm
-RESOLUTION =  1024                               # tick
+RESOLUTION =  1 * 1024                               # tick
 PRECISION  = ((math.pi*DIAMETRE) / RESOLUTION)   # mm.tick^-21
 V_MAX      = int((750.0 / PRECISION))          # tick.DT^-1
 A_MAX      = int((500.0 / PRECISION))          # tick.DT^-2
 ORDER      = 2
 
+print PRECISION
 moteur      = PremierOrdre(DT, K, Tau)
 feedForward = FF(DT, K, Tau)
 
-# kp = 0.8
-# ki = 0
-# kd = 2.2
+kp = 0.2
+ki = 0
+kd = 0
 # kp = 0.1
 # ki = 0
 # kd = 0
@@ -38,13 +39,13 @@ v_cmd_data = []
 err_data = []
 pwm_data = []
 
-posCmd, tF = genPosCmd(2, [int(1000.0/PRECISION), V_MAX, A_MAX])
+posCmd, tF = genPosCmd(2, [int(500.0/PRECISION), V_MAX, A_MAX])
 lastCmd = 0
 
-for i in range(int((tF+1)/DT)):
+for i in range(int(5/DT)):
     t = i*DT
-    cmd = int(1000.0/PRECISION)
     cmd = posCmd(t)
+    cmd = int(1000.0/PRECISION)
 
     v_cmd = cmd - lastCmd
     lastCmd = cmd
@@ -55,26 +56,24 @@ for i in range(int((tF+1)/DT)):
 
 
     # FF
-    if (i == 0):
-        pwm = 0
-    elif (i == 1):
-        pwm = v_cmd/(K*(1-exp(-t/Tau).real))
-    else:
-        # pwm = (v_cmd-pos_data[-1]*exp(-t/Tau).real)/(K*(1-exp(-t/Tau).real))
-        pwm = v_cmd/K
-    pwm =  int(pwm * 255)
+    # if (i == 0):
+    #     pwm = 0
+    # elif (i == 1):
+    #     pwm = v_cmd/(K*(1-exp(-t/Tau).real))
+    # else:
+    #     # pwm = (v_cmd-pos_data[-1]*exp(-t/Tau).real)/(K*(1-exp(-t/Tau).real))
+    #     pwm = v_cmd/K
+    # pwm =  int(pwm * 255)
 
     # pid
     pwm = int(pid.process(err))
 
-    # if (pwm > 255):
-    #     pwm = 255
-    # elif (pwm < -255):
-    #     pwm = -255
-    # elif (pwm > 30):
-    #     pwm = 0
-    # elif (pwm < -30):
-    #     pwm = 0
+    if (pwm > 255):
+        pwm = 255
+    elif (pwm < -255):
+        pwm = -255
+    elif (-30 > pwm and pwm > 30):
+        pwm = 0
 
     v = int(moteur.process(pwm/255.0))
     
@@ -95,8 +94,8 @@ for i in range(int((tF+1)/DT)):
 pos_cmd_data = [ cmd * PRECISION for cmd in pos_cmd_data ]
 pos_data = [ pos * PRECISION for pos in pos_data ]
 plt.plot(t_data, pos_cmd_data, label='pos cmd')
-plt.plot(t_data, v_cmd_data, label='v cmd')
-plt.plot(t_data, v_data, label='v')
+# plt.plot(t_data, v_cmd_data, label='v cmd')
+# plt.plot(t_data, v_data, label='v')
 plt.plot(t_data, pos_data, label='pos')
 # plt.plot(t_data, err_data)
 # plt.plot(t_data, pwm_data, label='pwm')

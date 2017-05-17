@@ -20,7 +20,8 @@ def genTimePeriods(n, XpeakVals, T):
 
         A = A.subs(subsDict)
         A = solve(A, T[p])
-
+        print A
+        
         for solution in A:
             if (solution.is_complex and round(im(solution), 3) != 0.00):
                 continue

@@ -2,12 +2,8 @@
 #define COMMUNICATION_H
 
 #include <Arduino.h>
+#include "asservissement.h"
 
 void lireMessage();
-
-/**
- * Dernière commande reçue en série
- */
-extern String commande;
 
 #endif

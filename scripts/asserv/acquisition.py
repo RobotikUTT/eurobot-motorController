@@ -15,7 +15,7 @@ while True:
     message = ser.readline()
 
     if message.find("Setup") > -1:
-        ser.write('stepG\n');
+        ser.write('avanceG\n');
     else:
         sys.stdout.write(message);
         lines += 1
